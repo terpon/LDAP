@@ -196,7 +196,7 @@ BERTest >> testModifyRequest [
 
 { #category : #tests }
 BERTest >> testOctetStringEncoding [
-	|ber stream tests|
+	|ber stream tests expected |
 	ber := BEROctetString new.
 	stream := ReadWriteStream on: (String new).
 
@@ -206,7 +206,8 @@ BERTest >> testOctetStringEncoding [
 		stream resetToStart.
 		ber value: (test at: 1).	
 		ber writeOn: stream.
-		self assert: (stream contents asString asHex = (self formatWithHex: (test at: 3))) ]
+		expected := self formatWithHex: (test at: 3).
+		self assert: stream contents asString asHex equals: expected ]
 	
 	
 ]

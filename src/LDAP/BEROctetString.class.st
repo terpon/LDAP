@@ -30,6 +30,11 @@ BEROctetString >> value [
 	^ string ifNil: [ String new ]
 ]
 
+{ #category : #accessing }
+BEROctetString >> value: anObject [
+	string := anObject asString 
+]
+
 { #category : #writing }
 BEROctetString >> writeBodyOn: aStream [
 	"theorically we should convert it to UTF8"
