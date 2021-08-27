@@ -17,7 +17,7 @@ BEROctetString class >> tagValue [
 
 { #category : #encoding }
 BEROctetString >> decode: aStream length: aLength [
-	string := (aStream next: aLength) asString
+	string := (aStream next: aLength) asByteArray
 ]
 
 { #category : #accessing }
@@ -27,17 +27,17 @@ BEROctetString >> length [
 
 { #category : #accessing }
 BEROctetString >> value [ 
-	^ string ifNil: [ String new ]
+	^ string ifNil: [ String new ] ifNotNil: [ :s | s utf8Decoded ]
 ]
 
 { #category : #accessing }
 BEROctetString >> value: anObject [
-	string := anObject asString 
+	"Value is stored as an UTF-8 encoded byte array"
+	string := anObject asString utf8Encoded
 ]
 
 { #category : #writing }
 BEROctetString >> writeBodyOn: aStream [
-	"theorically we should convert it to UTF8"
-	aStream nextPutAll: self value.
+	aStream nextPutAll: string asString.
 
 ]

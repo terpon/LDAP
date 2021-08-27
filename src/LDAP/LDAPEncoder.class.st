@@ -89,7 +89,7 @@ LDAPEncoder class >> compareRequest: aMessageId dn: aDN comparing: anEqualityFil
 { #category : #'utilities - requests' }
 LDAPEncoder class >> id: aMessageId request: aRequest [
 	| stream mesg |
-	stream := ReadWriteStream on: (String new).
+	stream := ReadWriteStream on: (ByteString new).
 
 	mesg := BERSequence new.
 	mesg addElement: (BERInteger new value: aMessageId).
