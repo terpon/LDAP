@@ -4,6 +4,9 @@ BEROctetString is a string encoded in BER.
 Class {
 	#name : #BEROctetString,
 	#superclass : #BERElement,
+	#instVars : [
+		'string'
+	],
 	#category : #'LDAP-BER'
 }
 
@@ -13,14 +16,23 @@ BEROctetString class >> tagValue [
 ]
 
 { #category : #encoding }
-BEROctetString >> decode: aStream [
-	value := (aStream next: length)
+BEROctetString >> decode: aStream length: aLength [
+	string := (aStream next: aLength) asString
+]
+
+{ #category : #accessing }
+BEROctetString >> length [ 
+	^ string size
+]
+
+{ #category : #accessing }
+BEROctetString >> value [ 
+	^ string ifNil: [ String new ]
 ]
 
 { #category : #writing }
 BEROctetString >> writeBodyOn: aStream [
-	self writeLength: (value size) on: aStream.
-	aStream nextPutAll: value.
 	"theorically we should convert it to UTF8"
-	^ value size
+	aStream nextPutAll: self value.
+
 ]
