@@ -9,6 +9,11 @@ Class {
 }
 
 { #category : #accessing }
+LDAPAddRequest class >> tagValue [
+	^ 16r68 "Application 8"
+]
+
+{ #category : #accessing }
 LDAPAddRequest >> attrs: aDictionary [
 	| ber |
 	ber := LDAPEncoder attrsAsBERElement: aDictionary.
