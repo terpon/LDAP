@@ -1,5 +1,5 @@
 Class {
 	#name : #LDAPSimpleAuthString,
-	#superclass : #LDAPPrimitive0String,
+	#superclass : #BEROctetString,
 	#category : #'LDAP-Core'
 }
