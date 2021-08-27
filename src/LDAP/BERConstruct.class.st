@@ -41,7 +41,7 @@ BERConstruct >> initialize [
 
 { #category : #accessing }
 BERConstruct >> length [
-	^ elements inject: 0 into: [ :sum :each | sum + each length ]
+	^ elements inject: 0 into: [ :sum :each | sum + each totalLength ]
 ]
 
 { #category : #accessing }

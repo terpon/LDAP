@@ -222,7 +222,7 @@ BERTest >> testSearchRequest [
 
 { #category : #tests }
 BERTest >> testSequenceEncoding [
-	|ber0 ber1 ber2 stream|
+	|ber0 ber1 ber2 stream expected |
 	ber0 := BERSequence new.
 	ber1 := BERInteger new value: 17.
 	ber2 := BERInteger new value: 170.
@@ -232,7 +232,8 @@ BERTest >> testSequenceEncoding [
 	stream := ReadWriteStream on: (String new).
 
 	ber0 writeOn: stream.
-	self assert: (stream contents asString asHex = (self formatWithHex: '3007020111020200AA'))
+	expected := self formatWithHex: '3007020111020200AA'.
+	self assert: stream contents asString asHex equals: expected
 
 
 ]
