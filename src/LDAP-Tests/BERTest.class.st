@@ -155,16 +155,16 @@ BERTest >> testIntegerDecoding [
 		
 		stream reset.
 		ber := BERInteger newFrom: stream.
-		self assert: (ber class = BERInteger).
+		self assert: ber class equals: BERInteger.
 		
-		self assert: (ber value = value ) 
+		self assert: ber value equals: value. 
 	]
 
 ]
 
 { #category : #tests }
 BERTest >> testIntegerEncoding [
-	|ber stream tests output |
+	|ber stream tests output expected |
 	ber := BERInteger new.
 	stream := ReadWriteStream on: (String new).
 
@@ -174,7 +174,8 @@ BERTest >> testIntegerEncoding [
 		ber value: (test at: 1).	
 		ber writeOn: stream.
 		output :=  stream contents asString asHex.
-		self assert: (output = (self formatWithHex: (test at: 2))) ]
+		expected := self formatWithHex: (test at: 2).
+		self assert: output equals: expected ]
 	
 	
 ]

@@ -28,8 +28,7 @@ BERInteger >> decode: aStream length: aLength [
 	negative ifFalse: [ ^ self ]. 
 
 	powerOfTwo := 1 bitShift: (aLength * 8).
-	value := powerOfTwo - value.
-	value := value negated 
+	value := value - powerOfTwo.
 
 ]
 
@@ -47,7 +46,9 @@ BERInteger >> length [
 			(integerValue bitAt: msb) isZero ifTrue: [ length ] ifFalse: [ length + 1 ]
 		]
 		ifFalse: [
-			integerValue negated bytesCount
+			| positive |
+			positive := integerValue negated - 1.
+			(positive * 2) bytesCount
 		]
 ]
 
