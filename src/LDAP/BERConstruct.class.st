@@ -27,7 +27,7 @@ BERConstruct >> decode: aStream length: aLength [
 	elementLen := aLength.
 	[elementLen > 0]
 		whileTrue: [
-			part := self class newFrom: aStream.
+			part := BERElement newFrom: aStream.
 			elementLen := elementLen - part totalLength.
 			self addElement: part
 		].
