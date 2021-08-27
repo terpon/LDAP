@@ -1,10 +1,5 @@
 Class {
 	#name : #LDAPSimpleAuthString,
-	#superclass : #BEROctetString,
+	#superclass : #LDAPPrimitive0String,
 	#category : #'LDAP-Core'
 }
-
-{ #category : #accessing }
-LDAPSimpleAuthString class >> tagValue [
-	^ 16r80 "Context 0"
-]
