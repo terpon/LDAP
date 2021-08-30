@@ -7,11 +7,6 @@ Class {
 	#category : #'LDAP-Results'
 }
 
-{ #category : #testing }
-LDAPSearchResultEntry class >> isEndMarker [
-	^ false
-]
-
 { #category : #accessing }
 LDAPSearchResultEntry class >> tagValue [
 	^ 16r64

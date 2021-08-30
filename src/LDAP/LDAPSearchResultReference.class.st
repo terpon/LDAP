@@ -7,11 +7,6 @@ Class {
 	#category : #'LDAP-Results'
 }
 
-{ #category : #testing }
-LDAPSearchResultReference class >> isEndMarker [
-	^ false
-]
-
 { #category : #accessing }
 LDAPSearchResultReference class >> tagValue [
 	^ 16r73

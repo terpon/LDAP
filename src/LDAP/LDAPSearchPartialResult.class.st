@@ -1,3 +1,8 @@
+"
+Abstract base class for partial result messages.
+
+I override isEndMarker to notify the client that other messages will come after me.
+"
 Class {
 	#name : #LDAPSearchPartialResult,
 	#superclass : #LDAPAbstractResult,
