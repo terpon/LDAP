@@ -11,7 +11,7 @@ Class {
 LDAPFilter class >> andOf: someFilters [
 	| set |
 	set := LDAPFilterAnd new.
-	someFilters do: [ :each | set add: each ].
+	someFilters do: [ :each | set addFilter: each ].
 	^ set
 
 ]
@@ -40,7 +40,7 @@ LDAPFilter class >> not: aFilter [
 LDAPFilter class >> orOf: someFilters [
 	| set |
 	set := LDAPFilterOr new.
-	someFilters do: [ :each | set add: each ].
+	someFilters do: [ :each | set addFilter: each ].
 	^ set
 
 ]
