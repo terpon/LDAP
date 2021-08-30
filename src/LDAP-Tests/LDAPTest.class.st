@@ -102,7 +102,7 @@ LDAPTest >> testAddWithCollectionValues [
 	| conn req attrs |
 	conn := self connect.
 	
-	(1 to: 5) do: [ :each | |name|
+	1 to: 5 do: [ :each | |name|
 		name := 'test', each asString.
 	
 		attrs := Dictionary new
@@ -121,7 +121,7 @@ LDAPTest >> testAddWithStringValues [
 	| conn req attrs |
 	conn := self connect.
 	
-	(1 to: 5) do: [ :each | |name|
+	1 to: 5 do: [ :each | |name|
 		name := 'test', each asString.
 	
 		attrs := Dictionary new
@@ -163,7 +163,7 @@ LDAPTest >> testDel [
 	| conn req |
 	conn := self connect.
 	
-	(1 to: 5) do: [ :each | |name|
+	1 to: 5 do: [ :each | |name|
 		name := 'test', each asString.
 		req := conn delEntry: 'cn=',name,',', self class baseDN.
 		req wait.
@@ -252,7 +252,7 @@ LDAPTest >> testSearchWithNext [
 	
 	req := conn newSearch: (self class baseDN) scope: (LDAPConnection wholeSubtree) deref: (LDAPConnection derefNever) filter: nil attrs: nil wantAttrsOnly: false.
 	rr := OrderedCollection new.
-	[(r := req next) == nil] whileFalse: [rr add: r ].
+	[(r := req next) isNil ] whileFalse: [rr add: r ].
 	
 	conn disconnect.	
 ]
