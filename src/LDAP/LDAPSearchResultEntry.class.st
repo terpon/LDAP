@@ -51,12 +51,12 @@ LDAPSearchResultEntry >> attrsAt: aKey [
 
 ]
 
-{ #category : #accessing }
-LDAPSearchResultEntry >> dn [
-	^ elements first value
-]
-
 { #category : #testing }
 LDAPSearchResultEntry >> isReference [
 	^ false
+]
+
+{ #category : #accessing }
+LDAPSearchResultEntry >> matchedDN [
+	^ elements first value
 ]
