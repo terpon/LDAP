@@ -28,16 +28,3 @@ LDAPEncoder class >> attrsAsBERElement: aDictionary [
 	aDictionary associationsDo: [ :a | ber addElement: (self attributeDescription: a key andValues: a value) ].
 	^ ber
 ]
-
-{ #category : #'utilities - requests' }
-LDAPEncoder class >> id: aMessageId request: aRequest [
-	| stream mesg |
-	stream := ReadWriteStream on: (ByteString new).
-
-	mesg := BERSequence new.
-	mesg addElement: (BERInteger new value: aMessageId).
-	mesg addElement: aRequest.
-
-	mesg writeOn: stream.
-	^ stream contents
-]

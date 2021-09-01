@@ -13,6 +13,20 @@ Class {
 	#category : #'LDAP-Core'
 }
 
+{ #category : #'instance creation' }
+LDAPMessage class >> id: aMessageId request: aRequest [
+"Create a LDAP message"
+	| mesg seq |
+	mesg := self new.
+
+	seq := BERSequence new.
+	seq addElement: (BERInteger new value: aMessageId).
+	seq addElement: aRequest.
+
+	mesg sequence: seq.
+	^ mesg
+]
+
 { #category : #'class initialization' }
 LDAPMessage class >> initialize [ 
 "LDAP messages class initialization. Populate the knownTags variable for application elements creation."
@@ -39,6 +53,13 @@ LDAPMessage >> createApplicationElement: aTagValue [
 	| elementClass |
 	elementClass := LdapTags at: aTagValue ifAbsent: [ ^ nil ].
 	^ elementClass new
+
+]
+
+{ #category : #converting }
+LDAPMessage >> encoded [
+"Return the encoded message"
+	^ ByteString streamContents: [ :stream | sequence writeOn: stream ]
 
 ]
 

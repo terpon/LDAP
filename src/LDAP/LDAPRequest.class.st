@@ -63,7 +63,7 @@ LDAPRequest >> initializeWith: anLDAPWorker request: aRequest [
 	partialResponses := OrderedCollection new.
 
 	worker addTarget: self for: messageId.
-	worker send: (LDAPEncoder id: messageId request: aRequest).
+	worker send: (LDAPMessage id: messageId request: aRequest) encoded.
 
 ]
 

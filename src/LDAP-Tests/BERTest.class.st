@@ -111,7 +111,7 @@ BERTest >> testAddRequest [
 	}.
 
 	request := LDAPAddRequest new dn: 'cn=test2,dc=linalco,dc=test'; attrs: attrs.
-	encoded := LDAPEncoder id: 1 request: request.
+	encoded := (LDAPMessage id: 1 request: request) encoded.
 	hex := encoded asString asHex.
 	expected := self formatWithHex: '305B0201016856041B636E3D74657374322C64633D6C696E616C636F2C64633D7465737430373017040B6F626A656374436C61737331080406706572736F6E300D0402636E310704057465737432300D0402736E310704057465737432'.
 	self assert: hex equals: expected
@@ -121,7 +121,7 @@ BERTest >> testAddRequest [
 BERTest >> testBindRequest [
 	| request encoded expected |
 	request := LDAPBindRequest new username: 'cn=admin,dc=linalco,dc=test'; password: 'secret'.
-	encoded := LDAPEncoder id: 1 request: request.
+	encoded := (LDAPMessage id: 1 request: request) encoded.
 	encoded := encoded asString asHex.
 
 	expected := self formatWithHex: '302D0201016028020103041B636E3D61646D696E2C64633D6C696E616C636F2C64633D746573748006736563726574'.
@@ -149,7 +149,7 @@ BERTest >> testBooleanEncoding [
 BERTest >> testDelRequest [
 	| request encoded expected |
 	request := LDAPDelRequest new dn: 'cn=test2,dc=linalco,dc=test'.
-	encoded := LDAPEncoder id: 1 request: request.
+	encoded := (LDAPMessage id: 1 request: request) encoded.
 	encoded := encoded asString asHex.
 
 	expected := self formatWithHex: '30200201014A1B636E3D74657374322C64633D6C696E616C636F2C64633D74657374'.
@@ -207,7 +207,7 @@ BERTest >> testModifyRequest [
 			LDAPAttrModifier addTo: 'description' values: {'rchueo'} }.
 									
 	request := LDAPModifyRequest new dn: 'cn=test5,dc=linalco,dc=test'; ops: ops.
-	encoded := LDAPEncoder id: 1 request: request.
+	encoded := (LDAPMessage id: 1 request: request) encoded.
 	encoded := encoded asString asHex.
 
 	expected := self formatWithHex: '3062020101665D041B636E3D74657374352C64633D6C696E616C636F2C64633D74657374303E301E0A010230190402736E311304077465737435736E0403666F6F0403626172301C0A01003017040B6465736372697074696F6E3108040672636875656F'.
@@ -237,7 +237,7 @@ BERTest >> testOctetStringEncoding [
 BERTest >> testSearchRequest [
 	| request encoded hex expected |
 	request := LDAPSearchRequest new base: 'dc=linalco, dc=test'; scope: (LDAPConnection wholeSubtree); derefAliases: (LDAPConnection derefNever); filter: (LDAPFilter with: 'objectclass' ); attrs: (OrderedCollection new); wantAttrsOnly: false.
-	encoded := LDAPEncoder id: 1 request: request.
+	encoded := (LDAPMessage id: 1 request: request) encoded.
 	hex := encoded asString asHex.
 
 	expected := self formatWithHex: '30380201016333041364633D6C696E616C636F2C2064633D746573740A01020A0100020100020100010100870B6F626A656374636C6173733000'.
