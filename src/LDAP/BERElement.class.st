@@ -28,6 +28,46 @@ BERElement class >> identifyIncomingElement: firstByte [
 	
 ]
 
+{ #category : #testing }
+BERElement class >> isApplication [ 
+	^ self isApplication: self tagValue
+]
+
+{ #category : #testing }
+BERElement class >> isApplication: aTagValue [
+	^ (aTagValue bitAnd: 16rC0) = 16r40
+]
+
+{ #category : #testing }
+BERElement class >> isContext [ 
+	^ self isContext: self tagValue
+]
+
+{ #category : #testing }
+BERElement class >> isContext: aTagValue [
+	^ (aTagValue bitAnd: 16rC0) = 16r80
+]
+
+{ #category : #testing }
+BERElement class >> isPrivate [ 
+	^ self isPrivate: self tagValue
+]
+
+{ #category : #testing }
+BERElement class >> isPrivate: aTagValue [
+	^ (aTagValue bitAnd: 16rC0) = 16rC0
+]
+
+{ #category : #testing }
+BERElement class >> isUniversal [ 
+	^ self isUniversal: self tagValue
+]
+
+{ #category : #testing }
+BERElement class >> isUniversal: aTagValue [
+	^ (aTagValue bitAnd: 16rC0) = 0
+]
+
 { #category : #utilities }
 BERElement class >> lengthLength: anInteger [
 	| octets |
