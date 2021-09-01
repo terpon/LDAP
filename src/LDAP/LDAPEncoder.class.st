@@ -41,16 +41,3 @@ LDAPEncoder class >> id: aMessageId request: aRequest [
 	mesg writeOn: stream.
 	^ stream contents
 ]
-
-{ #category : #'instance creation' }
-LDAPEncoder class >> newFrom: aStream [
-	| firstByte element elementClass |
-	firstByte := aStream next.
-	elementClass := self identifyIncomingElement: firstByte.
-	elementClass ifNil: [
-		LDAPException new messageText: 'invalid tag -- make sure class is in identifyIncomingElements'; signal ].
-	element := elementClass new setTag: firstByte.
-	element decode: aStream.
-	^ element
-
-]

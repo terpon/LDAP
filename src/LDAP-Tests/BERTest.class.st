@@ -159,24 +159,23 @@ BERTest >> testDelRequest [
 
 { #category : #tests }
 BERTest >> testIntegerDecoding [
-	|ber stream tests value valueStream byte |
+	|ber encoded tests value valueStream stream |
 	stream := ReadWriteStream on: (String new).
 
 	tests :=  self class getIntegerTestSet.
 	tests do: [:test | 
 		valueStream := ReadStream on: (test at: 2).
-		value := test at: 1.
-		stream resetToStart.
-		
-		[valueStream atEnd] whileFalse: [
-			byte := (valueStream next digitValue * 16).
-			byte := byte + valueStream next digitValue.
-			stream nextPut: (byte asCharacter) ].
-		
-		stream reset.
-		ber := BERInteger newFrom: stream.
+		encoded := ByteString streamContents: [ :s |
+			[valueStream atEnd] whileFalse: [ | byte |
+				byte := (valueStream next digitValue * 16).
+				byte := byte + valueStream next digitValue.
+				s nextPut: (byte asCharacter) ].
+		].
+		stream := encoded readStream.
+		ber := BERDecoder new elementFrom: stream.
 		self assert: ber class equals: BERInteger.
 		
+		value := test at: 1.
 		self assert: ber value equals: value. 
 	]
 

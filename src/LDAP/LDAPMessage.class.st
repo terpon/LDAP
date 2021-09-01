@@ -3,24 +3,56 @@ An LDAP Message
 "
 Class {
 	#name : #LDAPMessage,
-	#superclass : #BERSequence,
+	#superclass : #Object,
+	#instVars : [
+		'sequence'
+	],
+	#classVars : [
+		'LdapTags'
+	],
 	#category : #'LDAP-Core'
 }
 
+{ #category : #'class initialization' }
+LDAPMessage class >> initialize [ 
+"LDAP messages class initialization. Populate the knownTags variable for application elements creation."
+	| classes |
+	classes := BERElement allSubclasses select: [ :c | c class canPerform: #tagValue ].
+	classes := classes select: #isApplication.
+	LdapTags := (classes collect: [ :c | c tagValue -> c ]) asDictionary.
+]
+
 { #category : #'instance creation' }
 LDAPMessage class >> newFrom: aStream [
-	| mesg |
-	mesg := self new.
-	mesg readFrom: aStream.
-	^ mesg
+"Create a BER decoder with the LDAPMessage as application"
+	| decoder message ber |
+	message := self new.
+	decoder := BERDecoder new application: message.
+	ber := decoder elementFrom: aStream.
+	message sequence: ber.
+	^ message
+]
+
+{ #category : #'instance creation' }
+LDAPMessage >> createApplicationElement: aTagValue [
+"Create a BER applicatio element from a tag value"
+	| elementClass |
+	elementClass := LdapTags at: aTagValue ifAbsent: [ ^ nil ].
+	^ elementClass new
+
 ]
 
 { #category : #accessing }
 LDAPMessage >> id [
-	^ elements first value
+	^ sequence value first value
 ]
 
 { #category : #accessing }
 LDAPMessage >> response [
-	^ elements second
+	^ sequence value second
+]
+
+{ #category : #accessing }
+LDAPMessage >> sequence: anObject [
+	sequence := anObject
 ]
