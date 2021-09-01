@@ -54,6 +54,13 @@ LDAPMessage >> createApplicationElement: aTagValue [
 
 ]
 
+{ #category : #'instance creation' }
+LDAPMessage >> createContextElement: aTagValue at: anIndex with: aDecoder [
+"Used for controls"
+	(aTagValue = LDAPControls tagValue) ifFalse: [ ^ nil ].
+	^ LDAPControls new
+]
+
 { #category : #converting }
 LDAPMessage >> encoded [
 "Return the encoded message"

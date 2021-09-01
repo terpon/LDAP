@@ -127,6 +127,18 @@ BERDecoder >> createUniversalElement: aTagValue [
 
 ]
 
+{ #category : #reading }
+BERDecoder >> decode: anElement from: aStream [
+"Decode an already existing element from a stream"
+	| firstByte length |
+	firstByte := aStream next asInteger.
+	(firstByte = anElement class tagValue) ifFalse: [ self error: 'inconsitent tag value' ].
+	length := self class readLengthFrom: aStream.
+	anElement decode: aStream length: length with: self.
+	^ anElement
+
+]
+
 { #category : #'instance creation' }
 BERDecoder >> elementFrom: aStream [
 "Create a BER element from a stream"
@@ -138,12 +150,10 @@ BERDecoder >> elementFrom: aStream [
 { #category : #'instance creation' }
 BERDecoder >> elementFrom: aStream in: aContextObject at: anIndex [
 "Create a BER element from a stream"
-	| firstByte element length |
-	firstByte := aStream next asInteger.
+	| firstByte element |
+	firstByte := aStream peek asInteger.
 	"Transcript show: '*** Next byte is: ', firstByte asString; cr."
 	element := self createElement: firstByte in: aContextObject at: anIndex.
-	length := self class readLengthFrom: aStream.
-	element decode: aStream length: length with: self.
-	^ element
+	^ self decode: element from: aStream  
 
 ]

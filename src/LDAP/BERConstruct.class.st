@@ -23,6 +23,7 @@ BERConstruct >> addElement: anElement [
 { #category : #encoding }
 BERConstruct >> decode: aStream length: aLength with: aDecoder [
 	| index elementLen part |
+	elements removeAll.
 	index := 1.
 	elementLen := aLength.
 	[elementLen > 0]
