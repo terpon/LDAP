@@ -51,6 +51,14 @@ LDAPSearchRequest >> initialize [
 
 ]
 
+{ #category : #testing }
+LDAPSearchRequest >> processResult: aCollection [
+"Return search entries"
+	aCollection do: #checkForExceptions.
+	^ aCollection select: [ :r | r isKindOf: LDAPSearchResultEntry ]
+
+]
+
 { #category : #accessing }
 LDAPSearchRequest >> scope: aScope [
 	elements second value: aScope

@@ -26,9 +26,3 @@ LDAPAbstractResult >> isEndMarker [
 LDAPAbstractResult >> matchedDN [
 	^ self subclassResponsibility
 ]
-
-{ #category : #testing }
-LDAPAbstractResult >> processResult [ 
-"by default, the returned result is the message"
-	^ self
-]
