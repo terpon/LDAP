@@ -1,31 +1,16 @@
 "
-An LDAP Message
+I am LDAP Message.
+
+I am a pseudo BER Sequence. (I do not have my own application tag)
 "
 Class {
 	#name : #LDAPMessage,
-	#superclass : #Object,
-	#instVars : [
-		'sequence'
-	],
+	#superclass : #BERSequence,
 	#classVars : [
 		'LdapTags'
 	],
 	#category : #'LDAP-Core'
 }
-
-{ #category : #'instance creation' }
-LDAPMessage class >> id: aMessageId request: aRequest [
-"Create a LDAP message"
-	| mesg seq |
-	mesg := self new.
-
-	seq := BERSequence new.
-	seq addElement: (BERInteger new value: aMessageId).
-	seq addElement: aRequest.
-
-	mesg sequence: seq.
-	^ mesg
-]
 
 { #category : #'class initialization' }
 LDAPMessage class >> initialize [ 
@@ -59,21 +44,46 @@ LDAPMessage >> createApplicationElement: aTagValue [
 { #category : #converting }
 LDAPMessage >> encoded [
 "Return the encoded message"
-	^ ByteString streamContents: [ :stream | sequence writeOn: stream ]
+	^ ByteString streamContents: [ :stream | self writeOn: stream ]
 
 ]
 
 { #category : #accessing }
 LDAPMessage >> id [
-	^ sequence value first value
+	^ elements first value
+]
+
+{ #category : #accessing }
+LDAPMessage >> id: anInteger [
+	elements first value: anInteger 
+]
+
+{ #category : #initialization }
+LDAPMessage >> initialize [ 
+	super initialize.
+	
+	self addElement: (BERInteger new). "id"
+	self addElement: (BERNull new). "protocolOp"
+
+]
+
+{ #category : #accessing }
+LDAPMessage >> operation [
+	^ elements second
+]
+
+{ #category : #accessing }
+LDAPMessage >> operation: anObject [
+	elements at: 2 put: anObject
 ]
 
 { #category : #accessing }
 LDAPMessage >> response [
-	^ sequence value second
+	^ elements value second
 ]
 
 { #category : #accessing }
 LDAPMessage >> sequence: anObject [
-	sequence := anObject
+	elements removeAll.
+	elements addAll: anObject value.
 ]
