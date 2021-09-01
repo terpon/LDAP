@@ -14,5 +14,5 @@ TLDAPReturnResult >> processResult: aCollection [
 	| result |
 	result := aCollection last.
 	result checkForExceptions.
-	^ result
+	^ result success
 ]
