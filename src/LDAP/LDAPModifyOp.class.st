@@ -8,7 +8,7 @@ Class {
 		'attr',
 		'values'
 	],
-	#category : #'LDAP-Core'
+	#category : #'LDAP-Elements'
 }
 
 { #category : #accessing }
