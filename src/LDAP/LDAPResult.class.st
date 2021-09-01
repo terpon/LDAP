@@ -85,6 +85,13 @@ LDAPResult >> checkForExceptions [
 	ex signal: (self errorMessage ifEmpty:[ex messageText ]).
 ]
 
+{ #category : #'instance creation' }
+LDAPResult >> createContextElement: aTagValue at: anIndex with: aDecoder [
+"Used for controls"
+	(aTagValue = LDAPReferral tagValue) ifFalse: [ ^ nil ].
+	^ LDAPReferral new
+]
+
 { #category : #accessing }
 LDAPResult >> errorMessage [
 	^ elements third value
