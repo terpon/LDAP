@@ -24,11 +24,10 @@ LDAPMessage class >> initialize [
 { #category : #'instance creation' }
 LDAPMessage class >> newFrom: aStream [
 "Create a BER decoder with the LDAPMessage as application"
-	| decoder message ber |
+	| decoder message |
 	message := self new.
 	decoder := BERDecoder new application: message.
-	ber := decoder elementFrom: aStream.
-	message sequence: ber.
+	decoder decode: message from: aStream.
 	^ message
 ]
 
