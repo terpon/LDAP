@@ -52,18 +52,18 @@ LDAPFilter class >> with: anAttrType [
 
 { #category : #'instance creation' }
 LDAPFilter class >> with: anAttrType equalTo: anAttrValue [
-	^ LDAPFilterEquality new description: anAttrType; value: anAttrValue
+	^ LDAPFilterEquality new description: anAttrType; assertionValue: anAttrValue
 ]
 
 { #category : #'instance creation' }
 LDAPFilter class >> with: anAttrType greaterOrEqualThan: anAttrValue [
-	^ LDAPFilterGreaterOrEqual new description: anAttrType; value: anAttrValue
+	^ LDAPFilterGreaterOrEqual new description: anAttrType; assertionValue: anAttrValue
 	
 ]
 
 { #category : #'instance creation' }
 LDAPFilter class >> with: anAttrType lessOrEqualThan: anAttrValue [
-	^ LDAPFilterLessOrEqual new description: anAttrType; value: anAttrValue
+	^ LDAPFilterLessOrEqual new description: anAttrType; assertionValue: anAttrValue
 ]
 
 { #category : #'instance creation' }

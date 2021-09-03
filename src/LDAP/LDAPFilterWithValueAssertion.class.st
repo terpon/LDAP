@@ -10,6 +10,16 @@ Class {
 }
 
 { #category : #accessing }
+LDAPFilterWithValueAssertion >> assertionValue [ 
+	^ elements second value
+]
+
+{ #category : #accessing }
+LDAPFilterWithValueAssertion >> assertionValue: aString [
+	elements second value: aString
+]
+
+{ #category : #accessing }
 LDAPFilterWithValueAssertion >> description [ 
 	^ elements first value
 ]
@@ -27,14 +37,4 @@ LDAPFilterWithValueAssertion >> initialize [
 		addElement: (BEROctetString new);
 		addElement: (BEROctetString new).
 
-]
-
-{ #category : #accessing }
-LDAPFilterWithValueAssertion >> value [ 
-	^ elements second value
-]
-
-{ #category : #accessing }
-LDAPFilterWithValueAssertion >> value: aString [
-	elements second value: aString
 ]

@@ -83,7 +83,6 @@ LDAPFilterTest >> testOr [
 	filter4 := LDAPFilter with: 'sn' equalTo: 'test6'.
 	or := filter1 | filter2.
 	or2 := filter3 | filter4.
-	
 	self assert: or class equals: LDAPFilterOr.
 	self assert: or value size equals: 2.
 	
@@ -118,6 +117,6 @@ LDAPFilterTest >> testWithEqualTo [
 	
 	self assert: filter class equals: LDAPFilterEquality.
 	self assert: filter description equals: 'cn'.
-	self assert: filter value equals: 'test1'.
+	self assert: filter assertionValue equals: 'test1'.
 
 ]
