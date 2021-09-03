@@ -4,6 +4,8 @@ Substrings as filter
 Class {
 	#name : #LDAPFilterSubstrings,
 	#superclass : #BERSequence,
+	#traits : 'TLDAPComposeFilter',
+	#classTraits : 'TLDAPComposeFilter classTrait',
 	#category : #'LDAP-Filters'
 }
 

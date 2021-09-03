@@ -4,6 +4,8 @@ A present filter
 Class {
 	#name : #LDAPFilterPresent,
 	#superclass : #BEROctetString,
+	#traits : 'TLDAPComposeFilter',
+	#classTraits : 'TLDAPComposeFilter classTrait',
 	#category : #'LDAP-Filters'
 }
 

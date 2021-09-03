@@ -11,3 +11,8 @@ Class {
 LDAPFilterOr class >> tagValue [
 	^ 16rA1 "Context 1"
 ]
+
+{ #category : #converting }
+LDAPFilterOr >> asOrElements [ 
+	^ elements
+]

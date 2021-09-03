@@ -168,6 +168,39 @@ LDAPTest >> test04_SearchWithFilters [
 ]
 
 { #category : #tests }
+LDAPTest >> test04bis_SearchWithFilters [
+	| conn req rr search |
+	conn := self connect.
+	
+	search := LDAPSearchRequest new 
+		base: self class baseDN; 
+		scope: LDAPSearchScope wholeSubtree; 
+		derefAliases: LDAPSearchDerefAliases never;
+		filter: (LDAPFilter with: 'objectclass').
+	req := conn request: search.
+	rr := req result.
+	self assert: (self checkSearchResults: rr expecting: { nil . 'cn=test1'. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
+
+	search filter: (LDAPFilter with: 'cn' equalTo: 'test1').
+	req := conn request: search.
+	rr := req result.
+	self assert: (self checkSearchResults: rr expecting: { 'cn=test1'} ).
+
+	search filter: (LDAPFilter with: 'cn' equalTo: 'test1') not.
+	req := conn request: search.
+	rr := req result.
+	self assert: (self checkSearchResults: rr expecting: { nil. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
+
+	search filter: ((LDAPFilter with: 'cn' equalTo: 'test1') not &
+						(LDAPFilter with: 'sn' equalTo: 'test2') not).
+	req := conn request: search.
+	rr := req result.
+	self assert: (self checkSearchResults: rr expecting: { nil . 'cn=test3' .  'cn=test4'. 'cn=test5' }).
+	
+	conn disconnect.	
+]
+
+{ #category : #tests }
 LDAPTest >> test05_Delete [
 	| conn req |
 	conn := self connect.
