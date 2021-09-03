@@ -88,8 +88,9 @@ LDAPResult >> checkForExceptions [
 { #category : #'instance creation' }
 LDAPResult >> createContextElement: aTagValue at: anIndex with: aDecoder [
 "Used for controls"
-	(aTagValue = LDAPReferral tagValue) ifFalse: [ ^ nil ].
-	^ LDAPReferral new
+	(aTagValue = LDAPReferral tagValue) ifTrue: [ ^ LDAPReferral new ].
+	
+	^ super createContextElement: aTagValue at: anIndex with: aDecoder
 ]
 
 { #category : #accessing }
