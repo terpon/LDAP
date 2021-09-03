@@ -4,16 +4,12 @@ Pseudo BER sequence for modification operations
 Class {
 	#name : #LDAPModifyOp,
 	#superclass : #BERSequence,
-	#instVars : [
-		'attr',
-		'values'
-	],
 	#category : #'LDAP-Elements'
 }
 
 { #category : #accessing }
 LDAPModifyOp >> attr [
-	^ elements first value
+	^ elements second description
 ]
 
 { #category : #accessing }
@@ -47,12 +43,21 @@ LDAPModifyOp >> operationName [
 
 { #category : #printing }
 LDAPModifyOp >> printOn: aStream [
-	aStream nextPutAll: self class name, self operationName, '(', self attr, ': ', self values asArray, ')'. 
+
+	aStream
+		nextPutAll: self class name;
+		nextPutAll: ' ';
+		nextPutAll: self operationName;
+		nextPutAll: '(';
+		nextPutAll: self attr;
+		nextPutAll: ': '.
+	self values printElementsOn: aStream.
+	aStream	nextPutAll: ')'
 ]
 
 { #category : #accessing }
 LDAPModifyOp >> values [
-	elements second values
+	^ elements second values
 ]
 
 { #category : #accessing }
