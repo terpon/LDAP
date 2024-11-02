@@ -1,1 +1,1 @@
-Package { #name : #BaselineOfLDAP }
+Package { #name : 'BaselineOfLDAP' }
