@@ -1,13 +1,12 @@
 "
-Do not be surprised if any of the tests fails, their state is rather crude, mostly due to the heavy volatility of the API.
+This test expects a LDAP server on `localhost` with a single entry in the tree:
 
-This test expects a single entry in the tree:
 ```language=ldif
-		dn: dc=linalco, dc=test
-		dc: linalco
+		dn: dc=example, dc=com
+		dc: example
 		objectClass: dcObject
 		objectClass: organization
-		o: linalco
+		o: test
 ```
 
 "
@@ -50,7 +49,7 @@ LDAPRequestTest >> checkSearchResults: aResult expecting: expectedRDNs [
 	^ expectedRDNs allSatisfy: [:eachExpected | | qualified |
 		qualified := eachExpected
 			ifNil: [ self baseDN ]
-			ifNotNil: [ eachExpected, ',', self baseDN ].
+			ifNotNil: [ String streamContents: [ :s  | s << eachExpected << ',' << self baseDN ] ].
 		aResult anySatisfy: [ :eachResult | eachResult matchedDN = qualified ]
 	]
 ]
