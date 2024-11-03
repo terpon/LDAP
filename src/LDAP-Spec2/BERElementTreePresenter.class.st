@@ -1,56 +1,101 @@
+"
+I am a presenter to display BER elements as trees in the inspector.
+"
 Class {
-	#name : #BERElementTreePresenter,
-	#superclass : #SpPresenter,
+	#name : 'BERElementTreePresenter',
+	#superclass : 'SpPresenter',
 	#instVars : [
 		'roots',
 		'tree'
 	],
-	#category : #'LDAP-Spec2'
+	#category : 'LDAP-Spec2',
+	#package : 'LDAP-Spec2'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElementTreePresenter class >> childrenBlock [ 
 
-	^ [ :e | (e isKindOf: BERConstruct) ifFalse: [ #() ] ifTrue: [ e value ] ]
+	^ [ :e | e elements ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElementTreePresenter class >> classBlock [ 
 
-	^ [ :e | (e isKindOf: BERConstruct) 
-			ifFalse: [ e class name ] 
-			ifTrue: [ String streamContents: [ :s | s << e class name << ' (' << e value size asString << ')' ] ]
+	^ [ :e | String streamContents: [ :s | 
+				s << e class name.
+				e elements ifNotEmpty: [ :children | s << ' (' << children size asString << ')' ] ].
 		]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 BERElementTreePresenter class >> defaultLayout [ 
 	^ SpBoxLayout newVertical add: #tree; yourself
 ]
 
-{ #category : #specs }
+{ #category : 'specs' }
 BERElementTreePresenter class >> defaultSpec [
 
 	^ self defaultLayout
 ]
 
-{ #category : #accessing }
-BERElementTreePresenter class >> valueBlock [ 
+{ #category : 'examples' }
+BERElementTreePresenter class >> example [
+"Sample tree"
+	| mod |
+	mod := self sampleElement.
+	^ self new root: mod; open
 
-	^ [ :e | (e isKindOf: BERConstruct) ifFalse: [ e ] ifTrue: [ nil ] ]
 ]
 
-{ #category : #forwarding }
+{ #category : 'examples' }
+BERElementTreePresenter class >> exampleInspect [
+"Sample tree"
+	self sampleElement inspect.
+
+]
+
+{ #category : 'examples' }
+BERElementTreePresenter class >> sampleElement [
+"Sample tree"
+	| ops |
+	ops :=  { 
+		LDAPAttrModifier set: 'sn' to: { 'test' . 'foo' . 'bar'}.
+		LDAPAttrModifier addTo: 'description' values: {'moo'}.
+		LDAPAttrModifier del: 'color'.
+		LDAPAttrModifier delFrom: 'groups' values: {'ni'}.
+	}.
+
+	^ LDAPModifyRequest new dn: 'cn=a,dc=root'; ops: ops.
+
+]
+
+{ #category : 'accessing' }
+BERElementTreePresenter class >> valueBlock [ 
+
+	^ [ :e | e value ifNotNil: [ String streamContents: [ :s | e displayStringOn: s ] ] ]
+]
+
+{ #category : 'forwarding' }
 BERElementTreePresenter >> activateOnSingleClick [
 	tree activateOnSingleClick.
 ]
 
-{ #category : #controlling }
+{ #category : 'initialization' }
+BERElementTreePresenter >> connectPresenters [ 
+
+	super connectPresenters.
+
+	tree whenActivatedDo: [ :event | self toggleExpandCurrent ].
+		
+
+]
+
+{ #category : 'controlling' }
 BERElementTreePresenter >> expand [
 	tree expandRoots.
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 BERElementTreePresenter >> initializePresenters [ 
 
 	tree := self newTreeTable 
@@ -59,42 +104,72 @@ BERElementTreePresenter >> initializePresenters [
 		addColumn: (SpStringTableColumn title: 'Value' evaluated: self class valueBlock);
 		children: self class childrenBlock;
 		yourself.
-		
-	self updatePresenter.
+	
+
 ]
 
-{ #category : #ports }
+{ #category : 'initialization' }
+BERElementTreePresenter >> initializeWindow: aSpWindowPresenter [
+
+	super initializeWindow: aSpWindowPresenter.
+
+	aSpWindowPresenter
+		title: self titleForWindow
+]
+
+{ #category : 'ports' }
 BERElementTreePresenter >> outputActivationPort [ 
 	^ tree outputActivationPort
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElementTreePresenter >> root: anObject [
 	^ self roots: { anObject }
 	
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElementTreePresenter >> roots: aCollection [
 	roots := aCollection.
 	self updatePresenter.
 	
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElementTreePresenter >> selectedItem [
 	"Return selected item."
 	
 	^ tree selectedItem
 ]
 
-{ #category : #initialization }
-BERElementTreePresenter >> updatePresenter [ 
+{ #category : 'initialization' }
+BERElementTreePresenter >> titleForWindow [ 
+	| element |
+	roots ifNil: [ ^ 'No elements' ].
 
-	tree roots: (roots ifNil: [ { BERNull new } ]).
+	element := roots size = 1 ifTrue: [ roots first ] ifFalse: [ roots ].
+	^ element printString
 ]
 
-{ #category : #enumerating }
+{ #category : 'controlling' }
+BERElementTreePresenter >> toggleExpandCurrent [
+	| path state |
+	path := tree selection selectedPath.
+	path ifNil: [ ^ self ].
+	state := tree isExpanded: path.
+	state ifTrue: [ tree collapsePath: path ] ifFalse: [ tree expandPath: path ].
+]
+
+{ #category : 'initialization' }
+BERElementTreePresenter >> updatePresenter [ 
+	| elements |
+	elements := roots ifNil: [ { BERNull new } ].
+	tree roots: elements.
+	
+	self withWindowDo: [ :w | w title: self titleForWindow ]
+]
+
+{ #category : 'enumerating' }
 BERElementTreePresenter >> whenActivatedDo: aBlock [
 	tree whenActivatedDo: aBlock.
 ]
