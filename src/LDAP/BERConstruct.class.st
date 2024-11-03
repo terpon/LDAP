@@ -47,9 +47,11 @@ BERConstruct >> initialize [
 ]
 
 { #category : #inspecting }
-BERConstruct >> inspectionItems: aBuilder [ 
+BERConstruct >> inspectionItems: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Construct'> 
-	^ BERElementTreePresenter new roots: elements; owner: aBuilder; yourself
+	^ BERElementTreePresenter
+		ifNil: [ elements inspectionItems: aBuilder ]
+ 		ifNotNil: [ BERElementTreePresenter new roots: elements; owner: aBuilder; yourself ]
 ]
 
 { #category : #accessing }
