@@ -2,12 +2,13 @@
 Test for LDAP filter creation
 "
 Class {
-	#name : #LDAPFilterTest,
-	#superclass : #TestCase,
-	#category : #'LDAP-Tests'
+	#name : 'LDAPFilterTest',
+	#superclass : 'TestCase',
+	#category : 'LDAP-Tests',
+	#package : 'LDAP-Tests'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 LDAPFilterTest >> testAnd [
 	| filter1 filter2 filter3 filter4 and and2 composed |
 	filter1 := LDAPFilter with: 'cn' equalTo: 'test1'.
@@ -34,7 +35,7 @@ LDAPFilterTest >> testAnd [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 LDAPFilterTest >> testMix [
 	| filter1 filter2 filter3 filter4 and or composed |
 	filter1 := LDAPFilter with: 'cn' equalTo: 'test1'.
@@ -63,7 +64,7 @@ LDAPFilterTest >> testMix [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 LDAPFilterTest >> testNot [
 	| filter not |
 	filter := LDAPFilter with: 'cn' equalTo: 'test1'.
@@ -74,7 +75,7 @@ LDAPFilterTest >> testNot [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 LDAPFilterTest >> testOr [
 	| filter1 filter2 filter3 filter4 or or2 composed |
 	filter1 := LDAPFilter with: 'cn' equalTo: 'test1'.
@@ -100,7 +101,7 @@ LDAPFilterTest >> testOr [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 LDAPFilterTest >> testWith [
 	| filter |
 	filter := LDAPFilter with: 'sn'.
@@ -110,7 +111,7 @@ LDAPFilterTest >> testWith [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 LDAPFilterTest >> testWithEqualTo [
 	| filter |
 	filter := LDAPFilter with: 'cn' equalTo: 'test1'.

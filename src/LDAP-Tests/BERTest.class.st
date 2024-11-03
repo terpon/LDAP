@@ -1,10 +1,11 @@
 Class {
-	#name : #BERTest,
-	#superclass : #TestCase,
-	#category : #'LDAP-Tests'
+	#name : 'BERTest',
+	#superclass : 'TestCase',
+	#category : 'LDAP-Tests',
+	#package : 'LDAP-Tests'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 BERTest class >> createLauncher [
 	| b |
 	b := SimpleButtonMorph new.
@@ -15,7 +16,7 @@ BERTest class >> createLauncher [
 	b openInWorld.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 BERTest class >> getBooleanTestSet [
 	^  {		{ 0 . '010100' }.
 			{ 1 . '0101FF' }.
@@ -27,7 +28,7 @@ BERTest class >> getBooleanTestSet [
 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 BERTest class >> getIntegerTestSet [
 	^  {		{27066 .  '020269BA'}. 
 			{-27066 .  '02029646'}.
@@ -45,12 +46,12 @@ BERTest class >> getIntegerTestSet [
 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 BERTest class >> isAbstract [
 	^ false
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 BERTest class >> testAll [
 	| b |
 	b := BERTest new.
@@ -68,7 +69,7 @@ BERTest class >> testAll [
 		testSearchRequest
 ]
 
-{ #category : #tools }
+{ #category : 'tools' }
 BERTest >> debugHex: aString [
 	| str encodedString |
 	
@@ -82,7 +83,7 @@ BERTest >> debugHex: aString [
 	^encodedString contents
 ]
 
-{ #category : #tools }
+{ #category : 'tools' }
 BERTest >> formatWithHex: aString [
 	| encodedString pos |
 	
@@ -99,7 +100,7 @@ BERTest >> formatWithHex: aString [
 	^encodedString contents
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 BERTest >> testAddRequest [
 	| request encoded hex expected attrs |
 	"using a Dictionary could generate different encodings depending on the order of iteration."
@@ -117,7 +118,7 @@ BERTest >> testAddRequest [
 	self assert: hex equals: expected
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 BERTest >> testBindRequest [
 	| request encoded expected |
 	request := LDAPBindRequest new username: 'cn=admin,dc=linalco,dc=test'; password: 'secret'.
@@ -128,7 +129,7 @@ BERTest >> testBindRequest [
 	self assert: encoded equals: expected
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 BERTest >> testBooleanEncoding [
 	|ber stream tests output |
 	ber := BERBoolean new.
@@ -145,7 +146,7 @@ BERTest >> testBooleanEncoding [
 	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 BERTest >> testDelRequest [
 	| request encoded expected |
 	request := LDAPDelRequest new dn: 'cn=test2,dc=linalco,dc=test'.
@@ -157,7 +158,7 @@ BERTest >> testDelRequest [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 BERTest >> testIntegerDecoding [
 	|ber encoded tests value valueStream stream |
 	stream := ReadWriteStream on: (String new).
@@ -181,7 +182,7 @@ BERTest >> testIntegerDecoding [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 BERTest >> testIntegerEncoding [
 	|ber stream tests output expected |
 	ber := BERInteger new.
@@ -199,7 +200,7 @@ BERTest >> testIntegerEncoding [
 	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 BERTest >> testModifyRequest [
 	| request encoded expected ops |
 	ops :=  { 
@@ -215,7 +216,7 @@ BERTest >> testModifyRequest [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 BERTest >> testOctetStringEncoding [
 	|ber stream tests expected |
 	ber := BEROctetString new.
@@ -233,7 +234,7 @@ BERTest >> testOctetStringEncoding [
 	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 BERTest >> testSearchRequest [
 	| request encoded hex expected |
 	request := LDAPSearchRequest new 
@@ -249,7 +250,7 @@ BERTest >> testSearchRequest [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 BERTest >> testSequenceEncoding [
 	|ber0 ber1 ber2 stream expected |
 	ber0 := BERSequence new.

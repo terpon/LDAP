@@ -1,10 +1,11 @@
 Class {
-	#name : #LDAPAddRequestTest,
-	#superclass : #TestCase,
-	#category : #'LDAP-Tests'
+	#name : 'LDAPAddRequestTest',
+	#superclass : 'LDAPRequestTest',
+	#category : 'LDAP-Tests',
+	#package : 'LDAP-Tests'
 }
 
-{ #category : #removing }
+{ #category : 'tests' }
 LDAPAddRequestTest >> testAddAttribute [
 	| req |
 	req := LDAPAddRequest new.
@@ -18,7 +19,7 @@ LDAPAddRequestTest >> testAddAttribute [
 
 ]
 
-{ #category : #removing }
+{ #category : 'tests' }
 LDAPAddRequestTest >> testAtPut [
 	| req |
 	req := LDAPAddRequest new.
@@ -38,7 +39,7 @@ LDAPAddRequestTest >> testAtPut [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 LDAPAddRequestTest >> testAttrs [
 	| req attrs |
 	req := LDAPAddRequest new.
@@ -56,7 +57,26 @@ LDAPAddRequestTest >> testAttrs [
 
 ]
 
-{ #category : #removing }
+{ #category : 'tests' }
+LDAPAddRequestTest >> testCollectionValues [
+	| conn req attrs |
+	conn := self connect.
+	self someTestCns do: [ :name| | add |
+		attrs := Dictionary new
+			at: 'objectClass' put: (OrderedCollection new add: 'person'; yourself);
+			at: 'cn' put: (OrderedCollection new add: name; yourself);
+			at: 'sn' put: (OrderedCollection new add: name; yourself);
+			yourself.
+		
+		add := LDAPAddRequest new dn: (self cn: name); attrs: attrs.
+		req := conn request: add.
+		req wait.
+	].
+	self someTestCns do: [ :name| self delete: name for: conn ].
+	conn disconnect
+]
+
+{ #category : 'tests' }
 LDAPAddRequestTest >> testRemoveAll [
 	| req |
 	req := LDAPAddRequest new.
@@ -65,4 +85,22 @@ LDAPAddRequestTest >> testRemoveAll [
 	
 	req removeAll.
 	self assert: req attrs isEmpty.
+]
+
+{ #category : 'tests' }
+LDAPAddRequestTest >> testStringValues [
+	| conn req attrs |
+	conn := self connect.
+	self someTestCns do: [ :name|
+		attrs := Dictionary new
+			at: 'objectClass' put: 'person';
+			at: 'cn' put: name;
+			at: 'sn' put: name;
+			yourself.
+		
+		req := conn request: (LDAPAddRequest new dn: (self cn: name); attrs: attrs).
+		req wait.
+	].
+	self someTestCns do: [ :name| self delete: name for: conn ].
+	conn disconnect
 ]

@@ -1,1 +1,1 @@
-Package { #name : #'LDAP-Tests' }
+Package { #name : 'LDAP-Tests' }
