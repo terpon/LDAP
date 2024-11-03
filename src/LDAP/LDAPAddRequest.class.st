@@ -3,24 +3,26 @@ LDAPAddRequest is the process to add a new entry in the LDAP directory.
 
 "
 Class {
-	#name : #LDAPAddRequest,
-	#superclass : #BERSequence,
+	#name : 'LDAPAddRequest',
+	#superclass : 'BERSequence',
 	#traits : 'TLDAPReturnResult',
 	#classTraits : 'TLDAPReturnResult classTrait',
-	#category : #'LDAP-Requests'
+	#category : 'LDAP-Requests',
+	#package : 'LDAP',
+	#tag : 'Requests'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPAddRequest class >> tagValue [
 	^ 16r68 "Application 8"
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 LDAPAddRequest >> addAttribute: aPartialAttribute [
 	elements second addElement: aPartialAttribute
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPAddRequest >> at: aDescription ifPresent: aPresentBlock ifAbsent: anAbsentBlock [
 	^ self attrs
 		detect: [ :pa | pa description = aDescription ] 
@@ -28,7 +30,7 @@ LDAPAddRequest >> at: aDescription ifPresent: aPresentBlock ifAbsent: anAbsentBl
 		ifNone: [ anAbsentBlock value ].
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPAddRequest >> at: aDescription put: someValues [
 
 	self at: aDescription 
@@ -36,24 +38,24 @@ LDAPAddRequest >> at: aDescription put: someValues [
 		ifAbsent: [ self addAttribute: (LDAPPartialAttribute new description: aDescription; values: someValues) ].
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPAddRequest >> attrs [
 	^ elements second elements
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPAddRequest >> attrs: aDictionary [
 	self removeAll.
 	aDictionary associationsDo: [ :a | self at: a key put: a value ].
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPAddRequest >> dn: aDn [
 	elements first value: aDn
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 LDAPAddRequest >> initialize [ 
 	super initialize.
 	
@@ -62,7 +64,7 @@ LDAPAddRequest >> initialize [
 
 ]
 
-{ #category : #removing }
+{ #category : 'removing' }
 LDAPAddRequest >> removeAll [ 
 	elements at: 2 put: BERSequence new.
 ]

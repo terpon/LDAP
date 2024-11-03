@@ -4,15 +4,17 @@ I am LDAP Message.
 I am a pseudo BER Sequence. (I do not have my own application tag)
 "
 Class {
-	#name : #LDAPMessage,
-	#superclass : #BERSequence,
+	#name : 'LDAPMessage',
+	#superclass : 'BERSequence',
 	#classVars : [
 		'LdapTags'
 	],
-	#category : #'LDAP-Core'
+	#category : 'LDAP-Core',
+	#package : 'LDAP',
+	#tag : 'Core'
 }
 
-{ #category : #'class initialization' }
+{ #category : 'class initialization' }
 LDAPMessage class >> initialize [ 
 "LDAP messages class initialization. Populate the knownTags variable for application elements creation."
 	| classes |
@@ -21,7 +23,7 @@ LDAPMessage class >> initialize [
 	LdapTags := (classes collect: [ :c | c tagValue -> c ]) asDictionary.
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LDAPMessage class >> newFrom: aStream [
 "Create a BER decoder with the LDAPMessage as application"
 	| decoder message |
@@ -31,12 +33,12 @@ LDAPMessage class >> newFrom: aStream [
 	^ message
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPMessage >> controls [
 	^ (elements size > 2) ifTrue: [ elements third elements ] ifFalse: [ #() ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPMessage >> controls: aCollection [
 	| controls |
 	controls := LDAPControls new.
@@ -44,7 +46,7 @@ LDAPMessage >> controls: aCollection [
 	(elements size > 2) ifTrue: [ elements at: 3 put: controls ] ifFalse: [ elements addLast: controls ]
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LDAPMessage >> createApplicationElement: aTagValue [
 "Create a BER applicatio element from a tag value"
 	| elementClass |
@@ -53,7 +55,7 @@ LDAPMessage >> createApplicationElement: aTagValue [
 
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LDAPMessage >> createContextElement: aTagValue at: anIndex with: aDecoder [
 "Used for controls"
 	(aTagValue = LDAPControls tagValue) ifTrue: [ ^ LDAPControls new ].
@@ -61,24 +63,24 @@ LDAPMessage >> createContextElement: aTagValue at: anIndex with: aDecoder [
 	^ super createContextElement: aTagValue at: anIndex with: aDecoder
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 LDAPMessage >> encoded [
 "Return the encoded message"
 	^ ByteString streamContents: [ :stream | self writeOn: stream ]
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPMessage >> id [
 	^ elements first value
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPMessage >> id: anInteger [
 	elements first value: anInteger 
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 LDAPMessage >> initialize [ 
 	super initialize.
 	
@@ -87,17 +89,17 @@ LDAPMessage >> initialize [
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPMessage >> operation [
 	^ elements second
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPMessage >> operation: anObject [
 	elements at: 2 put: anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPMessage >> response [
 "Alias for the second element in the sequence"
 	^ self operation

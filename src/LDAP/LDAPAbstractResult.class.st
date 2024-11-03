@@ -7,17 +7,19 @@ It defines the interface which should include:
  
 "
 Class {
-	#name : #LDAPAbstractResult,
-	#superclass : #BERSequence,
-	#category : #'LDAP-Results'
+	#name : 'LDAPAbstractResult',
+	#superclass : 'BERSequence',
+	#category : 'LDAP-Results',
+	#package : 'LDAP',
+	#tag : 'Results'
 }
 
-{ #category : #'error handling' }
+{ #category : 'error handling' }
 LDAPAbstractResult >> checkForExceptions [
 	^ self subclassResponsibility
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 LDAPAbstractResult >> isEndMarker [
 	^ self subclassResponsibility 
 ]

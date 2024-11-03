@@ -2,8 +2,8 @@
 A worker (thread)
 "
 Class {
-	#name : #LDAPWorker,
-	#superclass : #Object,
+	#name : 'LDAPWorker',
+	#superclass : 'Object',
 	#instVars : [
 		'sockStream',
 		'hostname',
@@ -13,35 +13,33 @@ Class {
 		'targets',
 		'running'
 	],
-	#category : #'LDAP-Core'
+	#category : 'LDAP-Core',
+	#package : 'LDAP',
+	#tag : 'Core'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LDAPWorker class >> newTo: aHostname port: aPort [
 	^ self new initialize: aHostname port: aPort
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LDAPWorker class >> socketClass [
 	^ SocketStream
 ]
 
-{ #category : #accessing }
+{ #category : 'dispatching' }
 LDAPWorker >> addTarget: aRequest for: aMessageId [
 	lock critical: [
 		| data |
-		targets at: aMessageId ifPresent: [
-			Error new;
-				messageText: 'messageId already present -- shouldnt happen'; 
-				signal.
-		].
+		targets at: aMessageId ifPresent: [ Error signal: 'messageId already present -- shouldnt happen' ].
 		data := Dictionary new.
-		data	at: #request put: aRequest.
+		data at: #request put: aRequest.
 		targets at: aMessageId put: data.
 	]
 ]
 
-{ #category : #connecting }
+{ #category : 'connecting' }
 LDAPWorker >> connect [
 	[ sockStream := self class socketClass openConnectionToHostNamed: hostname port: port ]
 		on: Exception do: [:ex | sockStream := nil. self error: ex messageText].
@@ -57,7 +55,7 @@ LDAPWorker >> connect [
 
 ]
 
-{ #category : #accessing }
+{ #category : 'dispatching' }
 LDAPWorker >> delTargetFor: aMessageId [
 	lock critical: [
 		targets at: aMessageId
@@ -67,13 +65,15 @@ LDAPWorker >> delTargetFor: aMessageId [
 	]
 ]
 
-{ #category : #connecting }
+{ #category : 'connecting' }
 LDAPWorker >> disconnect [
-	self stop
+	self stop.
+	sockStream close.
+	sockStream  := nil.
 	
 ]
 
-{ #category : #dispatching }
+{ #category : 'dispatching' }
 LDAPWorker >> dispatchMessage: aMessage [
 	| target id who |
 	id := aMessage id.
@@ -99,7 +99,7 @@ LDAPWorker >> dispatchMessage: aMessage [
 
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 LDAPWorker >> initialize: aHostname port: aPort [
 	hostname := aHostname.
 	port := aPort.
@@ -111,29 +111,30 @@ LDAPWorker >> initialize: aHostname port: aPort [
 	running := false.
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
+LDAPWorker >> isConnected [
+	 sockStream ifNil: [ ^ true ].	
+	^ sockStream isConnected
+]
+
+{ #category : 'accessing' }
+LDAPWorker >> isRunning [
+	^ self isConnected and: running
+]
+
+{ #category : 'accessing' }
 LDAPWorker >> nextMessageId [
 	"here we should check wether we're past the message id limit, and if so reconnect and bind"
 	nextMessageId := nextMessageId + 1.
 	^ nextMessageId
 ]
 
-{ #category : #connecting }
+{ #category : 'connecting' }
 LDAPWorker >> postConnect [ 
 "Nothing in base class"
 ]
 
-{ #category : #accessing }
-LDAPWorker >> running [
-	^ running
-]
-
-{ #category : #accessing }
-LDAPWorker >> running: aBoolean [
-	running := aBoolean
-]
-
-{ #category : #accessing }
+{ #category : 'dispatching' }
 LDAPWorker >> send: someData [
 	lock critical: [
 		sockStream 
@@ -142,9 +143,10 @@ LDAPWorker >> send: someData [
 	]
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 LDAPWorker >> start [
 	| process |
+	self isConnected ifFalse: [ ^ nil ].
 	running := true.
 	process := [ 
 		[running] whileTrue: [
@@ -157,10 +159,9 @@ LDAPWorker >> start [
 		]
 	] fork.
 	^ process
-	
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 LDAPWorker >> stop [
 	running := false.
 ]

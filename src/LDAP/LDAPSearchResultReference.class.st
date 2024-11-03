@@ -2,27 +2,29 @@
 A reference from a search result
 "
 Class {
-	#name : #LDAPSearchResultReference,
-	#superclass : #LDAPSearchPartialResult,
-	#category : #'LDAP-Results'
+	#name : 'LDAPSearchResultReference',
+	#superclass : 'LDAPSearchPartialResult',
+	#category : 'LDAP-Results',
+	#package : 'LDAP',
+	#tag : 'Results'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPSearchResultReference class >> tagValue [
 	^ 16r73
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 LDAPSearchResultReference >> isReference [
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPSearchResultReference >> url [
 	^ elements first value
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPSearchResultReference >> urls [
 	^ elements collect: #value
 

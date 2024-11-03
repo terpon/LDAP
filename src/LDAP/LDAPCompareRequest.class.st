@@ -2,30 +2,32 @@
 A request to compare
 "
 Class {
-	#name : #LDAPCompareRequest,
-	#superclass : #BERSequence,
+	#name : 'LDAPCompareRequest',
+	#superclass : 'BERSequence',
 	#instVars : [
 		'searchResult'
 	],
-	#category : #'LDAP-Requests'
+	#category : 'LDAP-Requests',
+	#package : 'LDAP',
+	#tag : 'Requests'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPCompareRequest class >> tagValue [
 	^ 16r6E "Application 14"
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPCompareRequest >> comparing: aFilter [
 	elements at: 2 put: aFilter
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPCompareRequest >> dn: aString [
 	elements first value: aString
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 LDAPCompareRequest >> initialize [ 
 	super initialize.
 	
@@ -34,7 +36,7 @@ LDAPCompareRequest >> initialize [
 
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 LDAPCompareRequest >> processResult: aCollection [
 	| result code |
 	result := aCollection last.

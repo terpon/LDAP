@@ -2,12 +2,14 @@
 A BERElement is a datatype in the BER encoding (Basic Encoding Rules)
 "
 Class {
-	#name : #BERElement,
-	#superclass : #Object,
-	#category : #'LDAP-BER'
+	#name : 'BERElement',
+	#superclass : 'Object',
+	#category : 'LDAP-BER',
+	#package : 'LDAP',
+	#tag : 'BER'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 BERElement class >> createContextElement: aTagValue at: anIndex [
 "Create a BER context element. Override for creating correct context elements."
 	LDAPException new messageText: 'invalid tag -- no context elements defined for that class'; signal.
@@ -15,27 +17,27 @@ BERElement class >> createContextElement: aTagValue at: anIndex [
 
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 BERElement class >> isApplication [ 
 	^ BERDecoder isApplication: self tagValue
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 BERElement class >> isContext [ 
 	^ BERDecoder isContext: self tagValue
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 BERElement class >> isPrivate [ 
 	^ BERDecoder isPrivate: self tagValue
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 BERElement class >> isUniversal [ 
 	^ BERDecoder isUniversal: self tagValue
 ]
 
-{ #category : #utilities }
+{ #category : 'utilities' }
 BERElement class >> lengthLength: anInteger [
 	| octets |
 	
@@ -49,12 +51,12 @@ BERElement class >> lengthLength: anInteger [
 	^ octets + 1
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElement class >> tagValue [
 	self subclassResponsibility
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 BERElement class >> writeLength: aLength on: aStream [
 	| lengthLength octets remainderValue |
 	lengthLength := self lengthLength: aLength.
@@ -72,7 +74,7 @@ BERElement class >> writeLength: aLength on: aStream [
 	aStream nextPutAll: octets asString.
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 BERElement >> createContextElement: aTagValue at: anIndex with: aDecoder [
 "Default implementation. No context class elements exist at this level."
 "Calls decoder for universal and application type elements."
@@ -80,27 +82,27 @@ BERElement >> createContextElement: aTagValue at: anIndex with: aDecoder [
 
 ]
 
-{ #category : #encoding }
+{ #category : 'encoding' }
 BERElement >> decode: aStream length: anInteger with: aDecoder [
 	self subclassResponsibility
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElement >> elements [
 	^ #()
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElement >> length [
 	^ self subclassResponsibility
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElement >> tagValue [ 
 	^ self class tagValue
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElement >> totalLength [
 	| tagLength bodyLength lengthLength |
 	tagLength := 1.
@@ -109,17 +111,17 @@ BERElement >> totalLength [
 	^ tagLength + lengthLength + bodyLength
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElement >> value [
 	^ nil
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 BERElement >> writeBodyOn: aStream [
 	self subclassResponsibility
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 BERElement >> writeOn: aStream [
 	aStream nextPut: self tagValue asCharacter.
 	self class writeLength: self length on: aStream.

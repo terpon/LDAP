@@ -10,12 +10,14 @@ From RFC4511:
    Attribute requires at least one value.
 "
 Class {
-	#name : #LDAPPartialAttribute,
-	#superclass : #BERSequence,
-	#category : #'LDAP-Elements'
+	#name : 'LDAPPartialAttribute',
+	#superclass : 'BERSequence',
+	#category : 'LDAP-Elements',
+	#package : 'LDAP',
+	#tag : 'Elements'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LDAPPartialAttribute class >> fromSequence: aBERSequence [ 
 "Convert a BERSequence to a LDAPPartialAttribute"
 	| pa |
@@ -25,22 +27,22 @@ LDAPPartialAttribute class >> fromSequence: aBERSequence [
 	^ pa
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 LDAPPartialAttribute >> addValue: aString [
 	elements second addElement: (BEROctetString new value: aString).
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPPartialAttribute >> description [
 	^ elements first value
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPPartialAttribute >> description: aString [ 
 	elements first value: aString
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 LDAPPartialAttribute >> initialize [ 
 	super initialize.
 	
@@ -49,7 +51,7 @@ LDAPPartialAttribute >> initialize [
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPPartialAttribute >> values [
 	| berStrings |
 	berStrings := elements second elements.
@@ -57,7 +59,7 @@ LDAPPartialAttribute >> values [
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPPartialAttribute >> values: aCollectionOfStrings [
 	elements at: 2 put: BERSet new.
 	aCollectionOfStrings isString 

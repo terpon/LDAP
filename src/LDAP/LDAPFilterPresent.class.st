@@ -2,20 +2,22 @@
 A present filter
 "
 Class {
-	#name : #LDAPFilterPresent,
-	#superclass : #BEROctetString,
+	#name : 'LDAPFilterPresent',
+	#superclass : 'BEROctetString',
 	#traits : 'TLDAPComposeFilter',
 	#classTraits : 'TLDAPComposeFilter classTrait',
-	#category : #'LDAP-Filters'
+	#category : 'LDAP-Filters',
+	#package : 'LDAP',
+	#tag : 'Filters'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LDAPFilterPresent class >> having: anAttrType [
 	^ self new value: anAttrType
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPFilterPresent class >> tagValue [
 	^ 16r87 "Context 7"
 ]

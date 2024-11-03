@@ -2,33 +2,35 @@
 BERBoolean is a boolean encoded in BER.
 "
 Class {
-	#name : #BERBoolean,
-	#superclass : #BERPrimitive,
-	#category : #'LDAP-BER'
+	#name : 'BERBoolean',
+	#superclass : 'BERPrimitive',
+	#category : 'LDAP-BER',
+	#package : 'LDAP',
+	#tag : 'BER'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERBoolean class >> tagValue [
 	^ 1
 ]
 
-{ #category : #encoding }
+{ #category : 'encoding' }
 BERBoolean >> decode: aStream length: anInteger with: aDecoder [
 	self value: aStream next.
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERBoolean >> length [
 	^ 1
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERBoolean >> value [ 
 	^ value ifNil: [ false ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERBoolean >> value: anObject [
 "Convert object to a boolean"
 	anObject == true ifTrue: [ value := true. ^ self ].
@@ -39,7 +41,7 @@ BERBoolean >> value: anObject [
 
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 BERBoolean >> writeBodyOn: aStream [
 	self value
 		ifFalse: [aStream nextPut: (0 asCharacter)]

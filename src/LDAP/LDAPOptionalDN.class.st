@@ -4,12 +4,14 @@ I am an option DN string.
 (Context 0)
 "
 Class {
-	#name : #LDAPOptionalDN,
-	#superclass : #BEROctetString,
-	#category : #'LDAP-ContextElements'
+	#name : 'LDAPOptionalDN',
+	#superclass : 'BEROctetString',
+	#category : 'LDAP-ContextElements',
+	#package : 'LDAP',
+	#tag : 'ContextElements'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPOptionalDN class >> tagValue [
 	^ 16r80 "Context 0"
 ]

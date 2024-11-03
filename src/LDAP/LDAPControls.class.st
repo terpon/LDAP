@@ -2,12 +2,14 @@
 I am a set of controls in a LDAP message.
 "
 Class {
-	#name : #LDAPControls,
-	#superclass : #BERSequence,
-	#category : #'LDAP-ContextElements'
+	#name : 'LDAPControls',
+	#superclass : 'BERSequence',
+	#category : 'LDAP-ContextElements',
+	#package : 'LDAP',
+	#tag : 'ContextElements'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPControls class >> tagValue [
 	^ 16rA0 "Context 0"
 ]

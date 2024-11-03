@@ -2,12 +2,14 @@
 BERSet is a set of values encoded in BER.
 "
 Class {
-	#name : #BERSet,
-	#superclass : #BERConstruct,
-	#category : #'LDAP-BER'
+	#name : 'BERSet',
+	#superclass : 'BERConstruct',
+	#category : 'LDAP-BER',
+	#package : 'LDAP',
+	#tag : 'BER'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERSet class >> tagValue [
 	"SET + Constructed"
 	^ (17 + 32)

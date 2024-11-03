@@ -6,18 +6,20 @@ I defer to my application instance variable for application class elements.
 For constructed types, I query the constructed instance for context class elements.
 "
 Class {
-	#name : #BERDecoder,
-	#superclass : #Object,
+	#name : 'BERDecoder',
+	#superclass : 'Object',
 	#instVars : [
 		'application'
 	],
 	#classVars : [
 		'UniversalTags'
 	],
-	#category : #'LDAP-BER'
+	#category : 'LDAP-BER',
+	#package : 'LDAP',
+	#tag : 'BER'
 }
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 BERDecoder class >> initialize [ 
 "BERElement class initialization. Populate the knownTags variable for universal elements creation."
 	| classes |
@@ -25,32 +27,32 @@ BERDecoder class >> initialize [
 	UniversalTags := (classes collect: [ :c | c tagValue -> c ]) asDictionary.
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 BERDecoder class >> isApplication: aTagValue [
 	^ (aTagValue bitAnd: 16rC0) = 16r40
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 BERDecoder class >> isConstructed: aTagValue [
 	^ (aTagValue bitAnd: 16r20) = 16r20
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 BERDecoder class >> isContext: aTagValue [
 	^ (aTagValue bitAnd: 16rC0) = 16r80
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 BERDecoder class >> isPrivate: aTagValue [
 	^ (aTagValue bitAnd: 16rC0) = 16rC0
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 BERDecoder class >> isUniversal: aTagValue [
 	^ (aTagValue bitAnd: 16rC0) = 0
 ]
 
-{ #category : #reading }
+{ #category : 'reading' }
 BERDecoder class >> readLengthFrom: aStream [
 	| length octets firstOctet |
 	
@@ -66,18 +68,18 @@ BERDecoder class >> readLengthFrom: aStream [
 	^ length			
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERDecoder class >> universalClass: aTagValue [
 "Return a BER universal class from a tag value"
 	^ UniversalTags at: aTagValue ifAbsent: [ nil ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERDecoder >> application: anObject [
 	application := anObject
 ]
 
-{ #category : #'private - creation' }
+{ #category : 'private - creation' }
 BERDecoder >> createApplicationElement: aTagValue [
 
 	"Create a BER application element from a tag value."
@@ -93,7 +95,7 @@ BERDecoder >> createApplicationElement: aTagValue [
 		  self createElementError: 'invalid application tag' withTag: aTagValue ]
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 BERDecoder >> createElement: aTagValue [
 	"Create a BER element from a tag value"
 
@@ -104,7 +106,7 @@ BERDecoder >> createElement: aTagValue [
 		  withTag: aTagValue
 ]
 
-{ #category : #'private - creation' }
+{ #category : 'private - creation' }
 BERDecoder >> createElement: aTagValue in: aContextObject at: anIndex [
 "Create a BER element from a tag value"
 	aContextObject ifNil: [ ^ self createElement: aTagValue ].
@@ -114,7 +116,7 @@ BERDecoder >> createElement: aTagValue in: aContextObject at: anIndex [
 
 ]
 
-{ #category : #'error handling' }
+{ #category : 'error handling' }
 BERDecoder >> createElementError: aString withTag: anInteger [
 "Create a BER unknown element and signal error."
 	LDAPException new messageText: aString; signal.
@@ -122,7 +124,7 @@ BERDecoder >> createElementError: aString withTag: anInteger [
 
 ]
 
-{ #category : #'private - creation' }
+{ #category : 'private - creation' }
 BERDecoder >> createUniversalElement: aTagValue [
 
 	"Create a BER universal element from a tag value"
@@ -135,7 +137,7 @@ BERDecoder >> createUniversalElement: aTagValue [
 		  ifNotNil: [ :c | c new ]
 ]
 
-{ #category : #reading }
+{ #category : 'reading' }
 BERDecoder >> decode: anElement from: aStream [
 "Decode an already existing element from a stream"
 	| firstByte length |
@@ -147,7 +149,7 @@ BERDecoder >> decode: anElement from: aStream [
 
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 BERDecoder >> elementFrom: aStream [
 "Create a BER element from a stream"
 	"Entry method with no context"
@@ -155,7 +157,7 @@ BERDecoder >> elementFrom: aStream [
 
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 BERDecoder >> elementFrom: aStream in: aContextObject at: anIndex [
 "Create a BER element from a stream"
 	| firstByte element |

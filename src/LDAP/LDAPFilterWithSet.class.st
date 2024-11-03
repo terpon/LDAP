@@ -2,9 +2,11 @@
 Filter with a set of filters
 "
 Class {
-	#name : #LDAPFilterWithSet,
-	#superclass : #BERSet,
+	#name : 'LDAPFilterWithSet',
+	#superclass : 'BERSet',
 	#traits : 'TLDAPComposeFilter',
 	#classTraits : 'TLDAPComposeFilter classTrait',
-	#category : #'LDAP-Filters'
+	#category : 'LDAP-Filters',
+	#package : 'LDAP',
+	#tag : 'Filters'
 }

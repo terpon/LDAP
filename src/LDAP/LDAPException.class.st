@@ -2,15 +2,17 @@
 Common superclass for LDAP exceptions
 "
 Class {
-	#name : #LDAPException,
-	#superclass : #Error,
+	#name : 'LDAPException',
+	#superclass : 'Error',
 	#instVars : [
 		'resultCode'
 	],
-	#category : #'LDAP-Exceptions'
+	#category : 'LDAP-Exceptions',
+	#package : 'LDAP',
+	#tag : 'Exceptions'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LDAPException class >> newWithCode: aResultCode [
 
 	| ex newClass |
@@ -30,7 +32,7 @@ LDAPException class >> newWithCode: aResultCode [
 	^ ex
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 LDAPException >> initializeWithCode: aResultCode [
 	| message |
 	resultCode := aResultCode.

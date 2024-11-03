@@ -2,16 +2,18 @@
 A LDAPConnection describes the connection of a client to a LDAP server.
 "
 Class {
-	#name : #LDAPConnection,
-	#superclass : #Object,
+	#name : 'LDAPConnection',
+	#superclass : 'Object',
 	#instVars : [
 		'worker',
 		'workerThread'
 	],
-	#category : #'LDAP-Core'
+	#category : 'LDAP-Core',
+	#package : 'LDAP',
+	#tag : 'Core'
 }
 
-{ #category : #documentation }
+{ #category : 'documentation' }
 LDAPConnection class >> missingRFC2251 [
 	self notYetImplemented
 	
@@ -34,24 +36,24 @@ WONT
 "
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LDAPConnection class >> to: aHostname [
 	^ self to: aHostname port: 389
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LDAPConnection class >> to: aHostname port: aPort [
 	| obj |
 	obj := self new initializeWithHost: aHostname port: aPort.
 	^ obj
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPConnection class >> workerClass [
 	^ LDAPWorker
 ]
 
-{ #category : #'command execution' }
+{ #category : 'command execution' }
 LDAPConnection >> abandon: aMessage [
 	| id |
 	id := aMessage id.
@@ -60,14 +62,14 @@ LDAPConnection >> abandon: aMessage [
 
 ]
 
-{ #category : #connecting }
+{ #category : 'connecting' }
 LDAPConnection >> disconnect [
 	self unbind.
 	worker disconnect.
 	workerThread terminate
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 LDAPConnection >> initializeWithHost: aHostname port: aPort [
 	worker := self class workerClass newTo: aHostname port: aPort.
 	worker connect.
@@ -75,13 +77,13 @@ LDAPConnection >> initializeWithHost: aHostname port: aPort [
 
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 LDAPConnection >> isValid [
 	"Answers whether the connection looks still valid"
-	^worker running
+	^worker isRunning
 ]
 
-{ #category : #'command execution' }
+{ #category : 'command execution' }
 LDAPConnection >> request: aRequest [
 	| command message messageId |
 	messageId := worker nextMessageId.
@@ -94,7 +96,7 @@ LDAPConnection >> request: aRequest [
 	^ command
 ]
 
-{ #category : #binding }
+{ #category : 'binding' }
 LDAPConnection >> unbind [
 	^ self request: (LDAPUnbindRequest new)
 ]

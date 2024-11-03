@@ -2,17 +2,19 @@
 Search result code
 "
 Class {
-	#name : #LDAPSearchResultCode,
-	#superclass : #LDAPResult,
-	#category : #'LDAP-Results'
+	#name : 'LDAPSearchResultCode',
+	#superclass : 'LDAPResult',
+	#category : 'LDAP-Results',
+	#package : 'LDAP',
+	#tag : 'Results'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPSearchResultCode class >> tagValue [
 	^ 16r65
 ]
 
-{ #category : #'error handling' }
+{ #category : 'error handling' }
 LDAPSearchResultCode >> checkForExceptions [
 	| code |
 	code := self resultCode.	

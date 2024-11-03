@@ -2,13 +2,15 @@
 Helper trait to compose filters more easily
 "
 Trait {
-	#name : #TLDAPComposeFilter,
+	#name : 'TLDAPComposeFilter',
 	#traits : 'TEmpty',
 	#classTraits : 'TEmpty classTrait',
-	#category : #'LDAP-Filters'
+	#category : 'LDAP-Filters',
+	#package : 'LDAP',
+	#tag : 'Filters'
 }
 
-{ #category : #'logical operations' }
+{ #category : 'logical operations' }
 TLDAPComposeFilter >> & aFilter [
 	| set |
 	set := LDAPFilterAnd new.
@@ -18,22 +20,22 @@ TLDAPComposeFilter >> & aFilter [
 
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 TLDAPComposeFilter >> asAndElements [
 	^ { self }
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 TLDAPComposeFilter >> asOrElements [
 	^ { self }
 ]
 
-{ #category : #'logical operations' }
+{ #category : 'logical operations' }
 TLDAPComposeFilter >> not [ 
 	^ LDAPFilterNot filter: self
 ]
 
-{ #category : #'logical operations' }
+{ #category : 'logical operations' }
 TLDAPComposeFilter >> | aFilter [
 	| set |
 	set := LDAPFilterOr new.

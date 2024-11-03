@@ -2,22 +2,24 @@
 Pseudo BER sequence for attributes modification operations
 "
 Class {
-	#name : #LDAPModifyAttributes,
-	#superclass : #BERSequence,
-	#category : #'LDAP-Elements'
+	#name : 'LDAPModifyAttributes',
+	#superclass : 'BERSequence',
+	#category : 'LDAP-Elements',
+	#package : 'LDAP',
+	#tag : 'Elements'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPModifyAttributes >> attr [
 	^ elements second description
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPModifyAttributes >> attr: aString [
 	elements second description: aString
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 LDAPModifyAttributes >> initialize [ 
 	super initialize.
 	
@@ -26,17 +28,17 @@ LDAPModifyAttributes >> initialize [
 
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LDAPModifyAttributes >> operation: anEnumeratedElement [
 	elements at: 1 put: anEnumeratedElement
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 LDAPModifyAttributes >> operationName [ 
 	^ elements first name ifNil: [ 'unknown' ]
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 LDAPModifyAttributes >> printOn: aStream [
 
 	aStream
@@ -50,12 +52,12 @@ LDAPModifyAttributes >> printOn: aStream [
 	aStream	nextPutAll: ')'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPModifyAttributes >> values [
 	^ elements second values
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPModifyAttributes >> values: aCollection [
 	elements second values: aCollection
 ]

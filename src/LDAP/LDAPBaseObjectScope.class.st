@@ -4,23 +4,25 @@ Only the entry whose DN is provided in the baseObject element of the request wil
 None of its subordinates will be examined.
 "
 Class {
-	#name : #LDAPBaseObjectScope,
-	#superclass : #LDAPSearchScope,
-	#category : #'LDAP-Enumerated'
+	#name : 'LDAPBaseObjectScope',
+	#superclass : 'LDAPSearchScope',
+	#category : 'LDAP-Enumerated',
+	#package : 'LDAP',
+	#tag : 'Enumerated'
 }
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 LDAPBaseObjectScope >> initialize [ 
 	super initialize.
 	value := 0. "base object"
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPBaseObjectScope >> name [
 	^ 'baseObject'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPBaseObjectScope >> value: anInteger [
 	^ self shouldNotImplement 
 ]

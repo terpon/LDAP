@@ -2,36 +2,38 @@
 NOT filter
 "
 Class {
-	#name : #LDAPFilterNot,
-	#superclass : #BERSet,
+	#name : 'LDAPFilterNot',
+	#superclass : 'BERSet',
 	#traits : 'TLDAPComposeFilter',
 	#classTraits : 'TLDAPComposeFilter classTrait',
-	#category : #'LDAP-Filters'
+	#category : 'LDAP-Filters',
+	#package : 'LDAP',
+	#tag : 'Filters'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LDAPFilterNot class >> filter: aFilter [
 	^ self new filter: aFilter
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPFilterNot class >> tagValue [
 	^ 16rA2 "Context 2"
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPFilterNot >> filter: aFilter [
 	elements at: 1 put: aFilter
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 LDAPFilterNot >> initialize [ 
 	super initialize.
 	
 	self addElement: (LDAPFilterAnd new).
 ]
 
-{ #category : #'logical operations' }
+{ #category : 'logical operations' }
 LDAPFilterNot >> not [
 	^ elements first
 ]

@@ -2,17 +2,19 @@
 Result of an LDAP message.
 "
 Class {
-	#name : #LDAPResult,
-	#superclass : #LDAPAbstractResult,
-	#category : #'LDAP-Results'
+	#name : 'LDAPResult',
+	#superclass : 'LDAPAbstractResult',
+	#category : 'LDAP-Results',
+	#package : 'LDAP',
+	#tag : 'Results'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPResult class >> tagValue [
 	self subclassResponsibility
 ]
 
-{ #category : #'error handling' }
+{ #category : 'error handling' }
 LDAPResult >> checkForExceptions [
 	| ex |
 	self success ifTrue: [ ^ self ].
@@ -21,7 +23,7 @@ LDAPResult >> checkForExceptions [
 	ex signal: (self errorMessage ifEmpty:[ex messageText ]).
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LDAPResult >> createContextElement: aTagValue at: anIndex with: aDecoder [
 "Used for controls"
 	(aTagValue = LDAPReferral tagValue) ifTrue: [ ^ LDAPReferral new ].
@@ -30,32 +32,32 @@ LDAPResult >> createContextElement: aTagValue at: anIndex with: aDecoder [
 	^ super createContextElement: aTagValue at: anIndex with: aDecoder
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPResult >> errorMessage [
 	^ elements third value
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 LDAPResult >> isEndMarker [
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPResult >> matchedDN [
 	^ elements second value
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPResult >> referral [
 	^ elements fourth
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPResult >> resultCode [
 	^ elements first value
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 LDAPResult >> success [ 
 	^ self resultCode isZero 
 ]

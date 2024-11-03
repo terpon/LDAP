@@ -2,22 +2,24 @@
 I am a presenter to display BER elements as trees in the inspector.
 "
 Class {
-	#name : #BERElementTreePresenter,
-	#superclass : #SpPresenter,
+	#name : 'BERElementTreePresenter',
+	#superclass : 'SpPresenter',
 	#instVars : [
 		'roots',
 		'tree'
 	],
-	#category : #'LDAP-Inspector'
+	#category : 'LDAP-Inspector',
+	#package : 'LDAP',
+	#tag : 'Inspector'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElementTreePresenter class >> childrenBlock [ 
 
 	^ [ :e | e elements ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElementTreePresenter class >> classBlock [ 
 
 	^ [ :e | String streamContents: [ :s | 
@@ -26,18 +28,18 @@ BERElementTreePresenter class >> classBlock [
 		]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 BERElementTreePresenter class >> defaultLayout [ 
 	^ SpBoxLayout newVertical add: #tree; yourself
 ]
 
-{ #category : #specs }
+{ #category : 'specs' }
 BERElementTreePresenter class >> defaultSpec [
 
 	^ self defaultLayout
 ]
 
-{ #category : #examples }
+{ #category : 'examples' }
 BERElementTreePresenter class >> example [
 "Sample tree"
 	| mod |
@@ -46,14 +48,14 @@ BERElementTreePresenter class >> example [
 
 ]
 
-{ #category : #examples }
+{ #category : 'examples' }
 BERElementTreePresenter class >> exampleInspect [
 "Sample tree"
 	self sampleElement inspect.
 
 ]
 
-{ #category : #examples }
+{ #category : 'examples' }
 BERElementTreePresenter class >> sampleElement [
 "Sample tree"
 	| ops |
@@ -68,18 +70,18 @@ BERElementTreePresenter class >> sampleElement [
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElementTreePresenter class >> valueBlock [ 
 
 	^ [ :e | e value ifNotNil: [ String streamContents: [ :s | e displayStringOn: s ] ] ]
 ]
 
-{ #category : #forwarding }
+{ #category : 'forwarding' }
 BERElementTreePresenter >> activateOnSingleClick [
 	tree activateOnSingleClick.
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 BERElementTreePresenter >> connectPresenters [ 
 
 	super connectPresenters.
@@ -89,12 +91,12 @@ BERElementTreePresenter >> connectPresenters [
 
 ]
 
-{ #category : #controlling }
+{ #category : 'controlling' }
 BERElementTreePresenter >> expand [
 	tree expandRoots.
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 BERElementTreePresenter >> initializePresenters [ 
 
 	tree := self newTreeTable 
@@ -107,7 +109,7 @@ BERElementTreePresenter >> initializePresenters [
 
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 BERElementTreePresenter >> initializeWindow: aSpWindowPresenter [
 
 	super initializeWindow: aSpWindowPresenter.
@@ -116,32 +118,32 @@ BERElementTreePresenter >> initializeWindow: aSpWindowPresenter [
 		title: self titleForWindow
 ]
 
-{ #category : #ports }
+{ #category : 'ports' }
 BERElementTreePresenter >> outputActivationPort [ 
 	^ tree outputActivationPort
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElementTreePresenter >> root: anObject [
 	^ self roots: { anObject }
 	
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElementTreePresenter >> roots: aCollection [
 	roots := aCollection.
 	self updatePresenter.
 	
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERElementTreePresenter >> selectedItem [
 	"Return selected item."
 	
 	^ tree selectedItem
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 BERElementTreePresenter >> titleForWindow [ 
 	| element |
 	roots ifNil: [ ^ 'No elements' ].
@@ -150,7 +152,7 @@ BERElementTreePresenter >> titleForWindow [
 	^ element printString
 ]
 
-{ #category : #controlling }
+{ #category : 'controlling' }
 BERElementTreePresenter >> toggleExpandCurrent [
 	| path state |
 	path := tree selection selectedPath.
@@ -159,11 +161,16 @@ BERElementTreePresenter >> toggleExpandCurrent [
 	state ifTrue: [ tree collapsePath: path ] ifFalse: [ tree expandPath: path ].
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 BERElementTreePresenter >> updatePresenter [ 
 	| elements |
 	elements := roots ifNil: [ { BERNull new } ].
 	tree roots: elements.
 	
 	self withWindowDo: [ :w | w title: self titleForWindow ]
+]
+
+{ #category : 'enumerating' }
+BERElementTreePresenter >> whenActivatedDo: aBlock [
+	tree whenActivatedDo: aBlock.
 ]

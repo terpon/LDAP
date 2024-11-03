@@ -2,17 +2,19 @@
 BERInteger is a integer encoded in BER.
 "
 Class {
-	#name : #BERInteger,
-	#superclass : #BERPrimitive,
-	#category : #'LDAP-BER'
+	#name : 'BERInteger',
+	#superclass : 'BERPrimitive',
+	#category : 'LDAP-BER',
+	#package : 'LDAP',
+	#tag : 'BER'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERInteger class >> tagValue [
 	^ 2 
 ]
 
-{ #category : #encoding }
+{ #category : 'encoding' }
 BERInteger >> decode: aStream length: aLength with: aDecoder [
 	| highBit negative powerOfTwo |
 	"if the high bit is set, we have negative"	
@@ -29,13 +31,13 @@ BERInteger >> decode: aStream length: aLength with: aDecoder [
 
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 BERInteger >> inspectIntegerIn: aBuilder [
 	<inspectorPresentationOrder: 30 title: 'Integer'> 
 	^ self value asInteger inspectIntegerIn: aBuilder
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERInteger >> length [
 "Compute the minimum size for the integer"
 	| integerValue |
@@ -55,17 +57,17 @@ BERInteger >> length [
 		]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERInteger >> value [ 
 	^ value ifNil: [ 0 ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERInteger >> value: anObject [
 	value := anObject isInteger ifTrue: [ anObject ] ifFalse: [ 0 ] 
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 BERInteger >> writeBodyOn: aStream [
 	| integerValue length octets remainderValue |
 	length := self length.

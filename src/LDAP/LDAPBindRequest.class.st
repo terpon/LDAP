@@ -2,19 +2,21 @@
 LDAPBindRequest is the connection process to the LDAP directory.
 "
 Class {
-	#name : #LDAPBindRequest,
-	#superclass : #BERSequence,
+	#name : 'LDAPBindRequest',
+	#superclass : 'BERSequence',
 	#traits : 'TLDAPReturnResult',
 	#classTraits : 'TLDAPReturnResult classTrait',
-	#category : #'LDAP-Requests'
+	#category : 'LDAP-Requests',
+	#package : 'LDAP',
+	#tag : 'Requests'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPBindRequest class >> tagValue [
 	^ 16r60 "Application 0"
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 LDAPBindRequest >> initialize [ 
 	super initialize.
 	
@@ -24,12 +26,12 @@ LDAPBindRequest >> initialize [
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPBindRequest >> password: aString [
 	elements third value: aString
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPBindRequest >> username: aString [
 	elements second value: aString
 ]

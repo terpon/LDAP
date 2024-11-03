@@ -2,17 +2,19 @@
 LDAPSearchRequest is the process to search entries from the LDAP directory.
 "
 Class {
-	#name : #LDAPSearchRequest,
-	#superclass : #BERSequence,
-	#category : #'LDAP-Requests'
+	#name : 'LDAPSearchRequest',
+	#superclass : 'BERSequence',
+	#category : 'LDAP-Requests',
+	#package : 'LDAP',
+	#tag : 'Requests'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPSearchRequest class >> tagValue [
 	^ 16r63 "Application 3"
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPSearchRequest >> attrs: someAttrs [
 	| ber |
 	ber := BERSequence new.
@@ -20,22 +22,22 @@ LDAPSearchRequest >> attrs: someAttrs [
 	elements at: 8 put: ber.
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPSearchRequest >> base: aDn [
 	elements first value: aDn
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPSearchRequest >> derefAliases: anAliasingPolicy [
 	elements at: 3 put: anAliasingPolicy
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPSearchRequest >> filter: aFilter [
 	elements at: 7 put: aFilter 
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 LDAPSearchRequest >> initialize [ 
 	super initialize.
 	
@@ -51,7 +53,7 @@ LDAPSearchRequest >> initialize [
 
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 LDAPSearchRequest >> processResult: aCollection [
 "Return search entries"
 	aCollection do: #checkForExceptions.
@@ -59,22 +61,22 @@ LDAPSearchRequest >> processResult: aCollection [
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPSearchRequest >> scope: aScope [
 	elements at: 2 put: aScope
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPSearchRequest >> sizeLimit: anInteger [
 	elements fourth value: anInteger
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPSearchRequest >> timeLimit: anInteger [
 	elements fifth value: anInteger
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPSearchRequest >> wantAttrsOnly: aBoolean [
 	elements sixth value: aBoolean
 ]

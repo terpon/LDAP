@@ -2,23 +2,25 @@
 Adds one or more attribute values to an entry.
 "
 Class {
-	#name : #LDAPAddAttributesOperation,
-	#superclass : #LDAPModifyOperation,
-	#category : #'LDAP-Enumerated'
+	#name : 'LDAPAddAttributesOperation',
+	#superclass : 'LDAPModifyOperation',
+	#category : 'LDAP-Enumerated',
+	#package : 'LDAP',
+	#tag : 'Enumerated'
 }
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 LDAPAddAttributesOperation >> initialize [ 
 	super initialize.
 	value := 0. "Add"
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPAddAttributesOperation >> name [
 	^ 'add'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPAddAttributesOperation >> value: anInteger [
 	^ self shouldNotImplement 
 ]

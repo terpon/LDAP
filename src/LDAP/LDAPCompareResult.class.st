@@ -2,18 +2,20 @@
 Result for compare
 "
 Class {
-	#name : #LDAPCompareResult,
-	#superclass : #LDAPResult,
-	#category : #'LDAP-Results'
+	#name : 'LDAPCompareResult',
+	#superclass : 'LDAPResult',
+	#category : 'LDAP-Results',
+	#package : 'LDAP',
+	#tag : 'Results'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPCompareResult class >> tagValue [
 	^ 16r6F
 	
 ]
 
-{ #category : #'error handling' }
+{ #category : 'error handling' }
 LDAPCompareResult >> checkForExceptions [
 	| code |
 	code := self resultCode.	
@@ -22,7 +24,7 @@ LDAPCompareResult >> checkForExceptions [
 	^ super checkForExceptions
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 LDAPCompareResult >> processResult [
 	self resultCode = 5 ifTrue: [ ^ false ].
 	self resultCode = 6 ifTrue: [ ^ true ].

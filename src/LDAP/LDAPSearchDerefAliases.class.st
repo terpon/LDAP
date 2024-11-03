@@ -6,7 +6,9 @@ Alias entries are kind of like the LDAP equivalent of a UNIX symbolic link in th
 The act of following an alias to the entry that it references is called dereferencing that alias. 
 "
 Class {
-	#name : #LDAPSearchDerefAliases,
-	#superclass : #BEREnumerated,
-	#category : #'LDAP-Enumerated'
+	#name : 'LDAPSearchDerefAliases',
+	#superclass : 'BEREnumerated',
+	#category : 'LDAP-Enumerated',
+	#package : 'LDAP',
+	#tag : 'Enumerated'
 }

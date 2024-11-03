@@ -2,15 +2,17 @@
 An enumerated element that provides a basic indication of whether the operation was processed successfully.
 "
 Class {
-	#name : #LDAPResultCode,
-	#superclass : #BEREnumerated,
+	#name : 'LDAPResultCode',
+	#superclass : 'BEREnumerated',
 	#classVars : [
 		'CodeNames'
 	],
-	#category : #'LDAP-Enumerated'
+	#category : 'LDAP-Enumerated',
+	#package : 'LDAP',
+	#tag : 'Enumerated'
 }
 
-{ #category : #constants }
+{ #category : 'constants' }
 LDAPResultCode class >> errorCodes [
 "From RFC 4511 section 4.1.9"
 ^ #(
@@ -58,7 +60,7 @@ LDAPResultCode class >> errorCodes [
 )
 ]
 
-{ #category : #'class initialization' }
+{ #category : 'class initialization' }
 LDAPResultCode class >> initialize [ 
 "Register error names"
 
@@ -66,12 +68,12 @@ LDAPResultCode class >> initialize [
 	self errorCodes pairsDo: [ :code :value | CodeNames at: code put: value ].
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 LDAPResultCode class >> stringFor: anInteger [
 	^ CodeNames at: anInteger ifAbsent: [ 'unknown' ]
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 LDAPResultCode >> printOn: aStream [
 	| code |
 	code := self value.

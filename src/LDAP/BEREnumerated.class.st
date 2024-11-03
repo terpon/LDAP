@@ -2,22 +2,24 @@
 BEREnumerated is for a choice within a bounded set of possible values
 "
 Class {
-	#name : #BEREnumerated,
-	#superclass : #BERInteger,
-	#category : #'LDAP-BER'
+	#name : 'BEREnumerated',
+	#superclass : 'BERInteger',
+	#category : 'LDAP-BER',
+	#package : 'LDAP',
+	#tag : 'BER'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BEREnumerated class >> tagValue [
 	^ 10
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BEREnumerated >> name [
 	^ nil
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 BEREnumerated >> printOn: aStream [
 	| name |
 	name := self name ifNil: [ ^ super printOn: aStream ].

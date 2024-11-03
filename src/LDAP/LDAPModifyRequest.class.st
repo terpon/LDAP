@@ -2,29 +2,31 @@
 A request to modify
 "
 Class {
-	#name : #LDAPModifyRequest,
-	#superclass : #BERSequence,
+	#name : 'LDAPModifyRequest',
+	#superclass : 'BERSequence',
 	#traits : 'TLDAPReturnResult',
 	#classTraits : 'TLDAPReturnResult classTrait',
-	#category : #'LDAP-Requests'
+	#category : 'LDAP-Requests',
+	#package : 'LDAP',
+	#tag : 'Requests'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPModifyRequest class >> tagValue [
 	^ 16r66 "Application 6"
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 LDAPModifyRequest >> addOperation: anOp [
 	elements second addElement: anOp
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPModifyRequest >> dn: aDn [
 	elements first value: aDn
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 LDAPModifyRequest >> initialize [ 
 	super initialize.
 	
@@ -33,13 +35,13 @@ LDAPModifyRequest >> initialize [
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPModifyRequest >> ops [
 	^ elements second elements
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPModifyRequest >> ops: someModifyingOps [
 	| ops |
 	ops := BERSequence new.

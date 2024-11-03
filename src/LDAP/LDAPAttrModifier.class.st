@@ -2,12 +2,14 @@
 An attribute modifier
 "
 Class {
-	#name : #LDAPAttrModifier,
-	#superclass : #Object,
-	#category : #'LDAP-Core'
+	#name : 'LDAPAttrModifier',
+	#superclass : 'Object',
+	#category : 'LDAP-Core',
+	#package : 'LDAP',
+	#tag : 'Core'
 }
 
-{ #category : #operations }
+{ #category : 'operations' }
 LDAPAttrModifier class >> addTo: anAttr values: someValues [
 	^ LDAPModifyAttributes new 
 		operation: LDAPAddAttributesOperation new; 
@@ -16,12 +18,12 @@ LDAPAttrModifier class >> addTo: anAttr values: someValues [
 		yourself
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 LDAPAttrModifier class >> del: anAttr [
 	^ self delFrom: anAttr values: #()
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 LDAPAttrModifier class >> delFrom: anAttr values: someValues [
 	^ LDAPModifyAttributes new 
 		operation: LDAPDeleteAttributesOperation new;
@@ -30,7 +32,7 @@ LDAPAttrModifier class >> delFrom: anAttr values: someValues [
 		yourself 
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 LDAPAttrModifier class >> set: anAttr to: someValues [
 	^ LDAPModifyAttributes new
 		operation: LDAPReplaceAttributesOperation new;

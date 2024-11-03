@@ -2,12 +2,14 @@
 Result for delete
 "
 Class {
-	#name : #LDAPDelResult,
-	#superclass : #LDAPResult,
-	#category : #'LDAP-Results'
+	#name : 'LDAPDelResult',
+	#superclass : 'LDAPResult',
+	#category : 'LDAP-Results',
+	#package : 'LDAP',
+	#tag : 'Results'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPDelResult class >> tagValue [
 	^ 16r6B
 ]
