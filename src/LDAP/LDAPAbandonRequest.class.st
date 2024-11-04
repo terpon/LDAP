@@ -4,8 +4,6 @@ Request to abondon a request
 Class {
 	#name : 'LDAPAbandonRequest',
 	#superclass : 'BERInteger',
-	#traits : 'TLDAPReturnResult',
-	#classTraits : 'TLDAPReturnResult classTrait',
 	#category : 'LDAP-Requests',
 	#package : 'LDAP',
 	#tag : 'Requests'

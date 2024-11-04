@@ -4,8 +4,6 @@ LDAPSearchRequest is the process to search entries from the LDAP directory.
 Class {
 	#name : 'LDAPSearchRequest',
 	#superclass : 'BERSequence',
-	#traits : 'TLDAPReturnResult',
-	#classTraits : 'TLDAPReturnResult classTrait',
 	#category : 'LDAP-Requests',
 	#package : 'LDAP',
 	#tag : 'Requests'

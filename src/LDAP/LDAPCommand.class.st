@@ -108,7 +108,7 @@ LDAPCommand >> signalExceptions [
 
 { #category : 'accessing' }
 LDAPCommand >> success [
-	^ message operation processSuccessFor: self responses
+	^ self responses allSatisfy: [ :response | response success ]
 ]
 
 { #category : 'operating' }
