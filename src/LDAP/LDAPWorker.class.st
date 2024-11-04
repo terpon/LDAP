@@ -29,14 +29,21 @@ LDAPWorker class >> socketClass [
 ]
 
 { #category : 'dispatching' }
-LDAPWorker >> addTarget: aRequest for: aMessageId [
+LDAPWorker >> abandon: aMessage [
+	self removeTargetId: aMessage id.
+]
+
+{ #category : 'private - dispatching' }
+LDAPWorker >> addTarget: aCommand [
+	| messageId |
+	messageId := self nextMessageId.
 	lock critical: [
-		| data |
-		targets at: aMessageId ifPresent: [ Error signal: 'messageId already present -- shouldnt happen' ].
-		data := Dictionary new.
-		data at: #request put: aRequest.
-		targets at: aMessageId put: data.
-	]
+		targets at: messageId 
+			ifPresent: [ Error signal: 'messageId already present -- shouldn’t happen' ]
+			ifAbsentPut: aCommand
+	].
+	^  messageId 
+
 ]
 
 { #category : 'connecting' }
@@ -55,16 +62,6 @@ LDAPWorker >> connect [
 
 ]
 
-{ #category : 'dispatching' }
-LDAPWorker >> delTargetFor: aMessageId [
-	lock critical: [
-		targets at: aMessageId
-			ifAbsent: [ ^ self ].
-		 targets removeKey: aMessageId
-	
-	]
-]
-
 { #category : 'connecting' }
 LDAPWorker >> disconnect [
 	self stop.
@@ -73,28 +70,26 @@ LDAPWorker >> disconnect [
 	
 ]
 
-{ #category : 'dispatching' }
+{ #category : 'private - dispatching' }
 LDAPWorker >> dispatchMessage: aMessage [
-	| target id who |
+	| command id |
 	id := aMessage id.
 
 	"this is an unsolicited notification -- as it is advisory, we can ignore it for now"
 	id = 0 ifTrue: [ ^ self ].
 
-	"RFC says we MUST be prepared to recieve replies to aborted requests -- so we eat it silently"
-	target :=targets at: id
+	"RFC says we MUST be prepared to receive replies to aborted requests -- so we eat it silently"
+	command :=targets at: id
 		ifAbsent: [ ^ self ].
 	
-	target ifNil: [ self delTargetFor: id. ^ self ].
+	command ifNil: [ self removeTargetId: id. ^ self ].
 	
 	"extended results need some kind of handling -- RFC2251 says they are the result of a message with a control,
 	which we don't have implemented, so there's no real need yet"
+	command  processResponse: aMessage response.
 	
-	who := target at: #request.
-	who processResponse: aMessage response.
-	
-	who wantsMoreResponses
-		ifFalse: [ self delTargetFor: id ]
+	command wantsMoreResponses
+		ifFalse: [ self removeTargetId: id ]
 
 
 ]
@@ -122,7 +117,7 @@ LDAPWorker >> isRunning [
 	^ self isConnected and: running
 ]
 
-{ #category : 'accessing' }
+{ #category : 'private - dispatching' }
 LDAPWorker >> nextMessageId [
 	"here we should check wether we're past the message id limit, and if so reconnect and bind"
 	nextMessageId := nextMessageId + 1.
@@ -134,11 +129,22 @@ LDAPWorker >> postConnect [
 "Nothing in base class"
 ]
 
+{ #category : 'private - dispatching' }
+LDAPWorker >> removeTargetId: aMessageId [
+	lock critical: [
+		targets removeKey: aMessageId ifAbsent: [ "we ’re good" ]
+	]
+]
+
 { #category : 'dispatching' }
-LDAPWorker >> send: someData [
+LDAPWorker >> send: aCommand [
+	| message messageId |
+	messageId := self addTarget: aCommand.
+	message := aCommand message.
+	message id: messageId.
 	lock critical: [
 		sockStream 
-			nextPutAll: someData;
+			nextPutAll: message encoded;
 			flush.
 	]
 ]

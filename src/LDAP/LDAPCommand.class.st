@@ -21,7 +21,7 @@ Class {
 	#tag : 'Core'
 }
 
-{ #category : 'accessing' }
+{ #category : 'operating' }
 LDAPCommand >> abandon [
 	"RFC says we MUST NOT send abandon requests for the same operation multiple times"
 	abandoned ifNotNil: [ ^ abandoned ].
@@ -70,13 +70,18 @@ LDAPCommand >> isDone [
 ]
 
 { #category : 'accessing' }
+LDAPCommand >> message [
+	^ message
+]
+
+{ #category : 'operating' }
 LDAPCommand >> next [
 	^ self nextTimeout: self defaultTimeout.
 
 
 ]
 
-{ #category : 'accessing' }
+{ #category : 'operating' }
 LDAPCommand >> nextTimeout: seconds [
 	isDone ifFalse:[
 		"As long as the request isn't done, synchronously wait for more results"
@@ -85,10 +90,9 @@ LDAPCommand >> nextTimeout: seconds [
 	].
 	^ responses size > iterator
 		ifTrue:[ responses at: (iterator := iterator + 1)]
-		ifFalse:[ nil ]
 ]
 
-{ #category : 'accessing' }
+{ #category : 'operating' }
 LDAPCommand >> processResponse: aResponse [
 	responses addLast: aResponse. 
 	newResponseSemaphore signal.
@@ -111,25 +115,25 @@ LDAPCommand >> result [
 	^ message operation processResult: self responses
 ]
 
-{ #category : 'accessing' }
+{ #category : 'operating' }
 LDAPCommand >> wait [
 	^self waitTimeoutSeconds: self defaultTimeout
 
 ]
 
-{ #category : 'accessing' }
+{ #category : 'operating' }
 LDAPCommand >> waitTimeoutMSecs: msecs [
-	responses ifEmpty: [ doneSemaphore waitTimeoutMSecs: msecs ].
-	self checkForExceptions.
+
+	responses ifEmpty: [ doneSemaphore waitTimeoutMilliseconds: msecs ].
+	self checkForExceptions
 ]
 
-{ #category : 'accessing' }
+{ #category : 'operating' }
 LDAPCommand >> waitTimeoutSeconds: seconds [
-	responses ifEmpty: [ doneSemaphore waitTimeoutSeconds: seconds ].
-	self checkForExceptions.
+	self waitTimeoutMSecs: seconds * 1000.
 ]
 
-{ #category : 'accessing' }
+{ #category : 'testing' }
 LDAPCommand >> wantsMoreResponses [
 	"you most likely not want to implement this in a subclass, but processResponse:"
 	^ self isDone not
