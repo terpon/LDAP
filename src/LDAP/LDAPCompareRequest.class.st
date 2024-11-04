@@ -4,9 +4,6 @@ A request to compare
 Class {
 	#name : 'LDAPCompareRequest',
 	#superclass : 'BERSequence',
-	#instVars : [
-		'searchResult'
-	],
 	#category : 'LDAP-Requests',
 	#package : 'LDAP',
 	#tag : 'Requests'
