@@ -17,6 +17,8 @@ LDAPModifyRequestTest >> testModify [
 		filter: (LDAPFilter with: 'cn' equalTo: 'test1').
 	req := conn request: search.
 	req wait.
+	self assert: req success.
+	req signalExceptions.
 	rr := req responses first.
 	
 	ops :=  { 
@@ -26,10 +28,13 @@ LDAPModifyRequestTest >> testModify [
 	mod := LDAPModifyRequest new dn: (rr matchedDN); ops: ops.
 	req := conn request: mod.
 	req wait.
+	self assert: req success.
+	req signalExceptions.
 	
 	req := conn request: (LDAPCompareRequest new dn: (self cn: 'test1'); comparing: (LDAPFilter with: 'sn' equalTo: 'test5sn')).
 	req wait.
-	self assert: (req result).
+	self assert: req success.
+	req signalExceptions.
 	self delete: 'test1' for: conn. 
 	conn disconnect.	
 ]

@@ -16,6 +16,8 @@ LDAPDelRequestTest >> testDelete [
 		del := LDAPDelRequest new dn: (self cn: name).
 		req := conn request: del.
 		req wait.
+		self assert: req success.
+		req signalExceptions.
 	].
 	conn disconnect
 ]

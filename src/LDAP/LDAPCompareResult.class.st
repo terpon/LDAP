@@ -15,20 +15,17 @@ LDAPCompareResult class >> tagValue [
 	
 ]
 
-{ #category : 'error handling' }
-LDAPCompareResult >> checkForExceptions [
-	| code |
-	code := self resultCode.	
-	(#( 0 5 6 ) includes: code) ifTrue: [ ^ self ].
+{ #category : 'testing' }
+LDAPCompareResult >> isMatch [
+	self resultCode = 6 ifTrue: [ ^ true ].
+	"self resultCode = 5 ifTrue: [ ^ false ]."
+	^ false
 
-	^ super checkForExceptions
 ]
 
 { #category : 'testing' }
-LDAPCompareResult >> processResult [
-	self resultCode = 5 ifTrue: [ ^ false ].
-	self resultCode = 6 ifTrue: [ ^ true ].
-	"we save nil for execptions"
-	^ nil
-
+LDAPCompareResult >> success [
+	| code |
+	code := self resultCode.	
+	^ #( 0 5 6 ) includes: code
 ]

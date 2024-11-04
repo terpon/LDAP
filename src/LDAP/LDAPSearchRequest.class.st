@@ -4,6 +4,8 @@ LDAPSearchRequest is the process to search entries from the LDAP directory.
 Class {
 	#name : 'LDAPSearchRequest',
 	#superclass : 'BERSequence',
+	#traits : 'TLDAPReturnResult',
+	#classTraits : 'TLDAPReturnResult classTrait',
 	#category : 'LDAP-Requests',
 	#package : 'LDAP',
 	#tag : 'Requests'
@@ -50,14 +52,6 @@ LDAPSearchRequest >> initialize [
 		addElement: (BERBoolean new); "typesOnly"
 		addElement: (LDAPFilterAnd new); "filter. Absolute true filter (&)"
 		addElement: (BERSequence new). "attrs"
-
-]
-
-{ #category : 'testing' }
-LDAPSearchRequest >> processResult: aCollection [
-"Return search entries"
-	aCollection do: #checkForExceptions.
-	^ aCollection select: [ :r | r isKindOf: LDAPSearchResultEntry ]
 
 ]
 

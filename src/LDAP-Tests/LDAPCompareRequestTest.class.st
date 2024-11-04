@@ -16,7 +16,9 @@ LDAPCompareRequestTest >> testCompareFailure [
 		comparing: (LDAPFilter with: 'cn' equalTo: 'test2').
 	req := conn request: compare.
 	req wait.
-	self deny: (req result).
+	self assert: req success. "this checks the success of the request, not the compare"
+	req signalExceptions.
+	self deny: req responses first isMatch. "this checks the compare result"
 
 	self someTestCns do: [ :name| self delete: name for: conn ].
 	conn disconnect.
@@ -33,7 +35,9 @@ LDAPCompareRequestTest >> testCompareSuccess [
 		comparing: (LDAPFilter with: 'cn' equalTo: 'test1').
 	req := conn request: compare.
 	req wait.
-	self assert: (req result).
+	self assert: req success. "this checks the success of the request, not the compare"
+	req signalExceptions.
+	self assert: req responses first isMatch. "this checks the compare result"
 
 	self someTestCns do: [ :name| self delete: name for: conn ].
 	conn disconnect.

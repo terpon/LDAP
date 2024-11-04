@@ -14,12 +14,17 @@ Class {
 	#tag : 'Results'
 }
 
+{ #category : 'testing' }
+LDAPAbstractResult >> isEndMarker [
+	^ self subclassResponsibility 
+]
+
 { #category : 'error handling' }
-LDAPAbstractResult >> checkForExceptions [
+LDAPAbstractResult >> signalExceptions [
 	^ self subclassResponsibility
 ]
 
 { #category : 'testing' }
-LDAPAbstractResult >> isEndMarker [
+LDAPAbstractResult >> success [
 	^ self subclassResponsibility 
 ]

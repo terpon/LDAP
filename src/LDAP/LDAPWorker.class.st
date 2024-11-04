@@ -49,7 +49,7 @@ LDAPWorker >> addTarget: aCommand [
 { #category : 'connecting' }
 LDAPWorker >> connect [
 	[ sockStream := self class socketClass openConnectionToHostNamed: hostname port: port ]
-		on: Exception do: [:ex | sockStream := nil. self error: ex messageText].
+		on: Exception do: [:ex | sockStream := nil.  ex pass ].
 
 	sockStream ifNil: [ ^ self ].
 	
@@ -159,7 +159,9 @@ LDAPWorker >> start [
 			|  element  |
 			element := [LDAPMessage newFrom: sockStream] on: Error do:[:ex| 
 				Transcript cr; show: ex description.
-				running := false].
+				running := false.
+				"ex pass."
+			].
 			"Transcript show: '********* READ ONE OF:  ', element asString; cr."
 			running ifTrue:[self dispatchMessage: element].
 		]

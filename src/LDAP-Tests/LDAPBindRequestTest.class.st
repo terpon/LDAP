@@ -7,8 +7,12 @@ Class {
 
 { #category : 'tests' }
 LDAPBindRequestTest >> testBind [
-	| conn |
-	conn := self connect.
+	| req conn |
+	conn := LDAPConnection to: self hostname port: self port.
+	req := conn request: (LDAPBindRequest new username: self bindDN; password: self password).
+	req wait.
+	self assert: req success.
+	req signalExceptions.
 	conn disconnect.
 ]
 
@@ -19,6 +23,8 @@ LDAPBindRequestTest >> testDoubleBind [
 	bind := LDAPBindRequest new username: self bindDN; password: self password.
 	req := conn request: bind.
 	req wait.
+	self assert: req success.
+	req signalExceptions.
 	conn disconnect.
 ]
 
@@ -32,7 +38,8 @@ LDAPBindRequestTest >> testSSLConnection [
 		onErrorDo: [ self skip: 'no SSL connection' ].
 	req := conn request: (LDAPBindRequest new username: self bindDN; password: self password).
 	req wait.
-	self assert: (req result).
+	self assert: req success.
+	req signalExceptions.
 
-
+	conn disconnect.
 ]

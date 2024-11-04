@@ -31,22 +31,10 @@ LDAPCommand >> abandon [
 	
 ]
 
-{ #category : 'error handing' }
-LDAPCommand >> checkForExceptions [
-	"Check to see if a response caused an exception and if so, raise it"
-	self isDone ifFalse:[^self error: 'LDAP timeout'].
-	responses do: #checkForExceptions.
-]
-
 { #category : 'defaults' }
 LDAPCommand >> defaultTimeout [
 	"Answer the default timout for LDAP queries"
 	^30 "seconds"
-]
-
-{ #category : 'testing' }
-LDAPCommand >> hasResult [
-	^ isDone
 ]
 
 { #category : 'initialization' }
@@ -110,13 +98,22 @@ LDAPCommand >> responses [
 	^ responses
 ]
 
+{ #category : 'error handing' }
+LDAPCommand >> signalExceptions [
+	"Check to see if a response caused an exception and if so, raise it"
+	self responses do: #signalExceptions.
+	self isDone ifFalse:[ LDAPTimeOut new command: self; signal ].
+
+]
+
 { #category : 'accessing' }
-LDAPCommand >> result [
-	^ message operation processResult: self responses
+LDAPCommand >> success [
+	^ message operation processSuccessFor: self responses
 ]
 
 { #category : 'operating' }
 LDAPCommand >> wait [
+	self isDone ifTrue: [ ^ self ].
 	^self waitTimeoutSeconds: self defaultTimeout
 
 ]
@@ -125,7 +122,7 @@ LDAPCommand >> wait [
 LDAPCommand >> waitTimeoutMSecs: msecs [
 
 	responses ifEmpty: [ doneSemaphore waitTimeoutMilliseconds: msecs ].
-	self checkForExceptions
+
 ]
 
 { #category : 'operating' }

@@ -14,15 +14,9 @@ LDAPSearchResultCode class >> tagValue [
 	^ 16r65
 ]
 
-{ #category : 'error handling' }
-LDAPSearchResultCode >> checkForExceptions [
+{ #category : 'testing' }
+LDAPSearchResultCode >> success [
 	| code |
 	code := self resultCode.	
-	
-	"noSuchObject"
-	"Do not raise object not found since it is implicit in the response"
-	code = 32 ifTrue: [ ^ self ].
-
-	^ super checkForExceptions.
-
+	^ #( 0 32 ) includes: code
 ]

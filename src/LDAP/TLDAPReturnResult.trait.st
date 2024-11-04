@@ -11,10 +11,7 @@ Trait {
 }
 
 { #category : 'testing' }
-TLDAPReturnResult >> processResult: aCollection [
-"For basi requests, there is only one response."
-	| result |
-	result := aCollection last.
-	result checkForExceptions.
-	^ result success
+TLDAPReturnResult >> processSuccessFor: aCollection [
+"For basic requests, there is only one response."
+	^ aCollection allSatisfy: [ :response | response success ]
 ]

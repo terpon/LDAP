@@ -4,9 +4,8 @@ A request to compare
 Class {
 	#name : 'LDAPCompareRequest',
 	#superclass : 'BERSequence',
-	#instVars : [
-		'searchResult'
-	],
+	#traits : 'TLDAPReturnResult',
+	#classTraits : 'TLDAPReturnResult classTrait',
 	#category : 'LDAP-Requests',
 	#package : 'LDAP',
 	#tag : 'Requests'
@@ -33,13 +32,5 @@ LDAPCompareRequest >> initialize [
 	
 	self addElement: (BEROctetString new). "entry"
 	self addElement: (LDAPFilterEquality new). "AttributeValueAssertion"
-
-]
-
-{ #category : 'testing' }
-LDAPCompareRequest >> processResult: aCollection [
-	| result code |
-	result := aCollection last.
-	^ result processResult ifNil: [ result checkForExceptions ]
 
 ]

@@ -11,13 +11,18 @@ Class {
 	#tag : 'Results'
 }
 
+{ #category : 'testing' }
+LDAPSearchPartialResult >> isEndMarker [
+	^ false
+]
+
 { #category : 'error handling' }
-LDAPSearchPartialResult >> checkForExceptions [
+LDAPSearchPartialResult >> signalExceptions [
 "No exception for those results"
 	^ self
 ]
 
 { #category : 'testing' }
-LDAPSearchPartialResult >> isEndMarker [
-	^ false
+LDAPSearchPartialResult >> success [
+	^ true
 ]

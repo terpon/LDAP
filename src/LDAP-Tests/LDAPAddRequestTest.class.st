@@ -71,6 +71,8 @@ LDAPAddRequestTest >> testCollectionValues [
 		add := LDAPAddRequest new dn: (self cn: name); attrs: attrs.
 		req := conn request: add.
 		req wait.
+		self assert: req success.
+		req signalExceptions.
 	].
 	self someTestCns do: [ :name| self delete: name for: conn ].
 	conn disconnect
@@ -100,6 +102,8 @@ LDAPAddRequestTest >> testStringValues [
 		
 		req := conn request: (LDAPAddRequest new dn: (self cn: name); attrs: attrs).
 		req wait.
+		self assert: req success.
+		req signalExceptions.
 	].
 	self someTestCns do: [ :name| self delete: name for: conn ].
 	conn disconnect
