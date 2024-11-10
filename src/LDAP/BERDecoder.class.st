@@ -11,21 +11,10 @@ Class {
 	#instVars : [
 		'application'
 	],
-	#classVars : [
-		'UniversalTags'
-	],
 	#category : 'LDAP-BER',
 	#package : 'LDAP',
 	#tag : 'BER'
 }
-
-{ #category : 'initialization' }
-BERDecoder class >> initialize [ 
-"BERElement class initialization. Populate the knownTags variable for universal elements creation."
-	| classes |
-	classes := { BERInteger. BEROctetString . BERSequence. BEREnumerated. BERBoolean. BERSet. BERNull. }.
-	UniversalTags := (classes collect: [ :c | c tagValue -> c ]) asDictionary.
-]
 
 { #category : 'testing' }
 BERDecoder class >> isApplication: aTagValue [
@@ -50,12 +39,6 @@ BERDecoder class >> isPrivate: aTagValue [
 { #category : 'testing' }
 BERDecoder class >> isUniversal: aTagValue [
 	^ (aTagValue bitAnd: 16rC0) = 0
-]
-
-{ #category : 'accessing' }
-BERDecoder class >> universalClass: aTagValue [
-"Return a BER universal class from a tag value"
-	^ UniversalTags at: aTagValue ifAbsent: [ nil ]
 ]
 
 { #category : 'accessing' }
@@ -113,12 +96,10 @@ BERDecoder >> createUniversalElement: aTagValue [
 
 	"Create a BER universal element from a tag value"
 
-	| elementClass |
+	| element |
 	(self class isUniversal: aTagValue) ifFalse: [ ^ nil ].
-	elementClass := self class universalClass: aTagValue.
-	^ elementClass
-		  ifNil: [ self createElementError: 'invalid universal tag' withTag: aTagValue ]
-		  ifNotNil: [ :c | c new ]
+	element := BERElement newUniversalElement: aTagValue.
+	^ element ifNil: [ self createElementError: 'invalid universal tag' withTag: aTagValue ]
 ]
 
 { #category : 'reading' }

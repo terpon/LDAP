@@ -4,6 +4,9 @@ A BERElement is a datatype in the BER encoding (Basic Encoding Rules)
 Class {
 	#name : 'BERElement',
 	#superclass : 'Object',
+	#classVars : [
+		'UniversalTags'
+	],
 	#category : 'LDAP-BER',
 	#package : 'LDAP',
 	#tag : 'BER'
@@ -15,6 +18,14 @@ BERElement class >> createContextElement: aTagValue at: anIndex [
 	LDAPException new messageText: 'invalid tag -- no context elements defined for that class'; signal.
 	^ nil
 
+]
+
+{ #category : 'class initialization' }
+BERElement class >> initialize [ 
+"BERElement class initialization. Populate the knownTags variable for universal elements creation."
+	| classes |
+	classes := { BERInteger. BEROctetString . BERSequence. BEREnumerated. BERBoolean. BERSet. BERNull. }.
+	UniversalTags := (classes collect: [ :c | c tagValue -> c ]) asDictionary.
 ]
 
 { #category : 'utilities' }
@@ -29,6 +40,13 @@ BERElement class >> lengthLength: anInteger [
 	
 	"number of bytes plus the length in one byte"
 	^ octets + 1
+]
+
+{ #category : 'instance creation' }
+BERElement class >> newUniversalElement: aTagValue [
+"Return a BER universal element from a tag value"
+	UniversalTags at: aTagValue ifPresent: [ :class | ^ class new ].
+	^ nil
 ]
 
 { #category : 'accessing' }
