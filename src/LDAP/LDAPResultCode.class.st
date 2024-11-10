@@ -68,9 +68,9 @@ LDAPResultCode class >> initialize [
 	self errorCodes pairsDo: [ :code :value | CodeNames at: code put: value ].
 ]
 
-{ #category : 'converting' }
-LDAPResultCode class >> stringFor: anInteger [
-	^ CodeNames at: anInteger ifAbsent: [ 'unknown' ]
+{ #category : 'accessing' }
+LDAPResultCode >> name [
+	^ CodeNames at: self value ifAbsent: [ 'unknown' ]
 ]
 
 { #category : 'printing' }
@@ -78,7 +78,7 @@ LDAPResultCode >> printOn: aStream [
 	| code |
 	code := self value.
 	aStream 
-		nextPutAll: (self class stringFor: code);
+		nextPutAll: self name;
 		nextPutAll: ' ('.
 	code printOn: aStream.
 	aStream	nextPutAll: ')'.

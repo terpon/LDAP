@@ -45,7 +45,25 @@ LDAPResult >> referral [
 
 { #category : 'accessing' }
 LDAPResult >> resultCode [
-	^ elements first value
+	^ self resultElement value
+]
+
+{ #category : 'accessing' }
+LDAPResult >> resultElement [
+	^ elements first
+]
+
+{ #category : 'error handling' }
+LDAPResult >> signalClass [
+	| code |
+	code := self resultCode.
+	(code between: 16 and: 21) ifTrue: [ ^ LDAPAttrProblemException ].
+	((code between: 32 and: 36) and: [ code ~= 35 ]) ifTrue: [ ^ LDAPNameProblemException ].
+	(code between: 48 and: 50) ifTrue: [ ^ LDAPSecurityProblemException ].
+	(code between: 51 and: 54) ifTrue: [ ^ LDAPServiceProblemException ].
+	((code between: 64 and: 69) or: [ code = 71 ]) ifTrue: [ ^ LDAPUpdateProblemException ].
+	
+	^ LDAPException
 ]
 
 { #category : 'error handling' }
@@ -53,8 +71,9 @@ LDAPResult >> signalExceptions [
 	| ex |
 	self success ifTrue: [ ^ self ].
 
-	ex := LDAPException newWithCode: self resultCode.
-	ex signal: (self errorMessage ifEmpty:[ex messageText ]).
+	ex := self signalClass new.
+	ex signal: self resultElement printString 
+
 ]
 
 { #category : 'testing' }
