@@ -68,6 +68,22 @@ BERConstruct >> printOn: aStream [
 	elements printElementsOn: aStream.
 ]
 
+{ #category : 'storing' }
+BERConstruct >> storeOn: aStream [
+
+ 	aStream
+ 		nextPut: $(;
+ 		nextPutAll: self className;
+ 		nextPutAll: ' new addAll: { '.
+		
+	elements do: [ :each | each storeOn: aStream ] 
+		separatedBy: [ aStream nextPutAll: '. ' ].
+
+ 	aStream
+ 		nextPutAll: ' }; yourself)'
+
+]
+
 { #category : 'writing' }
 BERConstruct >> writeBodyOn: aStream [
 	elements do: [ :element | element writeOn: aStream  ].

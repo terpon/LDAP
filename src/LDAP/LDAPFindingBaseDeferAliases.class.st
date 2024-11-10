@@ -19,8 +19,3 @@ LDAPFindingBaseDeferAliases >> initialize [
 LDAPFindingBaseDeferAliases >> name [
 	^ 'derefFindingBaseObj'
 ]
-
-{ #category : 'accessing' }
-LDAPFindingBaseDeferAliases >> value: anInteger [
-	^ self shouldNotImplement 
-]

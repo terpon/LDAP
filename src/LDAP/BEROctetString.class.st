@@ -33,7 +33,7 @@ BEROctetString >> length [
 
 { #category : 'accessing' }
 BEROctetString >> value [ 
-	^ value ifNil: [ String new ] ifNotNil: [ :s | s utf8Decoded ]
+	^ value ifNil: [ '' ] ifNotNil: [ :s | s utf8Decoded ]
 ]
 
 { #category : 'accessing' }

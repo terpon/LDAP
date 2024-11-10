@@ -19,8 +19,3 @@ LDAPReplaceAttributesOperation >> initialize [
 LDAPReplaceAttributesOperation >> name [
 	^ 'replace'
 ]
-
-{ #category : 'accessing' }
-LDAPReplaceAttributesOperation >> value: anInteger [
-	^ self shouldNotImplement 
-]

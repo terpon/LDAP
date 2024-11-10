@@ -19,8 +19,3 @@ LDAPNeverDeferAliases >> initialize [
 LDAPNeverDeferAliases >> name [
 	^ 'neverDerefAliases'
 ]
-
-{ #category : 'accessing' }
-LDAPNeverDeferAliases >> value: anInteger [
-	^ self shouldNotImplement 
-]

@@ -21,8 +21,3 @@ LDAPSingleLevelScope >> initialize [
 LDAPSingleLevelScope >> name [
 	^ 'singleLevel'
 ]
-
-{ #category : 'accessing' }
-LDAPSingleLevelScope >> value: anInteger [
-	^ self shouldNotImplement 
-]

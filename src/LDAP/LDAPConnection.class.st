@@ -56,7 +56,7 @@ LDAPConnection class >> workerClass [
 { #category : 'command execution' }
 LDAPConnection >> abandon: aMessage [
 	worker abandon: aMessage.
-	^ self request: (LDAPAbandonRequest new abandonId: aMessage id).
+	^ self request: (LDAPAbandonRequest newId: aMessage id).
 
 ]
 

@@ -3,7 +3,7 @@ In a LDAP search, this element specifies the set of entries, relative to the ent
 "
 Class {
 	#name : 'LDAPSearchScope',
-	#superclass : 'BEREnumerated',
+	#superclass : 'LDAPImpliedValueEnumerated',
 	#category : 'LDAP-Enumerated',
 	#package : 'LDAP',
 	#tag : 'Enumerated'

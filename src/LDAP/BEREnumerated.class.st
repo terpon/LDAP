@@ -16,7 +16,7 @@ BEREnumerated class >> tagValue [
 
 { #category : 'accessing' }
 BEREnumerated >> name [
-	^ nil
+	^ self subclassResponsibility
 ]
 
 { #category : 'printing' }

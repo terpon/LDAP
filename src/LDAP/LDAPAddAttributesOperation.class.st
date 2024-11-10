@@ -19,8 +19,3 @@ LDAPAddAttributesOperation >> initialize [
 LDAPAddAttributesOperation >> name [
 	^ 'add'
 ]
-
-{ #category : 'accessing' }
-LDAPAddAttributesOperation >> value: anInteger [
-	^ self shouldNotImplement 
-]

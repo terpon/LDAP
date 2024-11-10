@@ -19,8 +19,3 @@ LDAPInSearchingDeferAliases >> initialize [
 LDAPInSearchingDeferAliases >> name [
 	^ 'derefInSearching'
 ]
-
-{ #category : 'accessing' }
-LDAPInSearchingDeferAliases >> value: anInteger [
-	^ self shouldNotImplement 
-]

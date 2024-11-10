@@ -19,8 +19,3 @@ LDAPDeleteAttributesOperation >> initialize [
 LDAPDeleteAttributesOperation >> name [
 	^ 'delete'
 ]
-
-{ #category : 'accessing' }
-LDAPDeleteAttributesOperation >> value: anInteger [
-	^ self shouldNotImplement 
-]

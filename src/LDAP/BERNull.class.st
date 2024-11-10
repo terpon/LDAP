@@ -24,6 +24,15 @@ BERNull >> length [
 	^ 0
 ]
 
+{ #category : 'storing' }
+BERNull >> storeOn: aStream [
+
+ 	aStream
+ 		nextPut: $(;
+ 		nextPutAll: self className;
+ 		nextPutAll: ' new)'
+]
+
 { #category : 'writing' }
 BERNull >> writeBodyOn: aStream [
 "Nothing to do"

@@ -16,3 +16,27 @@ Class {
 BERPrimitive >> printOn: aStream [
 	self value printOn: aStream.
 ]
+
+{ #category : 'storing' }
+BERPrimitive >> storeOn: aStream [
+
+ 	aStream
+ 		nextPut: $(;
+ 		nextPutAll: self className;
+ 		nextPutAll: ' new value: '.
+	self value storeOn: aStream.
+	aStream
+		nextPut: $)
+
+]
+
+{ #category : 'accessing' }
+BERPrimitive >> value [
+	^ self subclassResponsibility
+]
+
+{ #category : 'accessing' }
+BERPrimitive >> value: anObject [
+
+	self subclassResponsibility
+]

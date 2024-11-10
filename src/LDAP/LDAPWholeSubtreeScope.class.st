@@ -19,8 +19,3 @@ LDAPWholeSubtreeScope >> initialize [
 LDAPWholeSubtreeScope >> name [
 	^ 'wholeSubtree'
 ]
-
-{ #category : 'accessing' }
-LDAPWholeSubtreeScope >> value: anInteger [
-	^ self shouldNotImplement 
-]

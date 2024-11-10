@@ -21,8 +21,3 @@ LDAPBaseObjectScope >> initialize [
 LDAPBaseObjectScope >> name [
 	^ 'baseObject'
 ]
-
-{ #category : 'accessing' }
-LDAPBaseObjectScope >> value: anInteger [
-	^ self shouldNotImplement 
-]

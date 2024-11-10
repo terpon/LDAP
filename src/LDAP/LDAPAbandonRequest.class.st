@@ -9,13 +9,12 @@ Class {
 	#tag : 'Requests'
 }
 
-{ #category : 'accessing' }
-LDAPAbandonRequest class >> tagValue [
-	^ 16r50 "Application 16"
+{ #category : 'instance creation' }
+LDAPAbandonRequest class >> newId: anId [
+	^ self new value: anId; yourself
 ]
 
 { #category : 'accessing' }
-LDAPAbandonRequest >> abandonId: anAbandonMessageId [
-	self value: anAbandonMessageId.
-
+LDAPAbandonRequest class >> tagValue [
+	^ 16r50 "Application 16"
 ]
