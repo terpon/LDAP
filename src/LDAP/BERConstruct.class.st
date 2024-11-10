@@ -22,6 +22,12 @@ BERConstruct >> addElement: anElement [
 	elements addLast: anElement
 ]
 
+{ #category : 'converting' }
+BERConstruct >> asArray [
+
+	^ self elements asArray 
+]
+
 { #category : 'encoding' }
 BERConstruct >> decode: aStream length: aLength with: aDecoder [
 	| index elementLen part |

@@ -17,7 +17,7 @@ LDAPSearchResultEntry class >> tagValue [
 { #category : 'accessing' }
 LDAPSearchResultEntry >> attributes [
 "Return the attributes as a collection of BER elements (most probably LDAP partial attributes)"
-	^ elements second elements asArray
+	^ elements second elements
 ]
 
 { #category : 'accessing' }
