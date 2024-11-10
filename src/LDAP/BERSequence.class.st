@@ -9,7 +9,7 @@ Class {
 	#tag : 'BER'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 BERSequence class >> tagValue [
 	"SEQUENCE + Constructed"
 	^ (16 + 32)

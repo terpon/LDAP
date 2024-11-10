@@ -52,22 +52,6 @@ BERDecoder class >> isUniversal: aTagValue [
 	^ (aTagValue bitAnd: 16rC0) = 0
 ]
 
-{ #category : 'reading' }
-BERDecoder class >> readLengthFrom: aStream [
-	| length octets firstOctet |
-	
-	firstOctet := aStream next asInteger.
-	
-	"short definite length"
-	firstOctet < 128 ifTrue: [ ^ firstOctet ].
-		
-	"long definite length"
-	octets := aStream next: (firstOctet bitAnd: 16r7F).
-	length := octets contents inject: 0 into: [:injectedValue :each | (injectedValue bitShift: 8) + (each asInteger)].
-		
-	^ length			
-]
-
 { #category : 'accessing' }
 BERDecoder class >> universalClass: aTagValue [
 "Return a BER universal class from a tag value"
@@ -142,8 +126,8 @@ BERDecoder >> decode: anElement from: aStream [
 "Decode an already existing element from a stream"
 	| firstByte length |
 	firstByte := aStream next asInteger.
-	(firstByte = anElement class tagValue) ifFalse: [ self error: 'inconsitent tag value' ].
-	length := self class readLengthFrom: aStream.
+	(firstByte = anElement class tagValue) ifFalse: [ LDAPIncorrectTagException signal: 'inconsitent tag ', firstByte asString ].
+	length := self readLengthFrom: aStream.
 	anElement decode: aStream length: length with: self.
 	^ anElement
 
@@ -166,4 +150,20 @@ BERDecoder >> elementFrom: aStream in: aContextObject at: anIndex [
 	element := self createElement: firstByte in: aContextObject at: anIndex.
 	^ self decode: element from: aStream  
 
+]
+
+{ #category : 'reading' }
+BERDecoder >> readLengthFrom: aStream [
+	| length octets firstOctet |
+	
+	firstOctet := aStream next asInteger.
+	
+	"short definite length"
+	firstOctet < 128 ifTrue: [ ^ firstOctet ].
+		
+	"long definite length"
+	octets := aStream next: (firstOctet bitAnd: 16r7F).
+	length := octets contents inject: 0 into: [:injectedValue :each | (injectedValue bitShift: 8) + (each asInteger)].
+		
+	^ length			
 ]

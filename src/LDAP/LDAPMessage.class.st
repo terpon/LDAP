@@ -19,7 +19,7 @@ LDAPMessage class >> initialize [
 "LDAP messages class initialization. Populate the knownTags variable for application elements creation."
 	| classes |
 	classes := BERElement allSubclasses select: [ :c | c class canPerform: #tagValue ].
-	classes := classes select: #isApplication.
+	classes := classes select: [ :c | BERDecoder isApplication: c tagValue  ].
 	LdapTags := (classes collect: [ :c | c tagValue -> c ]) asDictionary.
 ]
 

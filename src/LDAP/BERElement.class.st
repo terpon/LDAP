@@ -17,26 +17,6 @@ BERElement class >> createContextElement: aTagValue at: anIndex [
 
 ]
 
-{ #category : 'testing' }
-BERElement class >> isApplication [ 
-	^ BERDecoder isApplication: self tagValue
-]
-
-{ #category : 'testing' }
-BERElement class >> isContext [ 
-	^ BERDecoder isContext: self tagValue
-]
-
-{ #category : 'testing' }
-BERElement class >> isPrivate [ 
-	^ BERDecoder isPrivate: self tagValue
-]
-
-{ #category : 'testing' }
-BERElement class >> isUniversal [ 
-	^ BERDecoder isUniversal: self tagValue
-]
-
 { #category : 'utilities' }
 BERElement class >> lengthLength: anInteger [
 	| octets |
