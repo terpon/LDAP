@@ -75,7 +75,8 @@ BERDecoder >> read: anElement from: aStream [
 "Decode an already existing element from a stream"
 	| firstByte length |
 	firstByte := aStream next asInteger.
-	(firstByte = anElement class tagValue) ifFalse: [ LDAPIncorrectTagException signal: 'inconsitent tag ', firstByte asString ].
+	anElement class checkTag: firstByte.
+	
 	length := self readLengthFrom: aStream.
 	anElement decode: aStream length: length with: self
 ]

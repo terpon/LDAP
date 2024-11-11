@@ -52,5 +52,5 @@ LDAPSearchResultEntry >> newElementFrom: aTagValue [
 	elements ifEmpty: [ ^ BEROctetString new ].
 
 	"Next are partial attributes"
-	^ LDAPPartialAttribute new
+	^ LDAPPartialAttributeList new
 ]

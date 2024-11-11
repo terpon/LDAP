@@ -12,6 +12,13 @@ Class {
 	#tag : 'BER'
 }
 
+{ #category : 'error handling' }
+BERElement class >> checkTag: aTagValue [
+
+	(aTagValue = self tagValue) ifFalse: [ LDAPIncorrectTagException signalWith: aTagValue ].
+
+]
+
 { #category : 'class initialization' }
 BERElement class >> initialize [ 
 "BERElement class initialization. Populate the knownTags variable for universal elements creation."

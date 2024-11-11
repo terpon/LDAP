@@ -8,3 +8,9 @@ Class {
 	#package : 'LDAP',
 	#tag : 'Exceptions'
 }
+
+{ #category : 'signalling' }
+LDAPIncorrectTagException class >> signalWith: aTagValue [
+
+	^ self signal: ('inconsitent tag ', aTagValue asString)
+]
