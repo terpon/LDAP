@@ -44,3 +44,13 @@ LDAPSearchResultEntry >> isReference [
 LDAPSearchResultEntry >> matchedDN [
 	^ elements first value
 ]
+
+{ #category : 'instance creation' }
+LDAPSearchResultEntry >> newElementFrom: aTagValue [
+	
+	"First element is the matched DN"
+	elements ifEmpty: [ ^ BEROctetString new ].
+
+	"Next are partial attributes"
+	^ LDAPPartialAttribute new
+]
