@@ -47,93 +47,58 @@ BERDecoder >> application: anObject [
 ]
 
 { #category : 'private - creation' }
-BERDecoder >> createApplicationElement: aTagValue [
-
-	"Create a BER application element from a tag value."
-
+BERDecoder >> newElementWith: aTagValue in: aParent [
+"Create an element from the context"
 	| element |
-	(self class isApplication: aTagValue) ifFalse: [ ^ nil ].
-	application ifNil: [ 
-		^ self
-			  createElementError: 'invalid application tag -- no application set'
-			  withTag: aTagValue ].
-	element := application createApplicationElement: aTagValue.
-	^ element ifNil: [ 
-		  self createElementError: 'invalid application tag' withTag: aTagValue ]
-]
+	"Use parent element as context if any"
+	element := aParent ifNotNil: [ element := aParent newElementFrom: aTagValue ].
+	"Then try to create an application-specific element from the application"
+	(element isNil and: [ application isNotNil ]) ifTrue: [ element := application newApplicationElementFrom: aTagValue ].
+	"Then try to create a universal element from its tag"
+	element ifNil: [ element := BERElement newUniversalElementFrom: aTagValue ].
+	"Finally bail out"
+	element ifNil: [ element := self newUnknownElementFrom: aTagValue ].
+	^ element
 
-{ #category : 'instance creation' }
-BERDecoder >> createElement: aTagValue [
-	"Create a BER element from a tag value"
-
-	(self createUniversalElement: aTagValue) ifNotNil: [ :element | ^ element ].
-	(self createApplicationElement: aTagValue) ifNotNil: [ :element | ^ element ].
-	^ self
-		  createElementError: 'invalid tag -- could not create element'
-		  withTag: aTagValue
 ]
 
 { #category : 'private - creation' }
-BERDecoder >> createElement: aTagValue in: aContextObject at: anIndex [
-"Create a BER element from a tag value"
-	aContextObject ifNil: [ ^ self createElement: aTagValue ].
-	
-	"Delegates to the BER element, it will call default implementation and goes to createElement: message."
-	^ aContextObject createContextElement: aTagValue at: anIndex with: self 
-
-]
-
-{ #category : 'error handling' }
-BERDecoder >> createElementError: aString withTag: anInteger [
+BERDecoder >> newUnknownElementFrom: anInteger [
 "Create a BER unknown element and signal error."
-	LDAPException new messageText: aString; signal.
+	LDAPException signal: ('Invalid tag', anInteger asString).
 	^ BERUnknownElement new tag: anInteger
 
 ]
 
-{ #category : 'private - creation' }
-BERDecoder >> createUniversalElement: aTagValue [
-
-	"Create a BER universal element from a tag value"
-
-	| element |
-	(self class isUniversal: aTagValue) ifFalse: [ ^ nil ].
-	element := BERElement newUniversalElement: aTagValue.
-	^ element ifNil: [ self createElementError: 'invalid universal tag' withTag: aTagValue ]
-]
-
-{ #category : 'reading' }
-BERDecoder >> decode: anElement from: aStream [
+{ #category : 'private - reading' }
+BERDecoder >> read: anElement from: aStream [
 "Decode an already existing element from a stream"
 	| firstByte length |
 	firstByte := aStream next asInteger.
 	(firstByte = anElement class tagValue) ifFalse: [ LDAPIncorrectTagException signal: 'inconsitent tag ', firstByte asString ].
 	length := self readLengthFrom: aStream.
-	anElement decode: aStream length: length with: self.
-	^ anElement
-
+	anElement decode: aStream length: length with: self
 ]
 
-{ #category : 'instance creation' }
-BERDecoder >> elementFrom: aStream [
-"Create a BER element from a stream"
-	"Entry method with no context"
-	^ self elementFrom: aStream in: nil at: 0
-
-]
-
-{ #category : 'instance creation' }
-BERDecoder >> elementFrom: aStream in: aContextObject at: anIndex [
+{ #category : 'private - reading' }
+BERDecoder >> readElementFrom: aStream in: aParent [
 "Create a BER element from a stream"
 	| firstByte element |
 	firstByte := aStream peek asInteger.
 	"Transcript show: '*** Next byte is: ', firstByte asString; cr."
-	element := self createElement: firstByte in: aContextObject at: anIndex.
-	^ self decode: element from: aStream  
+	element := self newElementWith: firstByte in: aParent.
+	self read: element from: aStream.
+	^ element
 
 ]
 
 { #category : 'reading' }
+BERDecoder >> readFrom: aStream [
+"Start decoding from a stream."
+	^ self readElementFrom: aStream in: nil
+]
+
+{ #category : 'private - reading' }
 BERDecoder >> readLengthFrom: aStream [
 	| length octets firstOctet |
 	

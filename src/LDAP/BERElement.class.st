@@ -12,14 +12,6 @@ Class {
 	#tag : 'BER'
 }
 
-{ #category : 'instance creation' }
-BERElement class >> createContextElement: aTagValue at: anIndex [
-"Create a BER context element. Override for creating correct context elements."
-	LDAPException new messageText: 'invalid tag -- no context elements defined for that class'; signal.
-	^ nil
-
-]
-
 { #category : 'class initialization' }
 BERElement class >> initialize [ 
 "BERElement class initialization. Populate the knownTags variable for universal elements creation."
@@ -43,7 +35,7 @@ BERElement class >> lengthLength: anInteger [
 ]
 
 { #category : 'instance creation' }
-BERElement class >> newUniversalElement: aTagValue [
+BERElement class >> newUniversalElementFrom: aTagValue [
 "Return a BER universal element from a tag value"
 	UniversalTags at: aTagValue ifPresent: [ :class | ^ class new ].
 	^ nil
@@ -72,14 +64,6 @@ BERElement class >> writeLength: aLength on: aStream [
 	aStream nextPutAll: octets asString.
 ]
 
-{ #category : 'instance creation' }
-BERElement >> createContextElement: aTagValue at: anIndex with: aDecoder [
-"Default implementation. No context class elements exist at this level."
-"Calls decoder for universal and application type elements."
-	^ aDecoder createElement: aTagValue
-
-]
-
 { #category : 'encoding' }
 BERElement >> decode: aStream length: anInteger with: aDecoder [
 	self subclassResponsibility
@@ -93,6 +77,12 @@ BERElement >> elements [
 { #category : 'accessing' }
 BERElement >> length [
 	^ self subclassResponsibility
+]
+
+{ #category : 'instance creation' }
+BERElement >> newElementFrom: aTagValue [
+"Default implementation. There is no context specific element class to create."
+	^ self class newUniversalElementFrom: aTagValue
 ]
 
 { #category : 'accessing' }

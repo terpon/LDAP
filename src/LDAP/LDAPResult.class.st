@@ -38,6 +38,17 @@ LDAPResult >> matchedDN [
 	^ elements second value
 ]
 
+{ #category : 'instance creation' }
+LDAPResult >> newElementFrom: aTagValue [
+	
+	(aTagValue = LDAPReferral tagValue) ifTrue: [ ^ LDAPReferral new ].
+
+	"First element is always a result code"
+	elements ifEmpty: [ ^ LDAPResultCode new ].
+
+	^ super newElementFrom: aTagValue
+]
+
 { #category : 'accessing' }
 LDAPResult >> referral [
 	^ elements fourth

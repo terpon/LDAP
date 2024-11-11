@@ -29,7 +29,7 @@ LDAPMessage class >> newFrom: aStream [
 	| decoder message |
 	message := self new.
 	decoder := BERDecoder new application: message.
-	decoder decode: message from: aStream.
+	decoder readFrom: aStream.
 	^ message
 ]
 
@@ -86,6 +86,19 @@ LDAPMessage >> initialize [
 	
 	self addElement: (BERInteger new). "id"
 	self addElement: (BERNull new). "protocolOp"
+
+]
+
+{ #category : 'instance creation' }
+LDAPMessage >> newApplicationElementFrom: aTagValue [
+"Create a BER application element from a tag value"
+
+	LdapTags at: aTagValue ifPresent: [ :c | ^ c new ].
+
+	"root element, return self"
+	(aTagValue  = BERSequence tagValue) ifTrue: [ ^ self ].
+
+	^ nil
 
 ]
 
