@@ -173,10 +173,10 @@ BERTest >> testIntegerDecoding [
 				s nextPut: (byte asCharacter) ].
 		].
 		stream := encoded readStream.
-		ber := BERDecoder new elementFrom: stream.
+		ber := BERDecoder new readFrom: stream.
 		self assert: ber class equals: BERInteger.
 		
-		value := test at: 1.
+		value := test first.
 		self assert: ber value equals: value. 
 	]
 
