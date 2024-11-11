@@ -27,9 +27,10 @@ LDAPEntryPresenter class >> defaultSpec [
 { #category : 'examples' }
 LDAPEntryPresenter class >> example [
 "Sample tree"
-	| mod |
-	mod := self sampleElement.
-	^ self new root: mod; open
+	| result adapter |
+	result := self sampleElement.
+	adapter := LDAPSearchResultEntryAdapter new entry: result.
+	^ self new entry: adapter; open
 
 ]
 
@@ -42,16 +43,17 @@ LDAPEntryPresenter class >> exampleInspect [
 
 { #category : 'examples' }
 LDAPEntryPresenter class >> sampleElement [
-"Sample tree"
-	| ops |
-	ops :=  { 
-		LDAPAttrModifier set: 'sn' to: { 'test' . 'foo' . 'bar'}.
-		LDAPAttrModifier addTo: 'description' values: {'moo'}.
-		LDAPAttrModifier del: 'color'.
-		LDAPAttrModifier delFrom: 'groups' values: {'ni'}.
-	}.
-
-	^ LDAPModifyRequest new dn: 'cn=a,dc=root'; ops: ops.
+"Sample search result"
+	| entry list |
+	entry := LDAPSearchResultEntry new.
+	entry addElement: (BEROctetString new value: 'cn=test4,dc=example,dc=com').
+	list := LDAPPartialAttributeList new addAll: { 
+				LDAPPartialAttribute new description: 'objectClass'; values: 'person'; yourself.
+				LDAPPartialAttribute new description: 'cn'; values: 'Haddock'; yourself.
+				LDAPPartialAttribute new description: 'sn'; values: { 'Haddock'. 'Capitaine' }; yourself 
+			 }; yourself.
+	entry addElement: list.
+	^ entry
 
 ]
 
