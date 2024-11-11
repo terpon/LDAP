@@ -92,7 +92,7 @@ LDAPEntryPresenter >> initializePresenters [
 	table := self newTable
 		isResizable: true;
 		addColumn: (SpStringTableColumn title: 'Attribute' evaluated: [ :each | each first ]);
-		addColumn: (SpStringTableColumn title: 'Value' evaluated: [ :each | self showValue: each second ]);
+		addColumn: (SpStringTableColumn title: 'Value' evaluated: [ :each | each second ]);
 		yourself.
 	
 
@@ -117,12 +117,6 @@ LDAPEntryPresenter >> selectedItem [
 	"Return selected item."
 	
 	^ table selectedItem
-]
-
-{ #category : 'formatting' }
-LDAPEntryPresenter >> showValue: aCollection [
-
-	^ String streamContents: [ :out | out << (aCollection do: [ :e | e ] separatedBy: [ ', ' ]) ]
 ]
 
 { #category : 'initialization' }

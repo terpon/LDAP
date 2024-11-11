@@ -15,9 +15,9 @@ Class {
 { #category : 'adapter' }
 LDAPSearchResultEntryAdapter >> attributes [
 
-	^ entry attributes collect: [ :each | "List of BERSequence { BEROctetString. BERSet }" 
-			{ each elements first value. each elements second elements collect: [ :v | v value ] }
-		]
+	^ Array streamContents: [ :out | entry attributes do: [ :partialAttribute |
+			out nextPutAll: partialAttribute flattened 
+		]  ]
 ]
 
 { #category : 'adapter' }

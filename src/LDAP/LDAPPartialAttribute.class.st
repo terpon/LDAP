@@ -34,12 +34,27 @@ LDAPPartialAttribute >> addValue: aString [
 
 { #category : 'accessing' }
 LDAPPartialAttribute >> description [
-	^ elements first value
+	^ self descriptionElement value
 ]
 
 { #category : 'accessing' }
 LDAPPartialAttribute >> description: aString [ 
 	elements first value: aString
+]
+
+{ #category : 'accessing' }
+LDAPPartialAttribute >> descriptionElement [
+	^ 	elements first
+]
+
+{ #category : 'converting' }
+LDAPPartialAttribute >> flattened [ 
+	| name values |
+	name := self description.
+	values := self valuesElement elements.
+	^ Array new: values size streamContents: [ :out | values do: [ :each |
+			out nextPut: { name. each value  }
+	] ]
 ]
 
 { #category : 'initialization' }
@@ -54,7 +69,7 @@ LDAPPartialAttribute >> initialize [
 { #category : 'accessing' }
 LDAPPartialAttribute >> values [
 	| berStrings |
-	berStrings := elements second elements.
+	berStrings := self valuesElement elements.
 	^ berStrings collect: #value
 
 ]
@@ -66,4 +81,9 @@ LDAPPartialAttribute >> values: aCollectionOfStrings [
 		ifTrue: [ self addValue: aCollectionOfStrings ] 
 		ifFalse: [ aCollectionOfStrings do: [ :eachVal | self addValue: eachVal ] ].
 
+]
+
+{ #category : 'accessing' }
+LDAPPartialAttribute >> valuesElement [
+	^ 	elements second
 ]
