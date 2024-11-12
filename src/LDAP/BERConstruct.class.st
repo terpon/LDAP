@@ -46,14 +46,6 @@ BERConstruct >> initialize [
 	elements := OrderedCollection new
 ]
 
-{ #category : 'inspecting' }
-BERConstruct >> inspectionItems: aBuilder [
-	<inspectorPresentationOrder: 0 title: 'Construct'> 
-	^ BERElementTreePresenter
-		ifNil: [ elements inspectionItems: aBuilder ]
- 		ifNotNil: [ BERElementTreePresenter new roots: elements; owner: aBuilder; yourself ]
-]
-
 { #category : 'accessing' }
 BERConstruct >> length [
 	^ elements inject: 0 into: [ :sum :each | sum + each totalLength ]

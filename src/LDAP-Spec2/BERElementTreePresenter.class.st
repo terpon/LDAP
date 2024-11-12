@@ -126,11 +126,9 @@ BERElementTreePresenter >> selectedItem [
 
 { #category : 'initialization' }
 BERElementTreePresenter >> titleForWindow [ 
-	| element |
-	roots ifNil: [ ^ 'No elements' ].
-
-	element := roots size = 1 ifTrue: [ roots first ] ifFalse: [ roots ].
-	^ element printString
+	roots ifNil: [ ^ self className ].
+	roots size = 1 ifTrue: [ ^ roots first displayString ].
+	^ roots displayString
 ]
 
 { #category : 'controlling' }
@@ -146,7 +144,7 @@ BERElementTreePresenter >> toggleExpandCurrent [
 { #category : 'initialization' }
 BERElementTreePresenter >> updatePresenter [ 
 	| elements |
-	elements := roots ifNil: [ { BERNull new } ].
+	elements := roots ifNil: [ #() ].
 	tree roots: elements.
 	
 	self withWindowDo: [ :w | w title: self titleForWindow ]
