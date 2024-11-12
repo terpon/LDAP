@@ -13,24 +13,12 @@ Class {
 	#tag : 'Presenters'
 }
 
-{ #category : 'initialization' }
-LDAPEntryPresenter class >> defaultLayout [ 
-	^ SpBoxLayout newVertical add: #table; yourself
-]
-
-{ #category : 'specs' }
-LDAPEntryPresenter class >> defaultSpec [
-
-	^ self defaultLayout
-]
-
 { #category : 'examples' }
 LDAPEntryPresenter class >> example [
 "Sample tree"
-	| result adapter |
+	| result |
 	result := self sampleElement.
-	adapter := LDAPSearchResultEntryAdapter new entry: result.
-	^ self new entry: adapter; open
+	^ self new entry: result; open
 
 ]
 
@@ -75,10 +63,15 @@ LDAPEntryPresenter >> connectPresenters [
 
 ]
 
+{ #category : 'layout' }
+LDAPEntryPresenter >> defaultLayout [ 
+	^ SpBoxLayout newVertical add: #table; yourself
+]
+
 { #category : 'accessing' }
 LDAPEntryPresenter >> entry [
 	
-	^ entry ifNil: [ entry := LDAPNullEntryAdapter new ]
+	^ entry
 ]
 
 { #category : 'accessing' }
@@ -86,6 +79,12 @@ LDAPEntryPresenter >> entry: anObject [
 	entry := anObject.
 	self updatePresenter.
 	
+]
+
+{ #category : 'accessing' }
+LDAPEntryPresenter >> flattenedAttributes [
+
+	^ entry ifNil: [ #() ] ifNotNil: [ entry flattened ]
 ]
 
 { #category : 'initialization' }
@@ -124,13 +123,13 @@ LDAPEntryPresenter >> selectedItem [
 { #category : 'initialization' }
 LDAPEntryPresenter >> titleForWindow [ 
 
-	^ self entry dn ifEmpty: [ self className ]
+	^ entry ifNil: [ self className ] ifNotNil: [ entry name ]
 ]
 
 { #category : 'initialization' }
 LDAPEntryPresenter >> updatePresenter [ 
 
-	table items: self entry attributes.
+	table items: self flattenedAttributes.
 	self withWindowDo: [ :w | w title: self titleForWindow ]
 ]
 

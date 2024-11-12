@@ -16,6 +16,12 @@ LDAPPartialAttributeList >> asDictionary [
 
 ]
 
+{ #category : 'enumerating' }
+LDAPPartialAttributeList >> flattenOn: aStream [
+
+	elements do: [ :partialAttribute | partialAttribute flattenOn: aStream ]
+]
+
 { #category : 'instance creation' }
 LDAPPartialAttributeList >> newElementFrom: aTagValue [
 

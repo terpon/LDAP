@@ -27,6 +27,12 @@ LDAPSearchResultEntry >> attributes [
 	^ elements second
 ]
 
+{ #category : 'converting' }
+LDAPSearchResultEntry >> flattened [ 
+
+	^ Array streamContents: [ :stream | self attributes flattenOn: stream ]
+]
+
 { #category : 'testing' }
 LDAPSearchResultEntry >> isReference [
 	^ false

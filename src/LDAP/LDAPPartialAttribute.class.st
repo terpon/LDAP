@@ -54,14 +54,11 @@ LDAPPartialAttribute >> descriptionElement [
 	^ 	elements first
 ]
 
-{ #category : 'converting' }
-LDAPPartialAttribute >> flattened [ 
-	| name values |
+{ #category : 'enumerating' }
+LDAPPartialAttribute >> flattenOn: aStream [
+	| name |
 	name := self description.
-	values := self valuesElement elements.
-	^ Array new: values size streamContents: [ :out | values do: [ :each |
-			out nextPut: { name. each value  }
-	] ]
+	self valuesElement elements do: [ :each |  aStream nextPut: { name. each value }  ]
 ]
 
 { #category : 'initialization' }
