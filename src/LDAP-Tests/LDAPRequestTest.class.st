@@ -55,18 +55,6 @@ LDAPRequestTest >> checkSearchResults: aResult expecting: expectedRDNs [
 ]
 
 { #category : 'utilities' }
-LDAPRequestTest >> checkSearchResults: aResult expectingAttr: attrDesc withValue: attrValue [
-	^ aResult anySatisfy: [ :eachResult | 
-		| attributes |
-		attributes := eachResult attrsAsDictionary.
-		attributes at: attrDesc 
-			ifPresent: [ :set | set includes: attrValue ] 
-			ifAbsent: [ false ]
-	]
-
-]
-
-{ #category : 'utilities' }
 LDAPRequestTest >> cn: aString [
 	^ String streamContents: [ :s | s << 'cn=' << aString << ',' << self baseDN ]
 ]

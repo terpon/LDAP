@@ -112,7 +112,7 @@ LDAPSearchRequestTest >> testFiltersOperators [
 
 { #category : 'tests' }
 LDAPSearchRequestTest >> testNamingContexts [
-	| conn req rr search |
+	| conn req rr search attrs |
 	conn := self connect.
 	self someTestCns do: [ :name| self add: name for: conn ].
 	
@@ -124,7 +124,11 @@ LDAPSearchRequestTest >> testNamingContexts [
 	rr := req responses.
 	self assert: req success.
 	req signalExceptions.
-	self assert: (self checkSearchResults: rr  expectingAttr: 'namingContexts' withValue: self baseDN).
+	self assert: rr size equals: 2.
+	self assert: rr second resultCode equals: 0.
+	attrs := rr first asDictionary.
+	self assert: (attrs includesKey: 'namingContexts').
+	self assert: ((attrs at: 'namingContexts') includes: self baseDN).
 
 	self someTestCns do: [ :name| self delete: name for: conn ].
 	conn disconnect.	

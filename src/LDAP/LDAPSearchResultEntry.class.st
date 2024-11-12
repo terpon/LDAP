@@ -14,25 +14,17 @@ LDAPSearchResultEntry class >> tagValue [
 	^ 16r64
 ]
 
+{ #category : 'converting' }
+LDAPSearchResultEntry >> asDictionary [
+	"I return a Dictionary with attribute description as keys. Each value is an collection, as there may be multiple values per attribute."
+	^ self attributes asDictionary 
+
+]
+
 { #category : 'accessing' }
 LDAPSearchResultEntry >> attributes [
 "Return the attributes as a collection of BER elements (most probably LDAP partial attributes)"
 	^ elements second elements
-]
-
-{ #category : 'accessing' }
-LDAPSearchResultEntry >> attrsAsDictionary [
-	"I return a Dictionary with an entry per attr. Eeach attr is an collection, as there may be multiple values per attr."
-	| partialAttributeList associations |
-	partialAttributeList := self attributes.
-	associations := partialAttributeList collect: [ :partialAttribute | 
-		| type set |
-		type := partialAttribute elements first value.
-		set := partialAttribute elements second elements.
-		type -> (set collect: #value)
-	].
-	^ associations asDictionary
-
 ]
 
 { #category : 'testing' }

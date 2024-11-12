@@ -32,6 +32,13 @@ LDAPPartialAttribute >> addValue: aString [
 	elements second addElement: (BEROctetString new value: aString).
 ]
 
+{ #category : 'converting' }
+LDAPPartialAttribute >> asAssociation [
+
+	^	self description -> (self values asSet)
+
+]
+
 { #category : 'accessing' }
 LDAPPartialAttribute >> description [
 	^ self descriptionElement value
