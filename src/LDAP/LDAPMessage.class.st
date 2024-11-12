@@ -46,23 +46,6 @@ LDAPMessage >> controls: aCollection [
 	(elements size > 2) ifTrue: [ elements at: 3 put: controls ] ifFalse: [ elements addLast: controls ]
 ]
 
-{ #category : 'instance creation' }
-LDAPMessage >> createApplicationElement: aTagValue [
-"Create a BER applicatio element from a tag value"
-	| elementClass |
-	elementClass := LdapTags at: aTagValue ifAbsent: [ ^ nil ].
-	^ elementClass new
-
-]
-
-{ #category : 'instance creation' }
-LDAPMessage >> createContextElement: aTagValue at: anIndex with: aDecoder [
-"Used for controls"
-	(aTagValue = LDAPControls tagValue) ifTrue: [ ^ LDAPControls new ].
-	
-	^ super createContextElement: aTagValue at: anIndex with: aDecoder
-]
-
 { #category : 'converting' }
 LDAPMessage >> encoded [
 "Return the encoded message"
