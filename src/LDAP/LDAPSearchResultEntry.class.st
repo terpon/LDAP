@@ -23,8 +23,8 @@ LDAPSearchResultEntry >> asDictionary [
 
 { #category : 'accessing' }
 LDAPSearchResultEntry >> attributes [
-"Return the attributes as a collection of BER elements (most probably LDAP partial attributes)"
-	^ elements second elements
+"Return the attributes (most probably LDAPPartialAttributeList)"
+	^ elements second
 ]
 
 { #category : 'testing' }
@@ -33,7 +33,7 @@ LDAPSearchResultEntry >> isReference [
 ]
 
 { #category : 'accessing' }
-LDAPSearchResultEntry >> matchedDN [
+LDAPSearchResultEntry >> name [
 	^ elements first value
 ]
 

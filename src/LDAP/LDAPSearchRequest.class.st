@@ -27,6 +27,16 @@ LDAPSearchRequest >> base: aDn [
 	elements first value: aDn
 ]
 
+{ #category : 'controlling' }
+LDAPSearchRequest >> beTypesAndValues [
+	self wantTypesOnly: false
+]
+
+{ #category : 'controlling' }
+LDAPSearchRequest >> beTypesOnly [
+	self wantTypesOnly: true
+]
+
 { #category : 'accessing' }
 LDAPSearchRequest >> derefAliases: anAliasingPolicy [
 	elements at: 3 put: anAliasingPolicy
@@ -69,6 +79,6 @@ LDAPSearchRequest >> timeLimit: anInteger [
 ]
 
 { #category : 'accessing' }
-LDAPSearchRequest >> wantAttrsOnly: aBoolean [
+LDAPSearchRequest >> wantTypesOnly: aBoolean [
 	elements sixth value: aBoolean
 ]

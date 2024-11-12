@@ -50,7 +50,7 @@ LDAPRequestTest >> checkSearchResults: aResult expecting: expectedRDNs [
 		qualified := eachExpected
 			ifNil: [ self baseDN ]
 			ifNotNil: [ String streamContents: [ :s  | s << eachExpected << ',' << self baseDN ] ].
-		aResult anySatisfy: [ :eachResult | eachResult matchedDN = qualified ]
+		aResult anySatisfy: [ :eachResult | eachResult name = qualified ]
 	]
 ]
 

@@ -23,7 +23,7 @@ LDAPSearchResultEntryAdapter >> attributes [
 { #category : 'adapter' }
 LDAPSearchResultEntryAdapter >> dn [
 
-	^ entry matchedDN
+	^ entry name
 ]
 
 { #category : 'accessing' }

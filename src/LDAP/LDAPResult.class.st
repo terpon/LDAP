@@ -15,8 +15,13 @@ LDAPResult class >> tagValue [
 ]
 
 { #category : 'accessing' }
-LDAPResult >> errorMessage [
+LDAPResult >> diagnosticElement [
 	^ elements third value
+]
+
+{ #category : 'accessing' }
+LDAPResult >> diagnosticMessage [
+	^ self diagnosticElement value
 ]
 
 { #category : 'testing' }
@@ -25,8 +30,14 @@ LDAPResult >> isEndMarker [
 ]
 
 { #category : 'accessing' }
-LDAPResult >> matchedDN [
-	^ elements second value
+LDAPResult >> matchedElement [
+	^ elements second
+]
+
+{ #category : 'accessing' }
+LDAPResult >> name [
+"In RFC, the element is either called 'name', 'objectName' or 'matchedDN'"
+	^ self matchedElement value
 ]
 
 { #category : 'instance creation' }
@@ -41,7 +52,8 @@ LDAPResult >> newElementFrom: aTagValue [
 ]
 
 { #category : 'accessing' }
-LDAPResult >> referral [
+LDAPResult >> referralElement [
+	(elements size < 4) ifTrue: [  ^ nil ].
 	^ elements fourth
 ]
 

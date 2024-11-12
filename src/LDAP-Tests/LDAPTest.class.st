@@ -34,5 +34,5 @@ LDAPTest >> testMessage [
 	message := LDAPMessage newFrom: encoded readStream.
 	self assert: message id equals: 2.
 	self assert: message response resultCode equals: 0.
-	self assert: message response matchedDN equals: cn.
+	self assert: message response name equals: cn.
 ]

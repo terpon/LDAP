@@ -3,7 +3,7 @@ Error thrown when a LDAPCommand is not yet done after a wait call.
 "
 Class {
 	#name : 'LDAPTimeOut',
-	#superclass : 'Error',
+	#superclass : 'LDAPException',
 	#instVars : [
 		'command'
 	],

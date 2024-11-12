@@ -25,7 +25,7 @@ LDAPModifyRequestTest >> testModify [
 			LDAPAttrModifier set: 'sn' to: { 'test5sn' . 'foo' . 'bar'}.
 			LDAPAttrModifier addTo: 'description' values: {'rchueo'} }.
 
-	mod := LDAPModifyRequest new dn: (rr matchedDN); ops: ops.
+	mod := LDAPModifyRequest new dn: (rr name); ops: ops.
 	req := conn request: mod.
 	req wait.
 	self assert: req success.
