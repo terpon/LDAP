@@ -13,32 +13,6 @@ Class {
 	#tag : 'Presenters'
 }
 
-{ #category : 'accessing' }
-BERElementTreePresenter class >> childrenBlock [ 
-
-	^ [ :e | e elements ]
-]
-
-{ #category : 'accessing' }
-BERElementTreePresenter class >> classBlock [ 
-
-	^ [ :e | String streamContents: [ :s | 
-				s << e class name.
-				e elements ifNotEmpty: [ :children | s << ' (' << children size asString << ')' ] ].
-		]
-]
-
-{ #category : 'initialization' }
-BERElementTreePresenter class >> defaultLayout [ 
-	^ SpBoxLayout newVertical add: #tree; yourself
-]
-
-{ #category : 'specs' }
-BERElementTreePresenter class >> defaultSpec [
-
-	^ self defaultLayout
-]
-
 { #category : 'examples' }
 BERElementTreePresenter class >> example [
 "Sample tree"
@@ -70,12 +44,6 @@ BERElementTreePresenter class >> sampleElement [
 
 ]
 
-{ #category : 'accessing' }
-BERElementTreePresenter class >> valueBlock [ 
-
-	^ [ :e | e value ifNotNil: [ String streamContents: [ :s | e displayStringOn: s ] ] ]
-]
-
 { #category : 'forwarding' }
 BERElementTreePresenter >> activateOnSingleClick [
 	tree activateOnSingleClick.
@@ -91,6 +59,11 @@ BERElementTreePresenter >> connectPresenters [
 
 ]
 
+{ #category : 'layout' }
+BERElementTreePresenter >> defaultLayout [ 
+	^ SpBoxLayout newVertical add: #tree; yourself
+]
+
 { #category : 'controlling' }
 BERElementTreePresenter >> expand [
 	tree expandRoots.
@@ -101,9 +74,9 @@ BERElementTreePresenter >> initializePresenters [
 
 	tree := self newTreeTable 
 		isResizable: true;
-		addColumn: (SpStringTableColumn title: 'Class' evaluated: self class classBlock);
-		addColumn: (SpStringTableColumn title: 'Value' evaluated: self class valueBlock);
-		children: self class childrenBlock;
+		addColumn: (SpStringTableColumn title: 'Class' evaluated: [ :e | self printClassFor: e ]);
+		addColumn: (SpStringTableColumn title: 'Value' evaluated: [ :e | e displayString ]);
+		children: [ :e | e elements ];
 		yourself.
 	
 
@@ -121,6 +94,14 @@ BERElementTreePresenter >> initializeWindow: aSpWindowPresenter [
 { #category : 'ports' }
 BERElementTreePresenter >> outputActivationPort [ 
 	^ tree outputActivationPort
+]
+
+{ #category : 'printing' }
+BERElementTreePresenter >> printClassFor: anObject [ 
+
+	^ String streamContents: [ :s | 
+				s << anObject class name.
+				anObject elements ifNotEmpty: [ :children | s << ' (' << children size asString << ')' ] ]
 ]
 
 { #category : 'accessing' }
@@ -159,6 +140,7 @@ BERElementTreePresenter >> toggleExpandCurrent [
 	path ifNil: [ ^ self ].
 	state := tree isExpanded: path.
 	state ifTrue: [ tree collapsePath: path ] ifFalse: [ tree expandPath: path ].
+	tree selectPath: path.
 ]
 
 { #category : 'initialization' }
