@@ -91,6 +91,14 @@ BERElementTreePresenter >> initializeWindow: aSpWindowPresenter [
 		title: self titleForWindow
 ]
 
+{ #category : 'accessing - model' }
+BERElementTreePresenter >> model [
+
+	roots size = 1 ifTrue: [ ^ roots first ].
+	^ roots
+	
+]
+
 { #category : 'ports' }
 BERElementTreePresenter >> outputActivationPort [ 
 	^ tree outputActivationPort
@@ -122,6 +130,19 @@ BERElementTreePresenter >> selectedItem [
 	"Return selected item."
 	
 	^ tree selectedItem
+]
+
+{ #category : 'accessing - model' }
+BERElementTreePresenter >> setModel: aModel [
+
+	self roots: (aModel isCollection ifTrue: [ aModel ] ifFalse: [ { aModel } ])
+	
+]
+
+{ #category : 'accessing - model' }
+BERElementTreePresenter >> setModelBeforeInitialization: aModel [
+
+	roots := aModel isCollection ifTrue: [ aModel ] ifFalse: [ { aModel } ]
 ]
 
 { #category : 'initialization' }
