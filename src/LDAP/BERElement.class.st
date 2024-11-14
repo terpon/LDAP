@@ -12,21 +12,6 @@ Class {
 	#tag : 'BER'
 }
 
-{ #category : 'error handling' }
-BERElement class >> checkTag: aTagValue [
-
-	(aTagValue = self tagValue) ifFalse: [ LDAPIncorrectTagException signalWith: aTagValue ].
-
-]
-
-{ #category : 'class initialization' }
-BERElement class >> initialize [ 
-"BERElement class initialization. Populate the knownTags variable for universal elements creation."
-	| classes |
-	classes := { BERInteger. BEROctetString . BERSequence. BEREnumerated. BERBoolean. BERSet. BERNull. }.
-	UniversalTags := (classes collect: [ :c | c tagValue -> c ]) asDictionary.
-]
-
 { #category : 'utilities' }
 BERElement class >> lengthLength: anInteger [
 	| octets |
@@ -39,13 +24,6 @@ BERElement class >> lengthLength: anInteger [
 	
 	"number of bytes plus the length in one byte"
 	^ octets + 1
-]
-
-{ #category : 'instance creation' }
-BERElement class >> newUniversalElementFrom: aTagValue [
-"Return a BER universal element from a tag value"
-	UniversalTags at: aTagValue ifPresent: [ :class | ^ class new ].
-	^ nil
 ]
 
 { #category : 'accessing' }
@@ -88,8 +66,8 @@ BERElement >> length [
 
 { #category : 'instance creation' }
 BERElement >> newElementFrom: aTagValue [
-"Default implementation. There is no context specific element class to create."
-	^ self class newUniversalElementFrom: aTagValue
+"Default implementation."
+	^ nil
 ]
 
 { #category : 'accessing' }

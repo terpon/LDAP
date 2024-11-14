@@ -154,10 +154,12 @@ LDAPWorker >> start [
 	| process |
 	self isConnected ifFalse: [ ^ nil ].
 	running := true.
-	process := [ 
+	process := [
+		| decoder |
+		decoder := LDAPDecoder new.
 		[running] whileTrue: [
 			|  element  |
-			element := [LDAPMessage newFrom: sockStream] on: Error do:[:ex| 
+			element := [ decoder readFrom: sockStream ] on: Error do:[:ex| 
 				Transcript cr; show: ex description.
 				running := false.
 				"ex pass."

@@ -23,16 +23,6 @@ LDAPMessage class >> initialize [
 	LdapTags := (classes collect: [ :c | c tagValue -> c ]) asDictionary.
 ]
 
-{ #category : 'instance creation' }
-LDAPMessage class >> newFrom: aStream [
-"Create a BER decoder with the LDAPMessage as application"
-	| decoder message |
-	message := self new.
-	decoder := BERDecoder new application: message.
-	decoder readFrom: aStream.
-	^ message
-]
-
 { #category : 'accessing' }
 LDAPMessage >> controls [
 	^ (elements size > 2) ifTrue: [ elements third elements ] ifFalse: [ #() ]
@@ -69,19 +59,6 @@ LDAPMessage >> initialize [
 	
 	self addElement: (BERInteger new). "id"
 	self addElement: (BERNull new). "protocolOp"
-
-]
-
-{ #category : 'instance creation' }
-LDAPMessage >> newApplicationElementFrom: aTagValue [
-"Create a BER application element from a tag value"
-
-	LdapTags at: aTagValue ifPresent: [ :c | ^ c new ].
-
-	"root element, return self"
-	(aTagValue  = BERSequence tagValue) ifTrue: [ ^ self ].
-
-	^ nil
 
 ]
 

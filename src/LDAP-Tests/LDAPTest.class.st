@@ -31,7 +31,8 @@ LDAPTest >> testMessage [
 	seq addElement: result.
 	encoded := ByteString streamContents: [ :s | seq writeOn: s ].
 	
-	message := LDAPMessage newFrom: encoded readStream.
+	message := LDAPDecoder new readFrom: encoded readStream.
+	self assert: message class equals: LDAPMessage.
 	self assert: message id equals: 2.
 	self assert: message response resultCode equals: 0.
 	self assert: message response name equals: cn.

@@ -8,13 +8,21 @@ For constructed types, I query the constructed instance for context class elemen
 Class {
 	#name : 'BERDecoder',
 	#superclass : 'Object',
-	#instVars : [
-		'application'
+	#classVars : [
+		'UniversalTags'
 	],
 	#category : 'LDAP-BER',
 	#package : 'LDAP',
 	#tag : 'BER'
 }
+
+{ #category : 'class initialization' }
+BERDecoder class >> initialize [ 
+"BERElement class initialization. Populate the knownTags variable for universal elements creation."
+	| classes |
+	classes := { BERInteger. BEROctetString . BERSequence. BEREnumerated. BERBoolean. BERSet. BERNull. }.
+	UniversalTags := (classes collect: [ :c | c tagValue -> c ]) asDictionary.
+]
 
 { #category : 'testing' }
 BERDecoder class >> isApplication: aTagValue [
@@ -41,9 +49,12 @@ BERDecoder class >> isUniversal: aTagValue [
 	^ (aTagValue bitAnd: 16rC0) = 0
 ]
 
-{ #category : 'accessing' }
-BERDecoder >> application: anObject [
-	application := anObject
+{ #category : 'error handling' }
+BERDecoder >> check: anElement tag: aTagValue [
+	| createdTag |
+	createdTag := anElement tagValue.
+	(aTagValue = createdTag) ifFalse: [ LDAPIncorrectTagException signalWith: createdTag expected: aTagValue ].
+
 ]
 
 { #category : 'private - creation' }
@@ -52,43 +63,44 @@ BERDecoder >> newElementWith: aTagValue in: aParent [
 	| element |
 	"Use parent element as context if any"
 	element := aParent ifNotNil: [ element := aParent newElementFrom: aTagValue ].
-	"Then try to create an application-specific element from the application"
-	(element isNil and: [ application isNotNil ]) ifTrue: [ element := application newApplicationElementFrom: aTagValue ].
 	"Then try to create a universal element from its tag"
-	element ifNil: [ element := BERElement newUniversalElementFrom: aTagValue ].
+	element ifNil: [ element := self newUniversalElementFrom: aTagValue ].
 	"Finally bail out"
 	element ifNil: [ element := self newUnknownElementFrom: aTagValue ].
 	^ element
 
 ]
 
+{ #category : 'instance creation' }
+BERDecoder >> newUniversalElementFrom: aTagValue [
+"Return a BER universal element from a tag value"
+	UniversalTags at: aTagValue ifPresent: [ :class | ^ class new ].
+	^ nil
+]
+
 { #category : 'private - creation' }
 BERDecoder >> newUnknownElementFrom: anInteger [
 "Create a BER unknown element and signal error."
-	LDAPException signal: ('Invalid tag', anInteger asString).
+	LDAPUnknownTagException signalWith: anInteger.
+	(self class isConstructed: anInteger) ifTrue: [ ^ BERUnknownConstruct new tag: anInteger ].
 	^ BERUnknownElement new tag: anInteger
 
 ]
 
 { #category : 'private - reading' }
-BERDecoder >> read: anElement from: aStream [
-"Decode an already existing element from a stream"
-	| firstByte length |
-	firstByte := aStream next asInteger.
-	anElement class checkTag: firstByte.
-	
-	length := self readLengthFrom: aStream.
-	anElement decode: aStream length: length with: self
-]
-
-{ #category : 'private - reading' }
 BERDecoder >> readElementFrom: aStream in: aParent [
 "Create a BER element from a stream"
-	| firstByte element |
-	firstByte := aStream peek asInteger.
+	| firstByte element length |
+	firstByte := aStream next asInteger.
 	"Transcript show: '*** Next byte is: ', firstByte asString; cr."
 	element := self newElementWith: firstByte in: aParent.
-	self read: element from: aStream.
+	"If no element, signal but still create a BERUnknown element"
+	element 
+		ifNil: [ element := self newUnknownElementFrom: firstByte ]
+		ifNotNil: [ self check: element tag: firstByte].
+
+	length := self readLengthFrom: aStream.
+	element decode: aStream length: length with: self.
 	^ element
 
 ]

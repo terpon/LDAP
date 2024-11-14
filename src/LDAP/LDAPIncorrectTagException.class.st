@@ -3,14 +3,14 @@ I am an exception signal when decoding a byte stream into BER elements if the ta
 "
 Class {
 	#name : 'LDAPIncorrectTagException',
-	#superclass : 'LDAPException',
+	#superclass : 'LDAPDecoderException',
 	#category : 'LDAP-Exceptions',
 	#package : 'LDAP',
 	#tag : 'Exceptions'
 }
 
 { #category : 'signalling' }
-LDAPIncorrectTagException class >> signalWith: aTagValue [
+LDAPIncorrectTagException class >> signalWith: aTagValue expected: anotherTagValue [
 
-	^ self signal: ('inconsitent tag ', aTagValue asString)
+	^ self signal: ('Invalid tag ', aTagValue asString, '. Expected: ', anotherTagValue asString)
 ]
