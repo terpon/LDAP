@@ -10,14 +10,14 @@ The user `cn=admin,dc=example,dc=com` should have write access to the directory 
 
 "
 Class {
-	#name : 'LDAPTest',
+	#name : 'LDAPDecoderTest',
 	#superclass : 'TestCase',
 	#category : 'LDAP-Tests',
 	#package : 'LDAP-Tests'
 }
 
 { #category : 'tests' }
-LDAPTest >> testMessage [
+LDAPDecoderTest >> testReadFrom [
 	| message id cn dn code result seq encoded |
 	seq := BERSequence new.
 	id := BERInteger new value: 2.

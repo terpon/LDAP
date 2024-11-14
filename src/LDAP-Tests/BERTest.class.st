@@ -21,49 +21,41 @@ BERTest >> booleanTestSet [
 
 { #category : 'tools' }
 BERTest >> debugHex: aString [
-	| str encodedString |
 	
-	encodedString := WriteStream on: (String new).
-	str := aString readStream.
-	[ str atEnd ] whileFalse: [  
-		| int |
-		int := Integer readHexByteFrom: str.
-		encodedString  nextPut: int asCharacter.		
-	].
-	^encodedString contents
+	^ ByteString streamContents: [ :s |
+			aString groupsOf: 2 atATimeDo: [ :hi :lo | | byte |
+				byte := (hi digitValue bitShift: 4) + lo digitValue.
+				s nextPut: (byte asCharacter) ].
+		].
+
 ]
 
 { #category : 'tools' }
 BERTest >> formatWithHex: aString [
-	| encodedString pos |
-	
-	encodedString := WriteStream on: (String new).
-	(aString size >= 2) ifTrue: [  
-		pos := 1.
-		[ pos < aString size ] whileTrue: [  
-			encodedString nextPutAll: '16r'.
-			((aString at: pos) ~= $0) ifTrue: [ encodedString nextPut: (aString at: pos) ].
-			encodedString nextPut: (aString at: pos + 1).
-			pos := pos + 2.
-		].
-	].
-	^encodedString contents
+
+	^ String streamContents: [ :stream |
+			aString groupsOf: 2 atATimeDo: [ :hi :lo |
+				stream nextPutAll: '16r'.
+				(hi ~= $0) ifTrue: [ stream nextPut: hi ].
+				stream nextPut: lo.
+			]  
+		]
 ]
 
 { #category : 'test data' }
 BERTest >> integerTestSet [
 	^  #(
 			( 27066 '020269BA') 
-			(-27066 '02029646')
-			(72 '020148' )
-			(127 '02017F')
-			(-128 '020180')
-			(128 '02020080')
+			( -27066 '02029646')
+			( 72 '020148' )
+			( 127 '02017F')
+			( -128 '020180')
+			( 128 '02020080')
 			( 0'020100' )
-			( 256  '02020100')
-			(4294967290 '020500FFFFFFFA')
+			( 256 '02020100')
+			( 4294967290 '020500FFFFFFFA')
 			( 1 '020101')
-			(-1'0201FF')
+			( -1'0201FF')
 			( -129 '0202FF7F')
 		)
 
@@ -101,13 +93,14 @@ BERTest >> testBindRequest [
 { #category : 'tests' }
 BERTest >> testBooleanEncoding [
 
-	| ber |
+	| ber output expected |
 	ber := BERBoolean new.
 
-	self booleanTestSet do: [ :test | | output |
+	self booleanTestSet do: [ :test |
 		ber value: test first.
-		output := String streamContents: [ :stream | ber writeOn: stream ].
-		self assert: output asHex equals: (self formatWithHex: test second)
+		output := ber encoded asHex.
+		expected := self formatWithHex: test second.
+		self assert: output equals: expected
 	]
 ]
 
@@ -128,14 +121,7 @@ BERTest >> testIntegerDecoding [
 
 	self integerTestSet do: [:test | 
 		|ber encoded expectedValue |
-		encoded := ByteString streamContents: [ :s |
-			| stream |
-			stream := ReadStream on: test second.
-			[stream atEnd] whileFalse: [ | byte |
-				byte := (stream next digitValue * 16).
-				byte := byte + stream next digitValue.
-				s nextPut: (byte asCharacter) ].
-		].
+		encoded := self debugHex: test second.
 		ber := BERDecoder new readFrom: encoded readStream.
 		self assert: ber class equals: BERInteger.
 		
@@ -153,9 +139,9 @@ BERTest >> testIntegerEncoding [
 
 	self integerTestSet do: [ :test |
 		ber value: test first.
-		output := String streamContents: [ :stream | ber writeOn: stream ].
+		output := ber encoded asHex.
 		expected := self formatWithHex: test second.
-		self assert: output asHex equals: expected 
+		self assert: output equals: expected 
 	]
 ]
 
@@ -178,18 +164,16 @@ BERTest >> testModifyRequest [
 { #category : 'tests' }
 BERTest >> testOctetStringEncoding [
 
-	| ber stream tests expected |
+	| ber output tests expected |
 	ber := BEROctetString new.
-	stream := ReadWriteStream on: String new.
 
 	tests := { { 'hello'. 5. '040568656C6C6F' } }.
 
 	tests do: [ :test |
-		stream resetToStart.
 		ber value: test first.
-		ber writeOn: stream.
-		expected := self formatWithHex: (test at: 3).
-		self assert: stream contents asString asHex equals: expected ]
+		output := ber encoded asHex.
+		expected := self formatWithHex: test third.
+		self assert: output equals: expected ]
 ]
 
 { #category : 'tests' }

@@ -36,13 +36,6 @@ LDAPMessage >> controls: aCollection [
 	(elements size > 2) ifTrue: [ elements at: 3 put: controls ] ifFalse: [ elements addLast: controls ]
 ]
 
-{ #category : 'converting' }
-LDAPMessage >> encoded [
-"Return the encoded message"
-	^ ByteString streamContents: [ :stream | self writeOn: stream ]
-
-]
-
 { #category : 'accessing' }
 LDAPMessage >> id [
 	^ elements first value
