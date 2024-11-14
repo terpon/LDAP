@@ -5,68 +5,18 @@ Class {
 	#package : 'LDAP-Tests'
 }
 
-{ #category : 'as yet unclassified' }
-BERTest class >> createLauncher [
-	| b |
-	b := SimpleButtonMorph new.
-	b target: BERTest.
-	b actionSelector: #testAll.
-	b position: (World bounds bottomRight - (40 @ 40)).
-	b label: 'Test'.
-	b openInWorld.
-]
+{ #category : 'test data' }
+BERTest >> booleanTestSet [
 
-{ #category : 'as yet unclassified' }
-BERTest class >> getBooleanTestSet [
-	^  {		{ 0 . '010100' }.
-			{ 1 . '0101FF' }.
-			{ 255 . '0101FF' }.
-			{ 1000 . '0101FF' }.
-			{ false . '010100' }.
-			{ true . '0101FF' }.
-		}.
+	^ #(
+		  ( 0     '010100' )
+		  ( 1     '0101FF' )
+		  ( 255  '0101FF' )
+		  ( 1000 '0101FF' )
+		  ( false '010100' )
+		  ( true  '0101FF' )
+		)
 
-]
-
-{ #category : 'as yet unclassified' }
-BERTest class >> getIntegerTestSet [
-	^  {		{27066 .  '020269BA'}. 
-			{-27066 .  '02029646'}.
-			{72 .  '020148' }.
-			{127  . '02017F'}.
-			{-128. '020180'}.
-			{128  . '02020080'}.
-			{ 0 . '020100' }.
-			{ 256  .  '02020100'}.
-			{4294967290  . '020500FFFFFFFA'}.
-			{ 1  . '020101'}.
-			{-1 . '0201FF'}.
-			{ -129  . '0202FF7F'}.
-		}.
-
-]
-
-{ #category : 'as yet unclassified' }
-BERTest class >> isAbstract [
-	^ false
-]
-
-{ #category : 'as yet unclassified' }
-BERTest class >> testAll [
-	| b |
-	b := BERTest new.
-	
-	b 
-		testIntegerEncoding;
-		testOctetStringEncoding;
-		testSequenceEncoding;
-		testBooleanEncoding;
-		testIntegerDecoding;
-		testAddRequest;
-		testBindRequest;
-		testDelRequest;
-		testModifyRequest;
-		testSearchRequest
 ]
 
 { #category : 'tools' }
@@ -100,6 +50,25 @@ BERTest >> formatWithHex: aString [
 	^encodedString contents
 ]
 
+{ #category : 'test data' }
+BERTest >> integerTestSet [
+	^  #(
+			( 27066 '020269BA') 
+			(-27066 '02029646')
+			(72 '020148' )
+			(127 '02017F')
+			(-128 '020180')
+			(128 '02020080')
+			( 0'020100' )
+			( 256  '02020100')
+			(4294967290 '020500FFFFFFFA')
+			( 1 '020101')
+			(-1'0201FF')
+			( -129 '0202FF7F')
+		)
+
+]
+
 { #category : 'tests' }
 BERTest >> testAddRequest [
 	| request encoded hex expected attrs |
@@ -131,19 +100,15 @@ BERTest >> testBindRequest [
 
 { #category : 'tests' }
 BERTest >> testBooleanEncoding [
-	|ber stream tests output |
-	ber := BERBoolean new.
-	stream := ReadWriteStream on: (String new).
 
-	tests :=  self class getBooleanTestSet.
-	tests do: [:test | 
-		stream resetToStart.
-		ber value: (test at: 1).	
-		ber writeOn: stream.
-		output :=  stream contents asString asHex.
-		self assert: (output = (self formatWithHex: (test at: 2))) ]
-	
-	
+	| ber |
+	ber := BERBoolean new.
+
+	self booleanTestSet do: [ :test | | output |
+		ber value: test first.
+		output := String streamContents: [ :stream | ber writeOn: stream ].
+		self assert: output asHex equals: (self formatWithHex: test second)
+	]
 ]
 
 { #category : 'tests' }
@@ -160,44 +125,38 @@ BERTest >> testDelRequest [
 
 { #category : 'tests' }
 BERTest >> testIntegerDecoding [
-	|ber encoded tests value valueStream stream |
-	stream := ReadWriteStream on: (String new).
 
-	tests :=  self class getIntegerTestSet.
-	tests do: [:test | 
-		valueStream := ReadStream on: (test at: 2).
+	self integerTestSet do: [:test | 
+		|ber encoded expectedValue |
 		encoded := ByteString streamContents: [ :s |
-			[valueStream atEnd] whileFalse: [ | byte |
-				byte := (valueStream next digitValue * 16).
-				byte := byte + valueStream next digitValue.
+			| stream |
+			stream := ReadStream on: test second.
+			[stream atEnd] whileFalse: [ | byte |
+				byte := (stream next digitValue * 16).
+				byte := byte + stream next digitValue.
 				s nextPut: (byte asCharacter) ].
 		].
-		stream := encoded readStream.
-		ber := BERDecoder new readFrom: stream.
+		ber := BERDecoder new readFrom: encoded readStream.
 		self assert: ber class equals: BERInteger.
 		
-		value := test first.
-		self assert: ber value equals: value. 
+		expectedValue := test first.
+		self assert: ber value equals: expectedValue. 
 	]
 
 ]
 
 { #category : 'tests' }
 BERTest >> testIntegerEncoding [
-	|ber stream tests output expected |
-	ber := BERInteger new.
-	stream := ReadWriteStream on: (String new).
 
-	tests :=  self class getIntegerTestSet.
-	tests do: [:test | 
-		stream resetToStart.
-		ber value: (test at: 1).	
-		ber writeOn: stream.
-		output :=  stream contents asString asHex.
-		expected := self formatWithHex: (test at: 2).
-		self assert: output equals: expected ]
-	
-	
+	| ber output expected |
+	ber := BERInteger new.
+
+	self integerTestSet do: [ :test |
+		ber value: test first.
+		output := String streamContents: [ :stream | ber writeOn: stream ].
+		expected := self formatWithHex: test second.
+		self assert: output asHex equals: expected 
+	]
 ]
 
 { #category : 'tests' }
@@ -218,20 +177,19 @@ BERTest >> testModifyRequest [
 
 { #category : 'tests' }
 BERTest >> testOctetStringEncoding [
-	|ber stream tests expected |
+
+	| ber stream tests expected |
 	ber := BEROctetString new.
-	stream := ReadWriteStream on: (String new).
+	stream := ReadWriteStream on: String new.
 
-	tests := {	{ 'hello' . 5 . '040568656C6C6F' } }.
+	tests := { { 'hello'. 5. '040568656C6C6F' } }.
 
-	tests do: [:test | 
+	tests do: [ :test |
 		stream resetToStart.
-		ber value: (test at: 1).	
+		ber value: test first.
 		ber writeOn: stream.
 		expected := self formatWithHex: (test at: 3).
 		self assert: stream contents asString asHex equals: expected ]
-	
-	
 ]
 
 { #category : 'tests' }
@@ -252,18 +210,17 @@ BERTest >> testSearchRequest [
 
 { #category : 'tests' }
 BERTest >> testSequenceEncoding [
-	|ber0 ber1 ber2 stream expected |
+	|ber0 ber1 ber2 result expected |
 	ber0 := BERSequence new.
 	ber1 := BERInteger new value: 17.
 	ber2 := BERInteger new value: 170.
 	
 	ber0 addElement: ber1.
 	ber0 addElement: ber2.
-	stream := ReadWriteStream on: (String new).
 
-	ber0 writeOn: stream.
+	result := String streamContents: [ :stream | ber0 writeOn: stream ].
 	expected := self formatWithHex: '3007020111020200AA'.
-	self assert: stream contents asString asHex equals: expected
+	self assert: result asHex equals: expected
 
 
 ]
