@@ -16,8 +16,9 @@ Class {
 	#instVars : [
 		'connection'
 	],
-	#category : 'LDAP-Tests',
-	#package : 'LDAP-Tests'
+	#category : 'LDAP-Tests-Utility',
+	#package : 'LDAP-Tests',
+	#tag : 'Utility'
 }
 
 { #category : 'utilities' }

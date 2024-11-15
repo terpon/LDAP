@@ -4,8 +4,9 @@ Test for LDAP filter creation
 Class {
 	#name : 'LDAPFilterTest',
 	#superclass : 'TestCase',
-	#category : 'LDAP-Tests',
-	#package : 'LDAP-Tests'
+	#category : 'LDAP-Tests-Tests',
+	#package : 'LDAP-Tests',
+	#tag : 'Tests'
 }
 
 { #category : 'tests' }

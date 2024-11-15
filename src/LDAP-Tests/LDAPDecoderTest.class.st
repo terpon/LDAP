@@ -12,8 +12,9 @@ The user `cn=admin,dc=example,dc=com` should have write access to the directory 
 Class {
 	#name : 'LDAPDecoderTest',
 	#superclass : 'TestCase',
-	#category : 'LDAP-Tests',
-	#package : 'LDAP-Tests'
+	#category : 'LDAP-Tests-Tests',
+	#package : 'LDAP-Tests',
+	#tag : 'Tests'
 }
 
 { #category : 'tests' }

@@ -1,8 +1,9 @@
 Class {
 	#name : 'LDAPModifyRequestTest',
 	#superclass : 'LDAPRequestTest',
-	#category : 'LDAP-Tests',
-	#package : 'LDAP-Tests'
+	#category : 'LDAP-Tests-Tests',
+	#package : 'LDAP-Tests',
+	#tag : 'Tests'
 }
 
 { #category : 'tests' }
