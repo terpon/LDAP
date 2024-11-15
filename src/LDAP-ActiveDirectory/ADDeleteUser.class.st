@@ -5,7 +5,7 @@ The request DN is the user DN.
 "
 Class {
 	#name : 'ADDeleteUser',
-	#superclass : 'LDAPDelRequest',
+	#superclass : 'LDAPDeleteRequest',
 	#category : 'LDAP-ActiveDirectory-Requests',
 	#package : 'LDAP-ActiveDirectory',
 	#tag : 'Requests'

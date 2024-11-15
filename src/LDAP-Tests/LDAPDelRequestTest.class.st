@@ -14,7 +14,7 @@ LDAPDelRequestTest >> testDelete [
 
 	self someTestCns do: [ :name |
 		| del |
-		del := LDAPDelRequest new name: (self cn: name).
+		del := LDAPDeleteRequest new name: (self cn: name).
 		self requestAndAssertSuccess: del.
 	]
 ]

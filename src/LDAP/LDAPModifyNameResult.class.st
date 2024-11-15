@@ -2,7 +2,7 @@
 Modiy DN result
 "
 Class {
-	#name : 'LDAPModifyDNResult',
+	#name : 'LDAPModifyNameResult',
 	#superclass : 'LDAPResult',
 	#category : 'LDAP-Modify',
 	#package : 'LDAP',
@@ -10,6 +10,6 @@ Class {
 }
 
 { #category : 'accessing' }
-LDAPModifyDNResult class >> tagValue [
+LDAPModifyNameResult class >> tagValue [
 	^ 16r6D
 ]

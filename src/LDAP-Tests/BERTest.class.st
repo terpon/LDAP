@@ -108,7 +108,7 @@ BERTest >> testBooleanEncoding [
 { #category : 'tests' }
 BERTest >> testDelRequest [
 	| request encoded expected |
-	request := LDAPDelRequest new name: 'cn=test2,dc=linalco,dc=test'.
+	request := LDAPDeleteRequest new name: 'cn=test2,dc=linalco,dc=test'.
 	encoded := (LDAPMessage new id: 1; operation: request) encoded.
 	encoded := encoded asString asHex.
 

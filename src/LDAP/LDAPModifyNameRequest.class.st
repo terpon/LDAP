@@ -2,7 +2,7 @@
 Request to modify a distinguished name
 "
 Class {
-	#name : 'LDAPModifyDNRequest',
+	#name : 'LDAPModifyNameRequest',
 	#superclass : 'BERSequence',
 	#category : 'LDAP-Modify',
 	#package : 'LDAP',
@@ -10,12 +10,12 @@ Class {
 }
 
 { #category : 'accessing' }
-LDAPModifyDNRequest class >> tagValue [
+LDAPModifyNameRequest class >> tagValue [
 	^ 16r6C "Application 12"
 ]
 
 { #category : 'initialization' }
-LDAPModifyDNRequest >> initialize [ 
+LDAPModifyNameRequest >> initialize [ 
 	super initialize.
 	
 	self addElement: (BEROctetString new). "entry"
@@ -25,22 +25,22 @@ LDAPModifyDNRequest >> initialize [
 ]
 
 { #category : 'accessing' }
-LDAPModifyDNRequest >> name: aDn [
+LDAPModifyNameRequest >> name: aDn [
 	elements first value: aDn
 ]
 
 { #category : 'accessing' }
-LDAPModifyDNRequest >> newRelativeName: aRdn [
+LDAPModifyNameRequest >> newRelativeName: aRdn [
 	elements second value: aRdn
 ]
 
 { #category : 'accessing' }
-LDAPModifyDNRequest >> underName: aDn [
-	elements size < 4 ifTrue: [ elements addElement: (LDAPOptionalDN new)].
+LDAPModifyNameRequest >> underName: aDn [
+	elements size < 4 ifTrue: [ elements addElement: (LDAPOptionalName new)].
 	elements fourth value: aDn
 ]
 
 { #category : 'accessing' }
-LDAPModifyDNRequest >> wantToClearAttrs: aBoolean [
+LDAPModifyNameRequest >> wantToClearAttrs: aBoolean [
 	elements third value: aBoolean
 ]

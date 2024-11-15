@@ -88,7 +88,7 @@ LDAPRequestTest >> connect [
 { #category : 'utilities' }
 LDAPRequestTest >> deleteEntry: aName [
 
-	self requestAndAssertSuccess: (LDAPDelRequest new name: (self cn: aName)).
+	self requestAndAssertSuccess: (LDAPDeleteRequest new name: (self cn: aName)).
 
 ]
 
@@ -98,7 +98,7 @@ LDAPRequestTest >> deleteSomeTestEntries [
 	connection ifNil: [ ^ self ].
 	
 	self someTestCns do: [ :name |
-		[ 	self request: (LDAPDelRequest new name: (self cn: name)) ]
+		[ 	self request: (LDAPDeleteRequest new name: (self cn: name)) ]
 			on: LDAPNameProblemException 
 			do: [ :ex | ex resume ] ].
 
