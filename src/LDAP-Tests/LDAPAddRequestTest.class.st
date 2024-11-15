@@ -59,23 +59,19 @@ LDAPAddRequestTest >> testAttributes [
 
 { #category : 'tests' }
 LDAPAddRequestTest >> testCollectionValues [
-	| conn req attrs |
-	conn := self connect.
-	self someTestCns do: [ :name| | add |
+
+	self connect.
+	self someTestCns do: [ :name |
+		| add attrs |
 		attrs := Dictionary new
-			at: 'objectClass' put: (OrderedCollection new add: 'person'; yourself);
-			at: 'cn' put: (OrderedCollection new add: name; yourself);
-			at: 'sn' put: (OrderedCollection new add: name; yourself);
-			yourself.
-		
+			         at: 'objectClass' put: { 'person' };
+			         at: 'cn' put: { name };
+			         at: 'sn' put: { name };
+			         yourself.
+
 		add := LDAPAddRequest new name: (self cn: name); attributes: attrs.
-		req := conn request: add.
-		req wait.
-		self assert: req success.
-		req signalExceptions.
+		self requestAndAssertSuccess: add
 	].
-	self someTestCns do: [ :name| self delete: name for: conn ].
-	conn disconnect
 ]
 
 { #category : 'tests' }
@@ -91,20 +87,18 @@ LDAPAddRequestTest >> testRemoveAll [
 
 { #category : 'tests' }
 LDAPAddRequestTest >> testStringValues [
-	| conn req attrs |
-	conn := self connect.
-	self someTestCns do: [ :name|
+
+	| attrs |
+	self connect.
+	self someTestCns do: [ :name |
 		attrs := Dictionary new
-			at: 'objectClass' put: 'person';
-			at: 'cn' put: name;
-			at: 'sn' put: name;
-			yourself.
-		
-		req := conn request: (LDAPAddRequest new name: (self cn: name); attributes: attrs).
-		req wait.
-		self assert: req success.
-		req signalExceptions.
+			         at: 'objectClass' put: 'person';
+			         at: 'cn' put: name;
+			         at: 'sn' put: name;
+			         yourself.
+
+		self requestAndAssertSuccess: (LDAPAddRequest new
+				        name: (self cn: name);
+				        attributes: attrs)
 	].
-	self someTestCns do: [ :name| self delete: name for: conn ].
-	conn disconnect
 ]

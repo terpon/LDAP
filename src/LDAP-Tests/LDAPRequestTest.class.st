@@ -13,21 +13,36 @@ This test expects a LDAP server on `localhost` with a single entry in the tree:
 Class {
 	#name : 'LDAPRequestTest',
 	#superclass : 'TestCase',
+	#instVars : [
+		'connection'
+	],
 	#category : 'LDAP-Tests',
 	#package : 'LDAP-Tests'
 }
 
 { #category : 'utilities' }
-LDAPRequestTest >> add: aName for: aConnection [
-	|  req attrs |
+LDAPRequestTest >> addEntry: aName [
+	|  attrs |
 	attrs := Dictionary new
 		at: 'objectClass' put: 'person';
 		at: 'cn' put: aName;
 		at: 'sn' put: aName;
 		yourself.
 		
-	req := aConnection request: (LDAPAddRequest new name: (self cn: aName); attributes: attrs).
-	req wait.
+	self requestAndAssertSuccess: (LDAPAddRequest new name: (self cn: aName); attributes: attrs).
+
+]
+
+{ #category : 'setup' }
+LDAPRequestTest >> addSomeTestEntries [
+
+	connection ifNil: [ ^ self ].
+	
+	self someTestCns do: [ :name |
+		[ self addEntry: name ]
+			on: LDAPUpdateProblemException
+			do: [ :ex | ex resume ]
+	]
 
 ]
 
@@ -61,20 +76,31 @@ LDAPRequestTest >> cn: aString [
 
 { #category : 'utilities' }
 LDAPRequestTest >> connect [
-	| req conn |
-	conn := LDAPConnection to: self hostname port: self port.
-	req := conn request: (LDAPBindRequest new username: self bindDN; password: self password).
-	req wait.
-	^ conn
+
+	connection := LDAPConnection to: self hostname port: self port.
+	self requestAndAssertSuccess: (LDAPBindRequest new username: self bindDN; password: self password).
+	^ connection
 
 
 ]
 
 { #category : 'utilities' }
-LDAPRequestTest >> delete: aName for: aConnection [
-	|  req  |
-	req := aConnection request: (LDAPDelRequest new name: (self cn: aName)).
-	req wait.
+LDAPRequestTest >> deleteEntry: aName [
+
+	self requestAndAssertSuccess: (LDAPDelRequest new name: (self cn: aName)).
+
+]
+
+{ #category : 'cleanup' }
+LDAPRequestTest >> deleteSomeTestEntries [
+
+	connection ifNil: [ ^ self ].
+	
+	self someTestCns do: [ :name |
+		[ 	self request: (LDAPDelRequest new name: (self cn: name)) ]
+			on: LDAPNameProblemException 
+			do: [ :ex | ex resume ] ].
+
 
 ]
 
@@ -93,7 +119,37 @@ LDAPRequestTest >> port [
 	^ 389
 ]
 
+{ #category : 'running' }
+LDAPRequestTest >> request: aLDAPRequest [
+	| command |	
+	command := connection request: aLDAPRequest.
+	^ command responses
+]
+
+{ #category : 'running' }
+LDAPRequestTest >> requestAndAssertSuccess: aLDAPRequest [
+	| command responses |	
+	command := connection request: aLDAPRequest.
+	responses := command responses.
+	command signalExceptions.
+	self assert: command success.
+	^ responses
+
+]
+
 { #category : 'utilities' }
 LDAPRequestTest >> someTestCns [
 	^ (1 to: 5) collect:[ :i | String streamContents: [ :s | s << 'test' << i asString ] ]
+]
+
+{ #category : 'running' }
+LDAPRequestTest >> tearDown [ 
+
+	self deleteSomeTestEntries.
+	connection ifNotNil: [ 
+		connection disconnect.
+		connection := nil
+	].
+	
+	super tearDown
 ]

@@ -7,38 +7,31 @@ Class {
 
 { #category : 'tests' }
 LDAPCompareRequestTest >> testCompareFailure [
-	| conn req compare |
-	conn := self connect.
-	self someTestCns do: [ :name| self add: name for: conn ].
 
-	compare := LDAPCompareRequest new 
-		name: (self cn: 'test1'); 
-		comparing: (LDAPFilter with: 'cn' equalTo: 'test2').
-	req := conn request: compare.
-	req wait.
-	self assert: req success. "this checks the success of the request, not the compare"
-	req signalExceptions.
-	self deny: req responses first isMatch. "this checks the compare result"
+	| responses compare |
+	self connect.
+	self addSomeTestEntries.
 
-	self someTestCns do: [ :name| self delete: name for: conn ].
-	conn disconnect.
+	compare := LDAPCompareRequest new
+		           name: (self cn: 'test1');
+		           comparing: (LDAPFilter with: 'cn' equalTo: 'test2').
+	responses := self requestAndAssertSuccess: compare.
+	self deny: responses first isMatch. "this checks the compare result"
+
+
 ]
 
 { #category : 'tests' }
 LDAPCompareRequestTest >> testCompareSuccess [
-	| conn req compare |
-	conn := self connect.
-	self someTestCns do: [ :name| self add: name for: conn ].
 
-	compare := LDAPCompareRequest new 
-		name: (self cn: 'test1'); 
-		comparing: (LDAPFilter with: 'cn' equalTo: 'test1').
-	req := conn request: compare.
-	req wait.
-	self assert: req success. "this checks the success of the request, not the compare"
-	req signalExceptions.
-	self assert: req responses first isMatch. "this checks the compare result"
+	| responses compare |
+	self connect.
+	self addSomeTestEntries.
 
-	self someTestCns do: [ :name| self delete: name for: conn ].
-	conn disconnect.
+	compare := LDAPCompareRequest new
+		           name: (self cn: 'test1');
+		           comparing: (LDAPFilter with: 'cn' equalTo: 'test1').
+	responses := self requestAndAssertSuccess: compare.
+	self assert: responses first isMatch. "this checks the compare result"
+
 ]

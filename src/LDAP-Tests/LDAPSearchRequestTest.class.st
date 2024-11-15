@@ -7,148 +7,132 @@ Class {
 
 { #category : 'tests' }
 LDAPSearchRequestTest >> testBasicSearch [
-	| conn search req rr |
-	conn := self connect.
-	self someTestCns do: [ :name| self add: name for: conn ].
-	
-	search := LDAPSearchRequest new 
-		base: self baseDN; 
-		scope: LDAPWholeSubtreeScope new.
-	req := conn request: search.
-	rr := req responses. rr inspect.
-	self assert: req success.
-	req signalExceptions.
-	self assert: (self checkSearchResults: rr expecting: { nil . 'cn=test1'. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' } ).
-	
-	self someTestCns do: [ :name| self delete: name for: conn ].
-	conn disconnect.	
+
+	| search responses |
+	self connect.
+	self addSomeTestEntries.
+
+	search := LDAPSearchRequest new
+		          base: self baseDN;
+		          scope: LDAPWholeSubtreeScope new.
+	responses := self requestAndAssertSuccess: search.
+	"responses inspect."
+
+	self assert: (self
+			 checkSearchResults: responses
+			 expecting:
+			 { nil. 'cn=test1'. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
+
 ]
 
 { #category : 'tests' }
 LDAPSearchRequestTest >> testFilters [
-	| conn req rr search |
-	conn := self connect.
-	self someTestCns do: [ :name| self add: name for: conn ].
-	
-	search := LDAPSearchRequest new 
-		base: self baseDN; 
-		scope: LDAPWholeSubtreeScope new; 
-		filter: (LDAPFilter with: 'objectclass').
-	req := conn request: search.
-	rr := req responses.
-	self assert: req success.
-	req signalExceptions.
-	self assert: (self checkSearchResults: rr expecting: { nil . 'cn=test1'. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
+
+	| responses search |
+	self connect.
+	self addSomeTestEntries.
+
+	search := LDAPSearchRequest new
+		          base: self baseDN;
+		          scope: LDAPWholeSubtreeScope new;
+		          filter: (LDAPFilter with: 'objectclass').
+	responses := self requestAndAssertSuccess: search.
+	self assert: (self
+			 checkSearchResults: responses
+			 expecting:
+			 { nil. 'cn=test1'. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
 
 	search filter: (LDAPFilter with: 'cn' equalTo: 'test1').
-	req := conn request: search.
-	rr := req responses.
-	self assert: req success.
-	req signalExceptions.
-	self assert: (self checkSearchResults: rr expecting: { 'cn=test1'} ).
+	responses := self requestAndAssertSuccess: search.
+	self assert: (self checkSearchResults: responses expecting: { 'cn=test1' }).
 
-	search filter: (LDAPFilter not: (LDAPFilter with: 'cn' equalTo: 'test1')).
-	req := conn request: search.
-	rr := req responses.
-	self assert: req success.
-	req signalExceptions.
-	self assert: (self checkSearchResults: rr expecting: { nil. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
+	search filter:
+		(LDAPFilter not: (LDAPFilter with: 'cn' equalTo: 'test1')).
+	responses := self requestAndAssertSuccess: search.
+	self assert: (self
+			 checkSearchResults: responses
+			 expecting: { nil. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
 
 	search filter: (LDAPFilter andOf: (OrderedCollection new
-						add: (LDAPFilter not: (LDAPFilter with: 'cn' equalTo: 'test1')); 
-						add: (LDAPFilter not: (LDAPFilter with: 'sn' equalTo: 'test2'));
-						yourself )).
-	req := conn request: search.
-	rr := req responses.
-	self assert: req success.
-	req signalExceptions.
-	self assert: (self checkSearchResults: rr expecting: { nil . 'cn=test3' .  'cn=test4'. 'cn=test5' }).
-	
-	self someTestCns do: [ :name| self delete: name for: conn ].
-	conn disconnect.	
+				  add: (LDAPFilter not: (LDAPFilter with: 'cn' equalTo: 'test1'));
+				  add: (LDAPFilter not: (LDAPFilter with: 'sn' equalTo: 'test2'));
+				  yourself)).
+	responses := self requestAndAssertSuccess: search.
+	self assert: (self
+			 checkSearchResults: responses
+			 expecting: { nil. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
 ]
 
 { #category : 'tests' }
 LDAPSearchRequestTest >> testFiltersOperators [
-	| conn req rr search |
-	conn := self connect.
-	self someTestCns do: [ :name| self add: name for: conn ].
-	
-	search := LDAPSearchRequest new 
-		base: self baseDN; 
-		scope: LDAPWholeSubtreeScope new; 
-		filter: (LDAPFilter with: 'objectclass').
-	req := conn request: search.
-	rr := req responses.
-	self assert: req success.
-	req signalExceptions.
-	self assert: (self checkSearchResults: rr expecting: { nil . 'cn=test1'. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
+
+	| responses search |
+	self connect.
+	self addSomeTestEntries.
+
+	search := LDAPSearchRequest new
+		          base: self baseDN;
+		          scope: LDAPWholeSubtreeScope new;
+		          filter: (LDAPFilter with: 'objectclass').
+	responses := self requestAndAssertSuccess: search.
+	self assert: (self
+			 checkSearchResults: responses
+			 expecting:
+			 { nil. 'cn=test1'. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
 
 	search filter: (LDAPFilter with: 'cn' equalTo: 'test1').
-	req := conn request: search.
-	rr := req responses.
-	self assert: req success.
-	req signalExceptions.
-	self assert: (self checkSearchResults: rr expecting: { 'cn=test1'} ).
+	responses := self requestAndAssertSuccess: search.
+	self assert: (self checkSearchResults: responses expecting: { 'cn=test1' }).
 
 	search filter: (LDAPFilter with: 'cn' equalTo: 'test1') not.
-	req := conn request: search.
-	rr := req responses.
-	self assert: req success.
-	req signalExceptions.
-	self assert: (self checkSearchResults: rr expecting: { nil. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
+	responses := self requestAndAssertSuccess: search.
+	self assert: (self
+			 checkSearchResults: responses
+			 expecting: { nil. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
 
-	search filter: ((LDAPFilter with: 'cn' equalTo: 'test1') not &
-						(LDAPFilter with: 'sn' equalTo: 'test2') not).
-	req := conn request: search.
-	rr := req responses.
-	self assert: req success.
-	req signalExceptions.
-	self assert: (self checkSearchResults: rr expecting: { nil . 'cn=test3' .  'cn=test4'. 'cn=test5' }).
-	
-	self someTestCns do: [ :name| self delete: name for: conn ].
-	conn disconnect.	
+	search filter: (LDAPFilter with: 'cn' equalTo: 'test1') not
+		& (LDAPFilter with: 'sn' equalTo: 'test2') not.
+	responses := self requestAndAssertSuccess: search.
+	self assert: (self
+			 checkSearchResults: responses
+			 expecting: { nil. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
+
 ]
 
 { #category : 'tests' }
 LDAPSearchRequestTest >> testNamingContexts [
-	| conn req rr search attrs |
-	conn := self connect.
-	self someTestCns do: [ :name| self add: name for: conn ].
-	
-	search := LDAPSearchRequest new 
-		base: ''; 
-		scope: LDAPBaseObjectScope new; 
-		attributes: { 'namingContexts' }.
-	req := conn request: search.
-	rr := req responses.
-	self assert: req success.
-	req signalExceptions.
-	self assert: rr size equals: 2.
-	self assert: rr second resultCode equals: 0.
-	attrs := rr first asDictionary.
+
+	| responses search attrs |
+	self connect.
+	self addSomeTestEntries.
+
+	search := LDAPSearchRequest new
+		          base: '';
+		          scope: LDAPBaseObjectScope new;
+		          attributes: { 'namingContexts' }.
+	responses := self requestAndAssertSuccess: search.
+	self assert: responses size equals: 2.
+	self assert: responses second resultCode equals: 0.
+	attrs := responses first asDictionary.
 	self assert: (attrs includesKey: 'namingContexts').
 	self assert: ((attrs at: 'namingContexts') includes: self baseDN).
 
-	self someTestCns do: [ :name| self delete: name for: conn ].
-	conn disconnect.	
 ]
 
 { #category : 'tests' }
 LDAPSearchRequestTest >> testSearchWithNext [
-	| conn req rr r search |
+
+	| conn command list r search |
 	conn := self connect.
-	self someTestCns do: [ :name| self add: name for: conn ].
-	
-	search := LDAPSearchRequest new 
-		base: self baseDN; 
-		scope: LDAPWholeSubtreeScope new.
-	req := conn request: search.
-	rr := OrderedCollection new.
-	[(r := req next) isNil ] whileFalse: [rr add: r ].
-	self assert: req success.
-	req signalExceptions.
-	
-	self someTestCns do: [ :name| self delete: name for: conn ].
-	conn disconnect.	
+	self addSomeTestEntries.
+
+	search := LDAPSearchRequest new
+		          base: self baseDN;
+		          scope: LDAPWholeSubtreeScope new.
+	command := conn request: search.
+	list := OrderedCollection new.
+	[ (r := command next) isNil ] whileFalse: [ list add: r ].
+	self assert: command success.
+	command signalExceptions.
+
 ]

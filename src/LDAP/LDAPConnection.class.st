@@ -62,6 +62,8 @@ LDAPConnection >> abandon: aMessage [
 
 { #category : 'connecting' }
 LDAPConnection >> disconnect [
+
+	self isValid ifFalse: [ ^ self ].
 	self unbind.
 	worker disconnect.
 	workerThread terminate

@@ -7,17 +7,13 @@ Class {
 
 { #category : 'tests' }
 LDAPDelRequestTest >> testDelete [
-	| conn req |
-	conn := self connect.
-	self someTestCns do: [ :name| 
-		[ self add: name for: conn ]
-		on: LDAPUpdateProblemException  do: [ :ex | ex traceCr. "allow existing entry before deletion" ] ].
-	self someTestCns do: [ :name| | del |
+
+	self connect.
+	self addSomeTestEntries.
+
+	self someTestCns do: [ :name |
+		| del |
 		del := LDAPDelRequest new name: (self cn: name).
-		req := conn request: del.
-		req wait.
-		self assert: req success.
-		req signalExceptions.
-	].
-	conn disconnect
+		self requestAndAssertSuccess: del.
+	]
 ]
