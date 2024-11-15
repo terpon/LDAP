@@ -4,9 +4,9 @@ LDAPUnbindRequest is the process to disconnect the client of the LDAP directory.
 Class {
 	#name : 'LDAPUnbindRequest',
 	#superclass : 'BERNull',
-	#category : 'LDAP-Requests',
+	#category : 'LDAP-Connection',
 	#package : 'LDAP',
-	#tag : 'Requests'
+	#tag : 'Connection'
 }
 
 { #category : 'accessing' }

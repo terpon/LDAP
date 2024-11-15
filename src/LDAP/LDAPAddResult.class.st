@@ -4,9 +4,9 @@ Result for add
 Class {
 	#name : 'LDAPAddResult',
 	#superclass : 'LDAPResult',
-	#category : 'LDAP-Results',
+	#category : 'LDAP-Modify',
 	#package : 'LDAP',
-	#tag : 'Results'
+	#tag : 'Modify'
 }
 
 { #category : 'accessing' }

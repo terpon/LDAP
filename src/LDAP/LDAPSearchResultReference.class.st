@@ -4,9 +4,9 @@ A reference from a search result
 Class {
 	#name : 'LDAPSearchResultReference',
 	#superclass : 'LDAPSearchPartialResult',
-	#category : 'LDAP-Results',
+	#category : 'LDAP-Search',
 	#package : 'LDAP',
-	#tag : 'Results'
+	#tag : 'Search'
 }
 
 { #category : 'accessing' }

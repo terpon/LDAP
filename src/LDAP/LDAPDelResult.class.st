@@ -4,9 +4,9 @@ Result for delete
 Class {
 	#name : 'LDAPDelResult',
 	#superclass : 'LDAPResult',
-	#category : 'LDAP-Results',
+	#category : 'LDAP-Modify',
 	#package : 'LDAP',
-	#tag : 'Results'
+	#tag : 'Modify'
 }
 
 { #category : 'accessing' }

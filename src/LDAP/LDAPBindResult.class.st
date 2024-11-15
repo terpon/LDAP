@@ -4,9 +4,9 @@ Result for bind
 Class {
 	#name : 'LDAPBindResult',
 	#superclass : 'LDAPResult',
-	#category : 'LDAP-Results',
+	#category : 'LDAP-Connection',
 	#package : 'LDAP',
-	#tag : 'Results'
+	#tag : 'Connection'
 }
 
 { #category : 'accessing' }

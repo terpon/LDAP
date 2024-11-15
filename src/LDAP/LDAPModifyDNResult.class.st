@@ -4,9 +4,9 @@ Modiy DN result
 Class {
 	#name : 'LDAPModifyDNResult',
 	#superclass : 'LDAPResult',
-	#category : 'LDAP-Results',
+	#category : 'LDAP-Modify',
 	#package : 'LDAP',
-	#tag : 'Results'
+	#tag : 'Modify'
 }
 
 { #category : 'accessing' }

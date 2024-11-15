@@ -4,9 +4,9 @@ Request to abondon a request
 Class {
 	#name : 'LDAPAbandonRequest',
 	#superclass : 'BERInteger',
-	#category : 'LDAP-Requests',
+	#category : 'LDAP-Connection',
 	#package : 'LDAP',
-	#tag : 'Requests'
+	#tag : 'Connection'
 }
 
 { #category : 'instance creation' }

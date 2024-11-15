@@ -4,9 +4,9 @@ A LDAPFilter is used to select a set of data from the LDAP server. Filters can b
 Class {
 	#name : 'LDAPFilter',
 	#superclass : 'Object',
-	#category : 'LDAP-Core',
+	#category : 'LDAP-Filters',
 	#package : 'LDAP',
-	#tag : 'Core'
+	#tag : 'Filters'
 }
 
 { #category : 'instance creation' }

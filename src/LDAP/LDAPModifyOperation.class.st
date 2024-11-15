@@ -9,7 +9,7 @@ The change types defined in RFC 4511 (in the operation enumerated element of a c
 Class {
 	#name : 'LDAPModifyOperation',
 	#superclass : 'LDAPImpliedValueEnumerated',
-	#category : 'LDAP-Enumerated',
+	#category : 'LDAP-Modify',
 	#package : 'LDAP',
-	#tag : 'Enumerated'
+	#tag : 'Modify'
 }

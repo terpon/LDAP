@@ -4,9 +4,9 @@ An entry from a search result
 Class {
 	#name : 'LDAPSearchResultEntry',
 	#superclass : 'LDAPSearchPartialResult',
-	#category : 'LDAP-Results',
+	#category : 'LDAP-Search',
 	#package : 'LDAP',
-	#tag : 'Results'
+	#tag : 'Search'
 }
 
 { #category : 'accessing' }
@@ -30,7 +30,7 @@ LDAPSearchResultEntry >> attributes [
 { #category : 'converting' }
 LDAPSearchResultEntry >> flattened [ 
 
-	^ Array streamContents: [ :stream | self attributes flattenOn: stream ]
+	^ self attributes flattened
 ]
 
 { #category : 'testing' }

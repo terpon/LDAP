@@ -4,12 +4,14 @@ Request to reset a password.
 The request DN is the user DN.
 "
 Class {
-	#name : #ADSetPasswordRequest,
-	#superclass : #LDAPModifyRequest,
-	#category : #'LDAP-ActiveDirectory-Requests'
+	#name : 'ADSetPasswordRequest',
+	#superclass : 'LDAPModifyRequest',
+	#category : 'LDAP-ActiveDirectory-Requests',
+	#package : 'LDAP-ActiveDirectory',
+	#tag : 'Requests'
 }
 
-{ #category : #converting }
+{ #category : 'converting' }
 ADSetPasswordRequest class >> encodedPassword: aString [
 	^ String
 		streamContents: [ :writeStream | 
@@ -20,11 +22,18 @@ ADSetPasswordRequest class >> encodedPassword: aString [
 				nextPut: $" toStream: writeStream ]
 ]
 
-{ #category : #accessing }
+{ #category : 'initialization' }
+ADSetPasswordRequest >> initialize [ 
+
+	super initialize.
+	
+	self addOperation: (LDAPSetAttributeChange new description: 'unicodePwd').
+]
+
+{ #category : 'accessing' }
 ADSetPasswordRequest >> password: aString [
-	| op encoded |
+	| encoded |
 	encoded := self class encodedPassword: aString.
-	op := LDAPAttrModifier set: 'unicodePwd' to: {encoded}.
-	self ops: {op}.
+	self operations first values: {encoded}.
 
 ]

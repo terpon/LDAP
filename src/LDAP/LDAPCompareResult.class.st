@@ -4,9 +4,9 @@ Result for compare
 Class {
 	#name : 'LDAPCompareResult',
 	#superclass : 'LDAPResult',
-	#category : 'LDAP-Results',
+	#category : 'LDAP-Search',
 	#package : 'LDAP',
-	#tag : 'Results'
+	#tag : 'Search'
 }
 
 { #category : 'accessing' }

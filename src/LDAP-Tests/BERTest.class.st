@@ -72,7 +72,7 @@ BERTest >> testAddRequest [
 		'sn' -> (OrderedCollection new addLast: 'test2'; yourself).
 	}.
 
-	request := LDAPAddRequest new dn: 'cn=test2,dc=linalco,dc=test'; attrs: attrs.
+	request := LDAPAddRequest new name: 'cn=test2,dc=linalco,dc=test'; attributes: attrs.
 	encoded := (LDAPMessage new id: 1; operation: request) encoded.
 	hex := encoded asString asHex.
 	expected := self formatWithHex: '305B0201016856041B636E3D74657374322C64633D6C696E616C636F2C64633D7465737430373017040B6F626A656374436C61737331080406706572736F6E300D0402636E310704057465737432300D0402736E310704057465737432'.
@@ -107,7 +107,7 @@ BERTest >> testBooleanEncoding [
 { #category : 'tests' }
 BERTest >> testDelRequest [
 	| request encoded expected |
-	request := LDAPDelRequest new dn: 'cn=test2,dc=linalco,dc=test'.
+	request := LDAPDelRequest new name: 'cn=test2,dc=linalco,dc=test'.
 	encoded := (LDAPMessage new id: 1; operation: request) encoded.
 	encoded := encoded asString asHex.
 
@@ -149,10 +149,10 @@ BERTest >> testIntegerEncoding [
 BERTest >> testModifyRequest [
 	| request encoded expected ops |
 	ops :=  { 
-			LDAPAttrModifier set: 'sn' to: { 'test5sn' . 'foo' . 'bar'}.
-			LDAPAttrModifier addTo: 'description' values: {'rchueo'} }.
+			LDAPSetAttributeChange new description: 'sn'; values: { 'test5sn' . 'foo' . 'bar'}; yourself.
+			LDAPAddAttributeChange new description: 'description'; values: {'rchueo'}; yourself }.
 									
-	request := LDAPModifyRequest new dn: 'cn=test5,dc=linalco,dc=test'; ops: ops.
+	request := LDAPModifyRequest new name: 'cn=test5,dc=linalco,dc=test'; operations: ops.
 	encoded := (LDAPMessage new id: 1; operation: request) encoded.
 	encoded := encoded asString asHex.
 

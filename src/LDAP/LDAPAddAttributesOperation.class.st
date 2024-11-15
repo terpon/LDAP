@@ -4,9 +4,9 @@ Adds one or more attribute values to an entry.
 Class {
 	#name : 'LDAPAddAttributesOperation',
 	#superclass : 'LDAPModifyOperation',
-	#category : 'LDAP-Enumerated',
+	#category : 'LDAP-Modify',
 	#package : 'LDAP',
-	#tag : 'Enumerated'
+	#tag : 'Modify'
 }
 
 { #category : 'initialization' }

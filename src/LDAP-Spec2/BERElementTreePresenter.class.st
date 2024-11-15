@@ -34,13 +34,13 @@ BERElementTreePresenter class >> sampleElement [
 "Sample tree"
 	| ops |
 	ops :=  { 
-		LDAPAttrModifier set: 'sn' to: { 'test' . 'foo' . 'bar'}.
-		LDAPAttrModifier addTo: 'description' values: {'moo'}.
-		LDAPAttrModifier del: 'color'.
-		LDAPAttrModifier delFrom: 'groups' values: {'ni'}.
+		LDAPSetAttributeChange new description: 'sn'; values: { 'test' . 'foo' . 'bar'}; yourself.
+		LDAPAddAttributeChange new description: 'description'; values: {'moo'}; yourself.
+		LDAPDeleteAttributeChange new description: 'color'.
+		LDAPDeleteAttributeChange new description: 'groups'; values: {'ni'}; yourself.
 	}.
 
-	^ LDAPModifyRequest new dn: 'cn=a,dc=root'; ops: ops.
+	^ LDAPModifyRequest new name: 'cn=a,dc=root'; operations: ops.
 
 ]
 

@@ -4,9 +4,9 @@ The server should not dereference any aliases that it may encounter when process
 Class {
 	#name : 'LDAPNeverDeferAliases',
 	#superclass : 'LDAPSearchDerefAliases',
-	#category : 'LDAP-Enumerated',
+	#category : 'LDAP-Search',
 	#package : 'LDAP',
-	#tag : 'Enumerated'
+	#tag : 'Search'
 }
 
 { #category : 'initialization' }

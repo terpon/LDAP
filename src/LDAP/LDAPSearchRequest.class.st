@@ -4,9 +4,9 @@ LDAPSearchRequest is the process to search entries from the LDAP directory.
 Class {
 	#name : 'LDAPSearchRequest',
 	#superclass : 'BERSequence',
-	#category : 'LDAP-Requests',
+	#category : 'LDAP-Search',
 	#package : 'LDAP',
-	#tag : 'Requests'
+	#tag : 'Search'
 }
 
 { #category : 'accessing' }
@@ -15,7 +15,7 @@ LDAPSearchRequest class >> tagValue [
 ]
 
 { #category : 'accessing' }
-LDAPSearchRequest >> attrs: someAttrs [
+LDAPSearchRequest >> attributes: someAttrs [
 	| ber |
 	ber := BERSequence new.
 	someAttrs do: [ :each | ber addElement: (BEROctetString new value: each) ].

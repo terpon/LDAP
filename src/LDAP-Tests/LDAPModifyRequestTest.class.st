@@ -7,7 +7,7 @@ Class {
 
 { #category : 'tests' }
 LDAPModifyRequestTest >> testModify [
-	| conn req rr ops search mod |
+	| conn req rr search mod |
 	conn := self connect.
 	self add: 'test1' for: conn. 
 	search := LDAPSearchRequest new 
@@ -21,17 +21,16 @@ LDAPModifyRequestTest >> testModify [
 	req signalExceptions.
 	rr := req responses first.
 	
-	ops :=  { 
-			LDAPAttrModifier set: 'sn' to: { 'test5sn' . 'foo' . 'bar'}.
-			LDAPAttrModifier addTo: 'description' values: {'rchueo'} }.
+	mod := LDAPModifyRequest new name: (rr name).
+	mod addOperation: (LDAPSetAttributeChange new description: 'sn'; values: { 'test5sn' . 'foo' . 'bar'}; yourself).
+	mod addOperation: (LDAPAddAttributeChange new description: 'description'; values: {'rchueo'}; yourself).
 
-	mod := LDAPModifyRequest new dn: (rr name); ops: ops.
 	req := conn request: mod.
 	req wait.
 	self assert: req success.
 	req signalExceptions.
 	
-	req := conn request: (LDAPCompareRequest new dn: (self cn: 'test1'); comparing: (LDAPFilter with: 'sn' equalTo: 'test5sn')).
+	req := conn request: (LDAPCompareRequest new name: (self cn: 'test1'); comparing: (LDAPFilter with: 'sn' equalTo: 'test5sn')).
 	req wait.
 	self assert: req success.
 	req signalExceptions.

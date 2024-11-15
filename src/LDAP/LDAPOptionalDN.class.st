@@ -6,9 +6,9 @@ I am an option DN string.
 Class {
 	#name : 'LDAPOptionalDN',
 	#superclass : 'BEROctetString',
-	#category : 'LDAP-ContextElements',
+	#category : 'LDAP-Elements',
 	#package : 'LDAP',
-	#tag : 'ContextElements'
+	#tag : 'Elements'
 }
 
 { #category : 'accessing' }

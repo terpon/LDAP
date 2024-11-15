@@ -25,7 +25,7 @@ BERConstruct >> addElement: anElement [
 { #category : 'encoding' }
 BERConstruct >> decode: aStream length: aLength with: aDecoder [
 	| elementLen part |
-	elements removeAll.
+	self removeAll.
 	elementLen := aLength.
 	[elementLen > 0]
 		whileTrue: [
@@ -46,6 +46,11 @@ BERConstruct >> initialize [
 	elements := OrderedCollection new
 ]
 
+{ #category : 'testing' }
+BERConstruct >> isEmpty [
+	^ elements isEmpty
+]
+
 { #category : 'accessing' }
 BERConstruct >> length [
 	^ elements inject: 0 into: [ :sum :each | sum + each totalLength ]
@@ -56,6 +61,18 @@ BERConstruct >> printOn: aStream [
 	super printOn: aStream.
 	aStream space.
 	elements printElementsOn: aStream.
+]
+
+{ #category : 'removing' }
+BERConstruct >> removeAll [
+
+	elements removeAll
+]
+
+{ #category : 'accessing' }
+BERConstruct >> size [ 
+
+	^ elements size
 ]
 
 { #category : 'storing' }

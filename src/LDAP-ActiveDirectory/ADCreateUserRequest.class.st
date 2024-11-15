@@ -4,43 +4,45 @@ Request to create a new user.
 Request DN is the user DN.
 "
 Class {
-	#name : #ADCreateUserRequest,
-	#superclass : #LDAPAddRequest,
-	#category : #'LDAP-ActiveDirectory-Requests'
+	#name : 'ADCreateUserRequest',
+	#superclass : 'LDAPAddRequest',
+	#category : 'LDAP-ActiveDirectory-Requests',
+	#package : 'LDAP-ActiveDirectory',
+	#tag : 'Requests'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 ADCreateUserRequest >> accountName: accountName [
 	self at: 'sAMAccountName' put: accountName.
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 ADCreateUserRequest >> givenName: aString [
 	self at: 'givenName' put: aString.
 	self updateFullName.
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 ADCreateUserRequest >> initialize [ 
 
 	super initialize.
 	self reset.
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 ADCreateUserRequest >> reset [
 	self removeAll.
 	self at: 'objectClass' put: #('top' 'person' 'organizationalPerson' 'user').
 	self at: 'pwdLastSet' put: '0'.
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 ADCreateUserRequest >> surName: aString [
 	self at: 'sn' put: aString.
 	self updateFullName.
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 ADCreateUserRequest >> updateFullName [
 	| fullName attrs givenName surName |
 	attrs := elements second values.
@@ -52,7 +54,7 @@ ADCreateUserRequest >> updateFullName [
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 ADCreateUserRequest >> userPrincipalName: userPrincipalName [
 	self at: 'userPrincipalName' put: userPrincipalName.
 ]

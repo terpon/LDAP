@@ -4,9 +4,9 @@ Search result code
 Class {
 	#name : 'LDAPSearchResultCode',
 	#superclass : 'LDAPResult',
-	#category : 'LDAP-Results',
+	#category : 'LDAP-Search',
 	#package : 'LDAP',
-	#tag : 'Results'
+	#tag : 'Search'
 }
 
 { #category : 'accessing' }

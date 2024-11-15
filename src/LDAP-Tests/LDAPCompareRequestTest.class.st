@@ -12,7 +12,7 @@ LDAPCompareRequestTest >> testCompareFailure [
 	self someTestCns do: [ :name| self add: name for: conn ].
 
 	compare := LDAPCompareRequest new 
-		dn: (self cn: 'test1'); 
+		name: (self cn: 'test1'); 
 		comparing: (LDAPFilter with: 'cn' equalTo: 'test2').
 	req := conn request: compare.
 	req wait.
@@ -31,7 +31,7 @@ LDAPCompareRequestTest >> testCompareSuccess [
 	self someTestCns do: [ :name| self add: name for: conn ].
 
 	compare := LDAPCompareRequest new 
-		dn: (self cn: 'test1'); 
+		name: (self cn: 'test1'); 
 		comparing: (LDAPFilter with: 'cn' equalTo: 'test1').
 	req := conn request: compare.
 	req wait.

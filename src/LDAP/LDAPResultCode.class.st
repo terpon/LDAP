@@ -7,9 +7,9 @@ Class {
 	#classVars : [
 		'CodeNames'
 	],
-	#category : 'LDAP-Enumerated',
+	#category : 'LDAP-Results',
 	#package : 'LDAP',
-	#tag : 'Enumerated'
+	#tag : 'Results'
 }
 
 { #category : 'constants' }

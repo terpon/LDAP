@@ -4,9 +4,9 @@ The server should dereference any aliases that it encounters within the scope of
 Class {
 	#name : 'LDAPInSearchingDeferAliases',
 	#superclass : 'LDAPSearchDerefAliases',
-	#category : 'LDAP-Enumerated',
+	#category : 'LDAP-Search',
 	#package : 'LDAP',
-	#tag : 'Enumerated'
+	#tag : 'Search'
 }
 
 { #category : 'initialization' }

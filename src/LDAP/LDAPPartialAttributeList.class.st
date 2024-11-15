@@ -16,10 +16,39 @@ LDAPPartialAttributeList >> asDictionary [
 
 ]
 
+{ #category : 'accessing' }
+LDAPPartialAttributeList >> at: aDescription ifPresent: aPresentBlock ifAbsent: anAbsentBlock [
+	^ elements
+		detect: [ :pa | pa description = aDescription ] 
+		ifFound: [ :pa | aPresentBlock cull: pa ] 
+		ifNone: [ anAbsentBlock value ].
+]
+
+{ #category : 'accessing' }
+LDAPPartialAttributeList >> at: aDescription put: someValues [
+
+	self at: aDescription 
+		ifPresent: [ :pa | pa values: someValues ]
+		ifAbsent: [ self addElement: (LDAPPartialAttribute new description: aDescription; values: someValues) ].
+]
+
+{ #category : 'accessing' }
+LDAPPartialAttributeList >> attributes: aDictionary [
+	self removeAll.
+	aDictionary associationsDo: [ :a | self at: a key put: a value ].
+
+]
+
 { #category : 'enumerating' }
 LDAPPartialAttributeList >> flattenOn: aStream [
 
 	elements do: [ :partialAttribute | partialAttribute flattenOn: aStream ]
+]
+
+{ #category : 'converting' }
+LDAPPartialAttributeList >> flattened [ 
+
+	^ Array streamContents: [ :stream | self flattenOn: stream ]
 ]
 
 { #category : 'instance creation' }

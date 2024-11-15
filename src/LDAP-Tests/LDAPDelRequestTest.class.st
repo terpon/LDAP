@@ -13,7 +13,7 @@ LDAPDelRequestTest >> testDelete [
 		[ self add: name for: conn ]
 		on: LDAPUpdateProblemException  do: [ :ex | ex traceCr. "allow existing entry before deletion" ] ].
 	self someTestCns do: [ :name| | del |
-		del := LDAPDelRequest new dn: (self cn: name).
+		del := LDAPDelRequest new name: (self cn: name).
 		req := conn request: del.
 		req wait.
 		self assert: req success.

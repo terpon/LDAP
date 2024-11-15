@@ -4,9 +4,9 @@ Replaces the entire attribute in the entry.
 Class {
 	#name : 'LDAPReplaceAttributesOperation',
 	#superclass : 'LDAPModifyOperation',
-	#category : 'LDAP-Enumerated',
+	#category : 'LDAP-Modify',
 	#package : 'LDAP',
-	#tag : 'Enumerated'
+	#tag : 'Modify'
 }
 
 { #category : 'initialization' }

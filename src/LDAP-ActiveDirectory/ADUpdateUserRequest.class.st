@@ -4,31 +4,33 @@ Request to update an user.
 The request DN is the user DN.
 "
 Class {
-	#name : #ADUpdateUserRequest,
-	#superclass : #LDAPModifyRequest,
-	#category : #'LDAP-ActiveDirectory-Requests'
+	#name : 'ADUpdateUserRequest',
+	#superclass : 'LDAPModifyRequest',
+	#category : 'LDAP-ActiveDirectory-Requests',
+	#package : 'LDAP-ActiveDirectory',
+	#tag : 'Requests'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 ADUpdateUserRequest >> email: aString [
-	self addOperation: (LDAPAttrModifier set: 'mail' to: aString).
+	self set: 'mail' to: aString.
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 ADUpdateUserRequest >> fullName: aString [
-	self addOperation: (LDAPAttrModifier set: 'displayName' to: aString).
+	self set: 'displayName' to: aString.
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 ADUpdateUserRequest >> givenName: aString [
-	self addOperation: (LDAPAttrModifier set: 'givenName' to: aString).
+	self set: 'givenName' to: aString.
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 ADUpdateUserRequest >> surName: aString [
-	self addOperation: (LDAPAttrModifier set: 'sn' to: aString).
+	self set: 'sn' to: aString.
 
 ]

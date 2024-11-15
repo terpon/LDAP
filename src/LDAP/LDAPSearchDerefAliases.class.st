@@ -8,7 +8,7 @@ The act of following an alias to the entry that it references is called derefere
 Class {
 	#name : 'LDAPSearchDerefAliases',
 	#superclass : 'LDAPImpliedValueEnumerated',
-	#category : 'LDAP-Enumerated',
+	#category : 'LDAP-Search',
 	#package : 'LDAP',
-	#tag : 'Enumerated'
+	#tag : 'Search'
 }

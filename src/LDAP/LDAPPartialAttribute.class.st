@@ -35,13 +35,13 @@ LDAPPartialAttribute >> addValue: aString [
 { #category : 'converting' }
 LDAPPartialAttribute >> asAssociation [
 
-	^	self description -> (self values asSet)
+	^	self description -> self values
 
 ]
 
 { #category : 'accessing' }
 LDAPPartialAttribute >> description [
-	^ self descriptionElement value
+	^ elements first value
 ]
 
 { #category : 'accessing' }
@@ -49,16 +49,11 @@ LDAPPartialAttribute >> description: aString [
 	elements first value: aString
 ]
 
-{ #category : 'accessing' }
-LDAPPartialAttribute >> descriptionElement [
-	^ 	elements first
-]
-
 { #category : 'enumerating' }
 LDAPPartialAttribute >> flattenOn: aStream [
 	| name |
 	name := self description.
-	self valuesElement elements do: [ :each |  aStream nextPut: { name. each value }  ]
+	self elements second elements do: [ :each |  aStream nextPut: { name. each value }  ]
 ]
 
 { #category : 'initialization' }
@@ -73,21 +68,16 @@ LDAPPartialAttribute >> initialize [
 { #category : 'accessing' }
 LDAPPartialAttribute >> values [
 	| berStrings |
-	berStrings := self valuesElement elements.
+	berStrings := elements second elements.
 	^ berStrings collect: #value
 
 ]
 
 { #category : 'accessing' }
 LDAPPartialAttribute >> values: aCollectionOfStrings [
-	elements at: 2 put: BERSet new.
-	aCollectionOfStrings isString 
-		ifTrue: [ self addValue: aCollectionOfStrings ] 
-		ifFalse: [ aCollectionOfStrings do: [ :eachVal | self addValue: eachVal ] ].
+	elements second removeAll.
+	aCollectionOfStrings isString "a String is a collection, so don’t use isCollection here"
+		ifFalse: [ aCollectionOfStrings do: [ :eachVal | self addValue: eachVal ] ]
+		ifTrue: [ self addValue: aCollectionOfStrings ] .
 
-]
-
-{ #category : 'accessing' }
-LDAPPartialAttribute >> valuesElement [
-	^ 	elements second
 ]

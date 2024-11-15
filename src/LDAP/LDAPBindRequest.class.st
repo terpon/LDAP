@@ -4,9 +4,9 @@ LDAPBindRequest is the connection process to the LDAP directory.
 Class {
 	#name : 'LDAPBindRequest',
 	#superclass : 'BERSequence',
-	#category : 'LDAP-Requests',
+	#category : 'LDAP-Connection',
 	#package : 'LDAP',
-	#tag : 'Requests'
+	#tag : 'Connection'
 }
 
 { #category : 'accessing' }

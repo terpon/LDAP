@@ -1,10 +1,18 @@
+"
+I am an abstract class where each subclass represents one enumeration value that cannot (obviously) be changed
+"
 Class {
 	#name : 'LDAPImpliedValueEnumerated',
 	#superclass : 'BEREnumerated',
-	#category : 'LDAP-Enumerated',
+	#category : 'LDAP-Elements',
 	#package : 'LDAP',
-	#tag : 'Enumerated'
+	#tag : 'Elements'
 }
+
+{ #category : 'accessing' }
+LDAPImpliedValueEnumerated >> name [
+	^ self subclassResponsibility
+]
 
 { #category : 'storing' }
 LDAPImpliedValueEnumerated >> storeOn: aStream [

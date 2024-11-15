@@ -4,9 +4,9 @@ The baseObject entry will be considered, as well as all of its subordinates to a
 Class {
 	#name : 'LDAPWholeSubtreeScope',
 	#superclass : 'LDAPSearchScope',
-	#category : 'LDAP-Enumerated',
+	#category : 'LDAP-Search',
 	#package : 'LDAP',
-	#tag : 'Enumerated'
+	#tag : 'Search'
 }
 
 { #category : 'initialization' }

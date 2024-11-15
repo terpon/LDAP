@@ -4,7 +4,7 @@ In a LDAP search, this element specifies the set of entries, relative to the ent
 Class {
 	#name : 'LDAPSearchScope',
 	#superclass : 'LDAPImpliedValueEnumerated',
-	#category : 'LDAP-Enumerated',
+	#category : 'LDAP-Search',
 	#package : 'LDAP',
-	#tag : 'Enumerated'
+	#tag : 'Search'
 }

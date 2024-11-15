@@ -6,9 +6,9 @@ I override isEndMarker to notify the client that other messages will come after 
 Class {
 	#name : 'LDAPSearchPartialResult',
 	#superclass : 'LDAPAbstractResult',
-	#category : 'LDAP-Results',
+	#category : 'LDAP-Search',
 	#package : 'LDAP',
-	#tag : 'Results'
+	#tag : 'Search'
 }
 
 { #category : 'testing' }

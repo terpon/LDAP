@@ -4,9 +4,9 @@ Removes one or more attribute values from an entry.
 Class {
 	#name : 'LDAPDeleteAttributesOperation',
 	#superclass : 'LDAPModifyOperation',
-	#category : 'LDAP-Enumerated',
+	#category : 'LDAP-Modify',
 	#package : 'LDAP',
-	#tag : 'Enumerated'
+	#tag : 'Modify'
 }
 
 { #category : 'initialization' }

@@ -9,13 +9,13 @@ Class {
 LDAPAddRequestTest >> testAddAttribute [
 	| req |
 	req := LDAPAddRequest new.
-	self assert: req attrs isEmpty.
+	self assert: req attributes isEmpty.
 	req addAttribute: LDAPPartialAttribute new.
-	self deny: req attrs isEmpty.
-	self assert: req attrs size equals: 1.
+	self deny: req attributes isEmpty.
+	self assert: req attributes size equals: 1.
 
 	req addAttribute: LDAPPartialAttribute new.
-	self assert: req attrs size equals: 2.
+	self assert: req attributes size equals: 2.
 
 ]
 
@@ -23,27 +23,27 @@ LDAPAddRequestTest >> testAddAttribute [
 LDAPAddRequestTest >> testAtPut [
 	| req |
 	req := LDAPAddRequest new.
-	self assert: req attrs isEmpty.
+	self assert: req attributes isEmpty.
 	
 	req at: 'objectclass' put: 'top'.
-	self assert: req attrs size equals: 1.
+	self assert: req attributes size equals: 1.
 
 	req at: 'objectclass' put: 	#( 'top' 'domain' ).
-	self assert: req attrs size equals: 1.
+	self assert: req attributes size equals: 1.
 
 	req at: 'cn' put: 'foo'.
-	self assert: req attrs size equals: 2.
+	self assert: req attributes size equals: 2.
 
 	req at: 'cn' put: 'bar'.
-	self assert: req attrs size equals: 2.
+	self assert: req attributes size equals: 2.
 
 ]
 
 { #category : 'tests' }
-LDAPAddRequestTest >> testAttrs [
+LDAPAddRequestTest >> testAttributes [
 	| req attrs |
 	req := LDAPAddRequest new.
-	self assert: req attrs isEmpty.
+	self assert: req attributes isEmpty.
 
 	attrs := Dictionary new
 			at: 'objectClass' put: #( 'top' 'person');
@@ -51,8 +51,8 @@ LDAPAddRequestTest >> testAttrs [
 			at: 'sn' put: 'name';
 			yourself.
 
-	req attrs: attrs.
-	self assert: req attrs size equals: 3.
+	req attributes: attrs.
+	self assert: req attributes size equals: 3.
 			
 
 ]
@@ -68,7 +68,7 @@ LDAPAddRequestTest >> testCollectionValues [
 			at: 'sn' put: (OrderedCollection new add: name; yourself);
 			yourself.
 		
-		add := LDAPAddRequest new dn: (self cn: name); attrs: attrs.
+		add := LDAPAddRequest new name: (self cn: name); attributes: attrs.
 		req := conn request: add.
 		req wait.
 		self assert: req success.
@@ -83,10 +83,10 @@ LDAPAddRequestTest >> testRemoveAll [
 	| req |
 	req := LDAPAddRequest new.
 	req addAttribute: LDAPPartialAttribute new.
-	self deny: req attrs isEmpty.
+	self deny: req attributes isEmpty.
 	
 	req removeAll.
-	self assert: req attrs isEmpty.
+	self assert: req attributes isEmpty.
 ]
 
 { #category : 'tests' }
@@ -100,7 +100,7 @@ LDAPAddRequestTest >> testStringValues [
 			at: 'sn' put: name;
 			yourself.
 		
-		req := conn request: (LDAPAddRequest new dn: (self cn: name); attrs: attrs).
+		req := conn request: (LDAPAddRequest new name: (self cn: name); attributes: attrs).
 		req wait.
 		self assert: req success.
 		req signalExceptions.

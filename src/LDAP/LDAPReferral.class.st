@@ -4,9 +4,9 @@ An optional sequence element that, if present, will contain one or more URIs tha
 Class {
 	#name : 'LDAPReferral',
 	#superclass : 'BERSequence',
-	#category : 'LDAP-ContextElements',
+	#category : 'LDAP-Elements',
 	#package : 'LDAP',
-	#tag : 'ContextElements'
+	#tag : 'Elements'
 }
 
 { #category : 'accessing' }

@@ -4,9 +4,9 @@ Modify result
 Class {
 	#name : 'LDAPModifyResult',
 	#superclass : 'LDAPResult',
-	#category : 'LDAP-Results',
+	#category : 'LDAP-Modify',
 	#package : 'LDAP',
-	#tag : 'Results'
+	#tag : 'Modify'
 }
 
 { #category : 'accessing' }

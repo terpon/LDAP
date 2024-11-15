@@ -4,19 +4,14 @@ Request to modify a distinguished name
 Class {
 	#name : 'LDAPModifyDNRequest',
 	#superclass : 'BERSequence',
-	#category : 'LDAP-Requests',
+	#category : 'LDAP-Modify',
 	#package : 'LDAP',
-	#tag : 'Requests'
+	#tag : 'Modify'
 }
 
 { #category : 'accessing' }
 LDAPModifyDNRequest class >> tagValue [
 	^ 16r6C "Application 12"
-]
-
-{ #category : 'accessing' }
-LDAPModifyDNRequest >> dn: aDn [
-	elements first value: aDn
 ]
 
 { #category : 'initialization' }
@@ -30,12 +25,17 @@ LDAPModifyDNRequest >> initialize [
 ]
 
 { #category : 'accessing' }
-LDAPModifyDNRequest >> newRdn: aRdn [
+LDAPModifyDNRequest >> name: aDn [
+	elements first value: aDn
+]
+
+{ #category : 'accessing' }
+LDAPModifyDNRequest >> newRelativeName: aRdn [
 	elements second value: aRdn
 ]
 
 { #category : 'accessing' }
-LDAPModifyDNRequest >> underDn: aDn [
+LDAPModifyDNRequest >> underName: aDn [
 	elements size < 4 ifTrue: [ elements addElement: (LDAPOptionalDN new)].
 	elements fourth value: aDn
 ]

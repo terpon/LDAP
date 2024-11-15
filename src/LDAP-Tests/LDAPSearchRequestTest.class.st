@@ -15,7 +15,7 @@ LDAPSearchRequestTest >> testBasicSearch [
 		base: self baseDN; 
 		scope: LDAPWholeSubtreeScope new.
 	req := conn request: search.
-	rr := req responses.
+	rr := req responses. rr inspect.
 	self assert: req success.
 	req signalExceptions.
 	self assert: (self checkSearchResults: rr expecting: { nil . 'cn=test1'. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' } ).
@@ -119,7 +119,7 @@ LDAPSearchRequestTest >> testNamingContexts [
 	search := LDAPSearchRequest new 
 		base: ''; 
 		scope: LDAPBaseObjectScope new; 
-		attrs: { 'namingContexts' }.
+		attributes: { 'namingContexts' }.
 	req := conn request: search.
 	rr := req responses.
 	self assert: req success.

@@ -6,9 +6,9 @@ None of its subordinates will be examined.
 Class {
 	#name : 'LDAPBaseObjectScope',
 	#superclass : 'LDAPSearchScope',
-	#category : 'LDAP-Enumerated',
+	#category : 'LDAP-Search',
 	#package : 'LDAP',
-	#tag : 'Enumerated'
+	#tag : 'Search'
 }
 
 { #category : 'initialization' }

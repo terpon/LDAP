@@ -26,7 +26,7 @@ LDAPRequestTest >> add: aName for: aConnection [
 		at: 'sn' put: aName;
 		yourself.
 		
-	req := aConnection request: (LDAPAddRequest new dn: (self cn: aName); attrs: attrs).
+	req := aConnection request: (LDAPAddRequest new name: (self cn: aName); attributes: attrs).
 	req wait.
 
 ]
@@ -73,7 +73,7 @@ LDAPRequestTest >> connect [
 { #category : 'utilities' }
 LDAPRequestTest >> delete: aName for: aConnection [
 	|  req  |
-	req := aConnection request: (LDAPDelRequest new dn: (self cn: aName)).
+	req := aConnection request: (LDAPDelRequest new name: (self cn: aName)).
 	req wait.
 
 ]

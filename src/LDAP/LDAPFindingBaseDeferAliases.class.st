@@ -4,9 +4,9 @@ The server should only dereference the entry specified by the baseObject element
 Class {
 	#name : 'LDAPFindingBaseDeferAliases',
 	#superclass : 'LDAPSearchDerefAliases',
-	#category : 'LDAP-Enumerated',
+	#category : 'LDAP-Search',
 	#package : 'LDAP',
-	#tag : 'Enumerated'
+	#tag : 'Search'
 }
 
 { #category : 'initialization' }

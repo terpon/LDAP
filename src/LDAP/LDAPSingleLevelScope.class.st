@@ -6,9 +6,9 @@ The base entry itself will not be considered, nor will entries more than one lev
 Class {
 	#name : 'LDAPSingleLevelScope',
 	#superclass : 'LDAPSearchScope',
-	#category : 'LDAP-Enumerated',
+	#category : 'LDAP-Search',
 	#package : 'LDAP',
-	#tag : 'Enumerated'
+	#tag : 'Search'
 }
 
 { #category : 'initialization' }

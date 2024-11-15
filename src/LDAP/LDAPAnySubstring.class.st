@@ -4,9 +4,9 @@ I am a string used to look anywhere in another string.
 Class {
 	#name : 'LDAPAnySubstring',
 	#superclass : 'LDAPSubstring',
-	#category : 'LDAP-ContextElements',
+	#category : 'LDAP-Search',
 	#package : 'LDAP',
-	#tag : 'ContextElements'
+	#tag : 'Search'
 }
 
 { #category : 'accessing' }

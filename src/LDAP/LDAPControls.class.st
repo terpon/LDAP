@@ -4,9 +4,9 @@ I am a set of controls in a LDAP message.
 Class {
 	#name : 'LDAPControls',
 	#superclass : 'BERSequence',
-	#category : 'LDAP-ContextElements',
+	#category : 'LDAP-Elements',
 	#package : 'LDAP',
-	#tag : 'ContextElements'
+	#tag : 'Elements'
 }
 
 { #category : 'accessing' }

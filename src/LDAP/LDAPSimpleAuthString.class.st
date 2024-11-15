@@ -4,9 +4,9 @@ I am a password string.
 Class {
 	#name : 'LDAPSimpleAuthString',
 	#superclass : 'BEROctetString',
-	#category : 'LDAP-ContextElements',
+	#category : 'LDAP-Elements',
 	#package : 'LDAP',
-	#tag : 'ContextElements'
+	#tag : 'Elements'
 }
 
 { #category : 'accessing' }

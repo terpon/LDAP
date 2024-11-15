@@ -5,9 +5,9 @@ LDAPAddRequest is the process to add a new entry in the LDAP directory.
 Class {
 	#name : 'LDAPAddRequest',
 	#superclass : 'BERSequence',
-	#category : 'LDAP-Requests',
+	#category : 'LDAP-Modify',
 	#package : 'LDAP',
-	#tag : 'Requests'
+	#tag : 'Modify'
 }
 
 { #category : 'accessing' }
@@ -21,36 +21,20 @@ LDAPAddRequest >> addAttribute: aPartialAttribute [
 ]
 
 { #category : 'accessing' }
-LDAPAddRequest >> at: aDescription ifPresent: aPresentBlock ifAbsent: anAbsentBlock [
-	^ self attrs
-		detect: [ :pa | pa description = aDescription ] 
-		ifFound: [ :pa | aPresentBlock cull: pa ] 
-		ifNone: [ anAbsentBlock value ].
-]
-
-{ #category : 'accessing' }
 LDAPAddRequest >> at: aDescription put: someValues [
 
-	self at: aDescription 
-		ifPresent: [ :pa | pa values: someValues ]
-		ifAbsent: [ self addAttribute: (LDAPPartialAttribute new description: aDescription; values: someValues) ].
+	self attributes at: aDescription put: someValues
 ]
 
 { #category : 'accessing' }
-LDAPAddRequest >> attrs [
-	^ elements second elements
+LDAPAddRequest >> attributes [
+	^ elements second
 ]
 
 { #category : 'accessing' }
-LDAPAddRequest >> attrs: aDictionary [
-	self removeAll.
-	aDictionary associationsDo: [ :a | self at: a key put: a value ].
+LDAPAddRequest >> attributes: aDictionary [
+	elements second attributes: aDictionary 
 
-]
-
-{ #category : 'accessing' }
-LDAPAddRequest >> dn: aDn [
-	elements first value: aDn
 ]
 
 { #category : 'initialization' }
@@ -58,11 +42,16 @@ LDAPAddRequest >> initialize [
 	super initialize.
 	
 	self addElement: (BEROctetString new).
-	self addElement: (BERSequence new).
+	self addElement: (LDAPPartialAttributeList new).
 
+]
+
+{ #category : 'accessing' }
+LDAPAddRequest >> name: aDn [
+	elements first value: aDn
 ]
 
 { #category : 'removing' }
 LDAPAddRequest >> removeAll [ 
-	elements at: 2 put: BERSequence new.
+	elements second removeAll
 ]

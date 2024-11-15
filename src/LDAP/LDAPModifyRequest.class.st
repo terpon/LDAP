@@ -4,9 +4,9 @@ A request to modify
 Class {
 	#name : 'LDAPModifyRequest',
 	#superclass : 'BERSequence',
-	#category : 'LDAP-Requests',
+	#category : 'LDAP-Modify',
 	#package : 'LDAP',
-	#tag : 'Requests'
+	#tag : 'Modify'
 }
 
 { #category : 'accessing' }
@@ -19,9 +19,30 @@ LDAPModifyRequest >> addOperation: anOp [
 	elements second addElement: anOp
 ]
 
-{ #category : 'accessing' }
-LDAPModifyRequest >> dn: aDn [
-	elements first value: aDn
+{ #category : 'adding' }
+LDAPModifyRequest >> delete: anAttribute [
+	| op |
+	op := LDAPDeleteAttributeChange new.
+	op description: anAttribute.
+	self addOperation: op
+]
+
+{ #category : 'adding' }
+LDAPModifyRequest >> description: anAttribute add: aCollection [
+	| op |
+	op := LDAPAddAttributeChange new.
+	op description: anAttribute.
+	op values: aCollection.		
+	self addOperation: op
+]
+
+{ #category : 'adding' }
+LDAPModifyRequest >> description: anAttribute delete: aCollection [
+	| op |
+	op := LDAPDeleteAttributeChange new.
+	op description: anAttribute.
+	op values: aCollection.		
+	self addOperation: op
 ]
 
 { #category : 'initialization' }
@@ -34,16 +55,29 @@ LDAPModifyRequest >> initialize [
 ]
 
 { #category : 'accessing' }
-LDAPModifyRequest >> ops [
+LDAPModifyRequest >> name: aDn [
+	elements first value: aDn
+]
+
+{ #category : 'accessing' }
+LDAPModifyRequest >> operations [
 	^ elements second elements
 
 ]
 
 { #category : 'accessing' }
-LDAPModifyRequest >> ops: someModifyingOps [
-	| ops |
-	ops := BERSequence new.
-	someModifyingOps do: [ :each | ops addElement: each ].
-	elements at: 2 put: ops.
+LDAPModifyRequest >> operations: someModifyingOps [
 
+	elements second removeAll.
+	someModifyingOps do: [ :each | self addOperation: each ].
+
+]
+
+{ #category : 'adding' }
+LDAPModifyRequest >> set: anAttribute to: aString [
+	| op |
+	op := LDAPSetAttributeChange new.
+	op description: anAttribute.
+	op values: aString.		
+	self addOperation: op
 ]

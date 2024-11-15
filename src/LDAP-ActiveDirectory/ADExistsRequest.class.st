@@ -8,33 +8,35 @@ Request to check the existence of a DN.
 
 "
 Class {
-	#name : #ADExistsRequest,
-	#superclass : #LDAPSearchRequest,
-	#category : #'LDAP-ActiveDirectory-Requests'
+	#name : 'ADExistsRequest',
+	#superclass : 'LDAPSearchRequest',
+	#category : 'LDAP-ActiveDirectory-Requests',
+	#package : 'LDAP-ActiveDirectory',
+	#tag : 'Requests'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 ADExistsRequest class >> dn: dn in: aConnection [
 	| search request |
-	search := self new dn: dn.
+	search := self new name: dn.
 	request := aConnection request: search.
 	^ request result notEmpty
 
 ]
 
-{ #category : #accessing }
-ADExistsRequest >> dn: aString [
-	self base: aString.
-]
-
-{ #category : #initialization }
+{ #category : 'initialization' }
 ADExistsRequest >> initialize [ 
 
 	super initialize.
 	self reset.
 ]
 
-{ #category : #initialization }
+{ #category : 'accessing' }
+ADExistsRequest >> name: aString [
+	self base: aString.
+]
+
+{ #category : 'initialization' }
 ADExistsRequest >> reset [
 	self scope: LDAPWholeSubtreeScope new.
 	self derefAliases: LDAPNeverDeferAliases new.
