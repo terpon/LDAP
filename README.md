@@ -54,31 +54,32 @@ Use a `LDAPSConnection` instance for the connection.
 ```Smalltalk
 | attrs add command |
 attrs := Dictionary new
-    at: 'objectClass' put: (OrderedCollection new add: 'inetOrgPerson'; yourself);
+    at: 'objectClass' put: { 'inetOrgPerson' };
     at: 'cn' put: 'Doe John';
     at: 'sn' put: 'Doe';
     at: 'mail' put: 'john.doe@domain.org';
     yourself.
 
-add := LDAPAddRequest new dn: 'cn=jdoe,cn=base'; attrs: attrs.
+add := LDAPAddRequest new name: 'cn=jdoe,cn=base'; attributes: attrs.
 command := connection request: add.
 command wait.
 ```
 
 ### Change the value of an attribute
 ```Smalltalk
-| ops mod command |
-ops := { LDAPAttrModifier set: 'sn' to: { 'Doe' } }.
-mod := LDAPModifyRequest new dn: 'uid=jdoe,ou=people,dc=domain,dc=org'; ops: ops.
-command := connection request: mod.
+| mod command |
+mod := LDAPModifyRequest new name: 'uid=jdoe,ou=people,dc=domain,dc=org'.
+mod set: 'sn' to: 'Doe'.
+xcommand := connection request: mod.
 command wait.
 ```
 
 ### Add an attribute
 ```Smalltalk
-| ops mod command |
-ops := { LDAPAttrModifier addTo: 'loginShell' values: { '/bin/bash' } }.
-mod := LDAPModifyRequest new dn: 'uid=jdoe,ou=people,dc=domain,dc=org'; ops: ops.
+| mod command |
+mod := LDAPModifyRequest new name: 'uid=jdoe,ou=people,dc=domain,dc=org'.
+mod description: 'loginShell' add: '/bin/bash'.
+mod description: 'group' add: { 'audio'. 'test' }.
 command := connection request: mod.
 command wait.
 ```
@@ -109,7 +110,7 @@ resultEntries := command result.
 ### Delete an entry
 ```Smalltalk
 | command del |
-del := LDAPDelRequest new dn: 'uid=doe,ou=people,dc=domain,dc=org'.
+del := LDAPDelRequest new name: 'uid=doe,ou=people,dc=domain,dc=org'.
 command := connection request: del.
 command wait.
 ```
