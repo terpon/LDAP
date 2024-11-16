@@ -8,3 +8,15 @@ Class {
 	#package : 'LDAP',
 	#tag : 'Elements'
 }
+
+{ #category : 'converting' }
+LDAPName >> stripBase: aString [
+	| base |
+	base := self value.
+	"Simplified version, non-canonical RDNs can be more tricky"
+	(aString endsWith: base) ifFalse: [ ^ aString ].
+	(aString size <= base size) ifTrue: [ ^ '' ].
+	((aString at: (aString size - base size)) = $,) ifFalse: [ ^ aString ].
+	
+	^ aString copyFrom: 1 to: (aString size - base size - 1)
+]
