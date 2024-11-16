@@ -6,6 +6,9 @@ The request DN is the user DN.
 Class {
 	#name : 'ADSetPasswordRequest',
 	#superclass : 'LDAPModifyRequest',
+	#instVars : [
+		'setOperation'
+	],
 	#category : 'LDAP-ActiveDirectory-Requests',
 	#package : 'LDAP-ActiveDirectory',
 	#tag : 'Requests'
@@ -27,13 +30,14 @@ ADSetPasswordRequest >> initialize [
 
 	super initialize.
 	
-	self addOperation: (LDAPSetAttributeChange new description: 'unicodePwd').
+	setOperation := LDAPSetAttributeChange new description: 'unicodePwd'.
+	self addOperation: setOperation.
 ]
 
 { #category : 'accessing' }
 ADSetPasswordRequest >> password: aString [
 	| encoded |
 	encoded := self class encodedPassword: aString.
-	self operations first values: {encoded}.
+	setOperation values: {encoded}.
 
 ]

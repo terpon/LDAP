@@ -20,19 +20,19 @@ LDAPFilterTest >> testAnd [
 	and2 := filter3 & filter4.
 	
 	self assert: and class equals: LDAPFilterAnd.
-	self assert: and elements size equals: 2.
+	self assert: and size equals: 2.
 	
 	composed := and & filter3.
 	self assert: composed class equals: LDAPFilterAnd.
-	self assert: composed elements size equals: 3.
+	self assert: composed size equals: 3.
 
 	composed := filter3 & and.
 	self assert: composed class equals: LDAPFilterAnd.
-	self assert: composed elements size equals: 3.
+	self assert: composed size equals: 3.
 
 	composed := and & and2.
 	self assert: composed class equals: LDAPFilterAnd.
-	self assert: composed elements size equals: 4.
+	self assert: composed size equals: 4.
 
 ]
 
@@ -48,19 +48,19 @@ LDAPFilterTest >> testMix [
 	
 	composed := and | or.
 	self assert: composed class equals: LDAPFilterOr.
-	self assert: composed elements size equals: 3.
+	self assert: composed size equals: 3.
 
 	composed := and & or.
 	self assert: composed class equals: LDAPFilterAnd.
-	self assert: composed elements size equals: 3.
+	self assert: composed size equals: 3.
 	
 	composed := or | and.
 	self assert: composed class equals: LDAPFilterOr.
-	self assert: composed elements size equals: 3.
+	self assert: composed size equals: 3.
 
 	composed := or & and.
 	self assert: composed class equals: LDAPFilterAnd.
-	self assert: composed elements size equals: 3.
+	self assert: composed size equals: 3.
 
 
 ]
@@ -86,19 +86,19 @@ LDAPFilterTest >> testOr [
 	or := filter1 | filter2.
 	or2 := filter3 | filter4.
 	self assert: or class equals: LDAPFilterOr.
-	self assert: or elements size equals: 2.
+	self assert: or size equals: 2.
 	
 	composed := or | filter3.
 	self assert: composed class equals: LDAPFilterOr.
-	self assert: composed elements size equals: 3.
+	self assert: composed size equals: 3.
 
 	composed := filter3 | or.
 	self assert: composed class equals: LDAPFilterOr.
-	self assert: composed elements size equals: 3.
+	self assert: composed size equals: 3.
 
 	composed := or | or2.
 	self assert: composed class equals: LDAPFilterOr.
-	self assert: composed elements size equals: 4.
+	self assert: composed size equals: 4.
 
 ]
 

@@ -54,16 +54,17 @@ BERElement >> decode: aStream length: anInteger with: aDecoder [
 	self subclassResponsibility
 ]
 
-{ #category : 'accessing' }
-BERElement >> elements [
-	^ #()
-]
-
 { #category : 'converting' }
 BERElement >> encoded [
 "Return the encoded message"
 	^ ByteString streamContents: [ :stream | self writeOn: stream ]
 
+]
+
+{ #category : 'testing' }
+BERElement >> isConstruct [
+
+	^ false
 ]
 
 { #category : 'accessing' }

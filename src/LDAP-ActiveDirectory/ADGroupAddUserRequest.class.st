@@ -6,6 +6,9 @@ The request DN is the group DN.
 Class {
 	#name : 'ADGroupAddUserRequest',
 	#superclass : 'LDAPModifyRequest',
+	#instVars : [
+		'addOperation'
+	],
 	#category : 'LDAP-ActiveDirectory-Requests',
 	#package : 'LDAP-ActiveDirectory',
 	#tag : 'Requests'
@@ -14,7 +17,7 @@ Class {
 { #category : 'adding' }
 ADGroupAddUserRequest >> addUser: userDN [
 
-	self operations first addValue: userDN
+	addOperation addValue: userDN
 ]
 
 { #category : 'adding' }
@@ -27,6 +30,13 @@ ADGroupAddUserRequest >> addUsers: aCollectionOfStrings [
 ADGroupAddUserRequest >> initialize [ 
 
 	super initialize.
+	
+	addOperation := LDAPAddAttributeChange new description: 'member'.
+	self addOperation: addOperation.
+]
 
-	self addOperation: (LDAPAddAttributeChange new description: 'member').
+{ #category : 'initialization' }
+ADGroupAddUserRequest >> reset [
+
+	addOperation removeAll.
 ]

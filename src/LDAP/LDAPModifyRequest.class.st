@@ -61,7 +61,7 @@ LDAPModifyRequest >> name: aDn [
 
 { #category : 'accessing' }
 LDAPModifyRequest >> operations [
-	^ elements second elements
+	^ elements second
 
 ]
 

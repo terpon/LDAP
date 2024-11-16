@@ -17,16 +17,6 @@ Class {
 	#tag : 'Elements'
 }
 
-{ #category : 'instance creation' }
-LDAPPartialAttribute class >> fromSequence: aBERSequence [ 
-"Convert a BERSequence to a LDAPPartialAttribute"
-	| pa |
-	pa := self new.
-	pa elements at: 1 put: aBERSequence elements first.
-	pa elements at: 2 put: aBERSequence elements second.
-	^ pa
-]
-
 { #category : 'adding' }
 LDAPPartialAttribute >> addValue: aString [
 	elements second addElement: (BEROctetString new value: aString).
@@ -53,7 +43,7 @@ LDAPPartialAttribute >> description: aString [
 LDAPPartialAttribute >> flattenOn: aStream [
 	| name |
 	name := self description.
-	self elements second elements do: [ :each |  aStream nextPut: { name. each value }  ]
+	elements second do: [ :each |  aStream nextPut: { name. each value }  ]
 ]
 
 { #category : 'initialization' }
@@ -67,9 +57,8 @@ LDAPPartialAttribute >> initialize [
 
 { #category : 'accessing' }
 LDAPPartialAttribute >> values [
-	| berStrings |
-	berStrings := elements second elements.
-	^ berStrings collect: #value
+
+	^ elements second collect: #value
 
 ]
 

@@ -4,6 +4,8 @@ A BERConstruct can be a BERSequence or a BERSet.
 Class {
 	#name : 'BERConstruct',
 	#superclass : 'BERElement',
+	#traits : 'TIsEmpty',
+	#classTraits : 'TIsEmpty classTrait',
 	#instVars : [
 		'elements'
 	],
@@ -22,6 +24,22 @@ BERConstruct >> addElement: anElement [
 	elements addLast: anElement
 ]
 
+{ #category : 'converting' }
+BERConstruct >> asArray [
+	^ elements asArray
+]
+
+{ #category : 'converting' }
+BERConstruct >> asSet [
+	^ elements asSet
+]
+
+{ #category : 'enumerating' }
+BERConstruct >> collect: aBlock [
+
+	^ elements collect: aBlock 
+]
+
 { #category : 'encoding' }
 BERConstruct >> decode: aStream length: aLength with: aDecoder [
 	| elementLen part |
@@ -35,15 +53,22 @@ BERConstruct >> decode: aStream length: aLength with: aDecoder [
 		].
 ]
 
-{ #category : 'accessing' }
-BERConstruct >> elements [
-	^ elements
+{ #category : 'enumerating' }
+BERConstruct >> do: aBlock [
+
+	elements do: aBlock
 ]
 
 { #category : 'initialization' }
 BERConstruct >> initialize [
 	super initialize.
 	elements := OrderedCollection new
+]
+
+{ #category : 'testing' }
+BERConstruct >> isConstruct [ 
+
+	^ true
 ]
 
 { #category : 'testing' }

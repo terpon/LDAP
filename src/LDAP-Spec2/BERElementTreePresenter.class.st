@@ -76,7 +76,7 @@ BERElementTreePresenter >> initializePresenters [
 		isResizable: true;
 		addColumn: (SpStringTableColumn title: 'Class' evaluated: [ :e | self printClassFor: e ]);
 		addColumn: (SpStringTableColumn title: 'Value' evaluated: [ :e | e displayString ]);
-		children: [ :e | e elements ];
+		children: [ :e | e isConstruct ifTrue: [ e asArray ] ifFalse: [ #() ] ];
 		yourself.
 	
 
@@ -109,7 +109,8 @@ BERElementTreePresenter >> printClassFor: anObject [
 
 	^ String streamContents: [ :s | 
 				s << anObject class name.
-				anObject elements ifNotEmpty: [ :children | s << ' (' << children size asString << ')' ] ]
+				(anObject isConstruct and: [ anObject isNotEmpty ])
+					 ifTrue: [ s << ' (' << anObject size asString << ')' ] ]
 ]
 
 { #category : 'accessing' }

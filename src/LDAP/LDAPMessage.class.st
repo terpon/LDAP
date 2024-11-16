@@ -25,7 +25,7 @@ LDAPMessage class >> initialize [
 
 { #category : 'accessing' }
 LDAPMessage >> controls [
-	^ (elements size > 2) ifTrue: [ elements third elements ] ifFalse: [ #() ]
+	^ (elements size > 2) ifTrue: [ elements third ] ifFalse: [ #() ]
 ]
 
 { #category : 'accessing' }

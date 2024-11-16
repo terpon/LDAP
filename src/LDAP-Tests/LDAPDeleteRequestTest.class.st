@@ -1,5 +1,5 @@
 Class {
-	#name : 'LDAPDelRequestTest',
+	#name : 'LDAPDeleteRequestTest',
 	#superclass : 'LDAPRequestTest',
 	#category : 'LDAP-Tests-Tests',
 	#package : 'LDAP-Tests',
@@ -7,7 +7,7 @@ Class {
 }
 
 { #category : 'tests' }
-LDAPDelRequestTest >> testDelete [
+LDAPDeleteRequestTest >> testDelete [
 
 	self connect.
 	self addSomeTestEntries.

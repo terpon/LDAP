@@ -35,12 +35,13 @@ LDAPModifyNameRequest >> newRelativeName: aRdn [
 ]
 
 { #category : 'accessing' }
-LDAPModifyNameRequest >> underName: aDn [
-	elements size < 4 ifTrue: [ elements addElement: (LDAPOptionalName new)].
-	elements fourth value: aDn
+LDAPModifyNameRequest >> shouldDeleteOldRelativeName: aBoolean [
+"If true existing RDN is retained as an extra attribute and value in the new entry."
+	elements third value: aBoolean
 ]
 
 { #category : 'accessing' }
-LDAPModifyNameRequest >> wantToClearAttrs: aBoolean [
-	elements third value: aBoolean
+LDAPModifyNameRequest >> underName: aDn [
+	elements size < 4 ifTrue: [ elements addElement: (LDAPOptionalName new)].
+	elements fourth value: aDn
 ]
