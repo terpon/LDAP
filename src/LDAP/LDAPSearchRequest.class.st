@@ -24,7 +24,8 @@ LDAPSearchRequest >> attributes: someAttrs [
 
 { #category : 'accessing' }
 LDAPSearchRequest >> base: aDn [
-	elements first value: aDn
+"baseObject DN. For consistency, same as name"
+	self name: aDn
 ]
 
 { #category : 'controlling' }
@@ -61,6 +62,16 @@ LDAPSearchRequest >> initialize [
 		addElement: (LDAPFilterAnd new); "filter. Absolute true filter (&)"
 		addElement: (BERSequence new). "attrs"
 
+]
+
+{ #category : 'accessing' }
+LDAPSearchRequest >> name [
+	^ elements first value
+]
+
+{ #category : 'accessing' }
+LDAPSearchRequest >> name: aDn [
+	elements first value: aDn
 ]
 
 { #category : 'accessing' }

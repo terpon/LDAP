@@ -47,6 +47,11 @@ LDAPAddRequest >> initialize [
 ]
 
 { #category : 'accessing' }
+LDAPAddRequest >> name [
+	^ elements first value
+]
+
+{ #category : 'accessing' }
 LDAPAddRequest >> name: aDn [
 	elements first value: aDn
 ]
