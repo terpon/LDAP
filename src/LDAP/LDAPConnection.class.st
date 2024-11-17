@@ -119,7 +119,7 @@ LDAPConnection >> port: anObject [
 { #category : 'command execution' }
 LDAPConnection >> request: aRequest [
 	| command message |
-	self isValid ifFalse: [ LDAPNotConnected signal. ^ nil ].
+	self isValid ifFalse: [ LDAPNoConnectionException signal. ^ nil ].
 	
 	message := LDAPMessage new operation: aRequest.
 	command := LDAPCommand new initializeWith: message.

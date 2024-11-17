@@ -1,9 +1,9 @@
+"
+I am raised when the connection to the LDAP server is not established
+"
 Class {
-	#name : 'LDAPNotConnected',
+	#name : 'LDAPNoConnectionException',
 	#superclass : 'LDAPException',
-	#instVars : [
-		'command'
-	],
 	#category : 'LDAP-Exceptions',
 	#package : 'LDAP',
 	#tag : 'Exceptions'

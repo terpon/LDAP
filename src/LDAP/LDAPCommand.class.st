@@ -61,7 +61,7 @@ LDAPCommand >> nextTimeout: seconds [
 	isDone ifFalse:[
 		"As long as the request isn't done, synchronously wait for more results"
 		newResponseSemaphore waitTimeoutSeconds: seconds.
-		(responses size = iterator and:[isDone not]) ifTrue:[^self error: 'LDAP timeout'].
+		(responses size = iterator and:[isDone not]) ifTrue:[ LDAPTimeOut new command: self; signal. ^ nil ].
 	].
 	^ responses size > iterator
 		ifTrue:[ responses at: (iterator := iterator + 1)]
@@ -89,7 +89,6 @@ LDAPCommand >> responses [
 LDAPCommand >> signalExceptions [
 	"Check to see if a response caused an exception and if so, raise it"
 	self responses do: #signalExceptions.
-	self isDone ifFalse:[ LDAPTimeOut new command: self; signal ].
 
 ]
 
@@ -109,6 +108,7 @@ LDAPCommand >> wait [
 LDAPCommand >> waitTimeoutMSecs: msecs [
 
 	responses ifEmpty: [ doneSemaphore waitTimeoutMilliseconds: msecs ].
+	isDone ifFalse: [ LDAPTimeOut new command: self; signal ].
 
 ]
 

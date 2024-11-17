@@ -25,15 +25,17 @@ LDAPMessage class >> initialize [
 
 { #category : 'accessing' }
 LDAPMessage >> controls [
-	^ (elements size > 2) ifTrue: [ elements third ] ifFalse: [ #() ]
+	^ (elements size > 2) ifTrue: [ elements third ] ifFalse: [ BERNull new ]
 ]
 
 { #category : 'accessing' }
 LDAPMessage >> controls: aCollection [
 	| controls |
-	controls := LDAPControls new.
+	(elements size < 3) ifTrue: [ elements addLast: LDAPControls new ].
+	controls := elements third.
+	controls removeAll.
 	aCollection do: [ :each | controls addElement: each ].
-	(elements size > 2) ifTrue: [ elements at: 3 put: controls ] ifFalse: [ elements addLast: controls ]
+
 ]
 
 { #category : 'accessing' }
