@@ -25,11 +25,29 @@ LDAPBindRequest >> initialize [
 ]
 
 { #category : 'accessing' }
+LDAPBindRequest >> password [
+
+	^ elements third value
+]
+
+{ #category : 'accessing' }
 LDAPBindRequest >> password: aString [
 	elements third value: aString
 ]
 
 { #category : 'accessing' }
+LDAPBindRequest >> username [
+
+	^ elements second value
+]
+
+{ #category : 'accessing' }
 LDAPBindRequest >> username: aString [
 	elements second value: aString
+]
+
+{ #category : 'versions' }
+LDAPBindRequest >> version [
+
+	^ elements first value
 ]

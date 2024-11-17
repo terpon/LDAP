@@ -6,8 +6,6 @@ Class {
 	#superclass : 'Object',
 	#instVars : [
 		'sockStream',
-		'hostname',
-		'port',
 		'nextMessageId',
 		'lock',
 		'targets',
@@ -19,18 +17,15 @@ Class {
 }
 
 { #category : 'instance creation' }
-LDAPWorker class >> newTo: aHostname port: aPort [
-	^ self new initialize: aHostname port: aPort
-]
-
-{ #category : 'instance creation' }
 LDAPWorker class >> socketClass [
 	^ SocketStream
 ]
 
 { #category : 'dispatching' }
-LDAPWorker >> abandon: aMessage [
-	self removeTargetId: aMessage id.
+LDAPWorker >> abandon: aCommand [
+	| id |
+	id := aCommand message id.
+	self removeTargetId: id.
 ]
 
 { #category : 'private - dispatching' }
@@ -46,9 +41,9 @@ LDAPWorker >> addTarget: aCommand [
 
 ]
 
-{ #category : 'connecting' }
-LDAPWorker >> connect [
-	[ sockStream := self class socketClass openConnectionToHostNamed: hostname port: port ]
+{ #category : 'running' }
+LDAPWorker >> connectTo: aHostname port: aPort [
+	[ sockStream := self class socketClass openConnectionToHostNamed: aHostname port: aPort ]
 		on: Exception do: [:ex | sockStream := nil.  ex pass ].
 
 	sockStream ifNil: [ ^ self ].
@@ -59,14 +54,15 @@ LDAPWorker >> connect [
 		timeout: 30.
 		
 	self postConnect.
+	^ self start
 
 ]
 
-{ #category : 'connecting' }
+{ #category : 'running' }
 LDAPWorker >> disconnect [
 	self stop.
 	sockStream close.
-	sockStream  := nil.
+	sockStream := nil.
 	
 ]
 
@@ -95,9 +91,9 @@ LDAPWorker >> dispatchMessage: aMessage [
 ]
 
 { #category : 'initialization' }
-LDAPWorker >> initialize: aHostname port: aPort [
-	hostname := aHostname.
-	port := aPort.
+LDAPWorker >> initialize [
+	super initialize.
+	
 	nextMessageId := 0.
 	lock := Semaphore forMutualExclusion.
 	"looks like if we use the WVD here we wont see exceptions thrown.. hrmmm"
@@ -106,13 +102,24 @@ LDAPWorker >> initialize: aHostname port: aPort [
 	running := false.
 ]
 
-{ #category : 'accessing' }
+{ #category : 'dispatching' }
+LDAPWorker >> isCommandPending: aCommand [
+	| messageId |
+	messageId := aCommand message id.
+	lock critical: [
+		targets at: messageId ifPresent: [ ^ true ]
+	].
+	^  false 
+
+]
+
+{ #category : 'testing' }
 LDAPWorker >> isConnected [
 	 sockStream ifNil: [ ^ true ].	
 	^ sockStream isConnected
 ]
 
-{ #category : 'accessing' }
+{ #category : 'testing' }
 LDAPWorker >> isRunning [
 	^ self isConnected and: running
 ]
@@ -124,7 +131,7 @@ LDAPWorker >> nextMessageId [
 	^ nextMessageId
 ]
 
-{ #category : 'connecting' }
+{ #category : 'private - running' }
 LDAPWorker >> postConnect [ 
 "Nothing in base class"
 ]
@@ -149,7 +156,7 @@ LDAPWorker >> send: aCommand [
 	]
 ]
 
-{ #category : 'running' }
+{ #category : 'private - running' }
 LDAPWorker >> start [
 	| process |
 	self isConnected ifFalse: [ ^ nil ].
@@ -171,7 +178,7 @@ LDAPWorker >> start [
 	^ process
 ]
 
-{ #category : 'running' }
+{ #category : 'private - running' }
 LDAPWorker >> stop [
 	running := false.
 ]

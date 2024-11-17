@@ -5,6 +5,8 @@ Class {
 	#name : 'LDAPConnection',
 	#superclass : 'Object',
 	#instVars : [
+		'host',
+		'port',
 		'worker',
 		'workerThread'
 	],
@@ -44,7 +46,8 @@ LDAPConnection class >> to: aHostname [
 { #category : 'instance creation' }
 LDAPConnection class >> to: aHostname port: aPort [
 	| obj |
-	obj := self new initializeWithHost: aHostname port: aPort.
+	obj := self new host: aHostname; port: aPort.
+	obj connect.
 	^ obj
 ]
 
@@ -54,40 +57,72 @@ LDAPConnection class >> workerClass [
 ]
 
 { #category : 'command execution' }
-LDAPConnection >> abandon: aMessage [
-	worker abandon: aMessage.
-	^ self request: (LDAPAbandonRequest newId: aMessage id).
+LDAPConnection >> abandon: aCommand [
+	"RFC says we MUST NOT send abandon requests for the same operation multiple times"
+	(worker isCommandPending: aCommand) ifFalse: [ ^ self ].
 
+	worker abandon: aCommand.
+	^ self request: (LDAPAbandonRequest newId: aCommand message id).
+
+]
+
+{ #category : 'running' }
+LDAPConnection >> connect [
+
+	worker := self class workerClass new.
+	workerThread := worker connectTo: host port: port.
 ]
 
 { #category : 'connecting' }
 LDAPConnection >> disconnect [
 
-	self isValid ifFalse: [ ^ self ].
-	self unbind.
+	workerThread ifNil: [ ^ self ].
+	worker isRunning ifTrue: [ self unbind ].
+
 	worker disconnect.
-	workerThread terminate
+	workerThread terminate.
+	
+	worker := nil.
+	workerThread := nil.
 ]
 
-{ #category : 'initialization' }
-LDAPConnection >> initializeWithHost: aHostname port: aPort [
-	worker := self class workerClass newTo: aHostname port: aPort.
-	worker connect.
-	workerThread := worker start.
+{ #category : 'accessing' }
+LDAPConnection >> host [
 
+	^ host
+]
+
+{ #category : 'accessing' }
+LDAPConnection >> host: anObject [
+
+	host := anObject
 ]
 
 { #category : 'testing' }
 LDAPConnection >> isValid [
 	"Answers whether the connection looks still valid"
-	^worker isRunning
+	^ worker ifNotNil: [ :w | w isRunning ] ifNil: [ false ]
+]
+
+{ #category : 'accessing' }
+LDAPConnection >> port [
+
+	^ port
+]
+
+{ #category : 'accessing' }
+LDAPConnection >> port: anObject [
+
+	port := anObject
 ]
 
 { #category : 'command execution' }
 LDAPConnection >> request: aRequest [
 	| command message |
+	self isValid ifFalse: [ LDAPNotConnected signal. ^ nil ].
+	
 	message := LDAPMessage new operation: aRequest.
-	command := LDAPCommand new initializeWith: self message: message.
+	command := LDAPCommand new initializeWith: message.
 
 	worker send: command.
 	^ command

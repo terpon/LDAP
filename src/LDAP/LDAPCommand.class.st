@@ -7,10 +7,8 @@ Class {
 	#name : 'LDAPCommand',
 	#superclass : 'Object',
 	#instVars : [
-		'connection',
 		'message',
 		'isDone',
-		'abandoned',
 		'doneSemaphore',
 		'iterator',
 		'responses',
@@ -21,16 +19,6 @@ Class {
 	#tag : 'Core'
 }
 
-{ #category : 'operating' }
-LDAPCommand >> abandon [
-	"RFC says we MUST NOT send abandon requests for the same operation multiple times"
-	abandoned ifNotNil: [ ^ abandoned ].
-
-	abandoned := connection abandon: message.
-	^ abandoned
-	
-]
-
 { #category : 'defaults' }
 LDAPCommand >> defaultTimeout [
 	"Answer the default timout for LDAP queries"
@@ -38,13 +26,12 @@ LDAPCommand >> defaultTimeout [
 ]
 
 { #category : 'initialization' }
-LDAPCommand >> initializeWith: aConnection message: aMessage [
-	connection := aConnection.
+LDAPCommand >> initializeWith: aMessage [
+
 	message := aMessage.
 
 	doneSemaphore := Semaphore new.
 	responses := OrderedCollection new.
-	abandoned := nil.
 	isDone := false.
 	
 	"partial search results"
