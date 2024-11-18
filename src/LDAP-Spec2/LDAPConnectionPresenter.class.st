@@ -19,10 +19,21 @@ Class {
 }
 
 { #category : 'examples' }
-LDAPConnectionPresenter class >> example [
+LDAPConnectionPresenter class >> exampleDialog [
+
+	^ self new openDialog
+]
+
+{ #category : 'examples' }
+LDAPConnectionPresenter class >> exampleWindow [
 
 	^ self new open
+]
 
+{ #category : 'ui - notifying' }
+LDAPConnectionPresenter >> accept [
+
+	self application connectionAccept: self
 ]
 
 { #category : 'accessing' }
@@ -37,6 +48,14 @@ LDAPConnectionPresenter >> beSSL [
 	ssl state: true
 ]
 
+{ #category : 'accessing - model' }
+LDAPConnectionPresenter >> bindRequest: aLDAPRequest [
+
+	self username: aLDAPRequest username.
+	self password: aLDAPRequest password.
+
+]
+
 { #category : 'initialization' }
 LDAPConnectionPresenter >> connectPresenters [ 
 
@@ -45,11 +64,22 @@ LDAPConnectionPresenter >> connectPresenters [
 	self updateDefaultPort.
 ]
 
+{ #category : 'accessing - model' }
+LDAPConnectionPresenter >> connection: aLDAPConnection [
+
+	aLDAPConnection ifNil: [ ^ self ].
+	ssl state: aLDAPConnection class = LDAPSConnection.
+	aLDAPConnection host ifNotNil: [ :h | self hostname: h ].
+	aLDAPConnection port ifNotNil: [ :p | self port: p ].
+]
+
 { #category : 'layout' }
 LDAPConnectionPresenter >> defaultLayout [
 
 	^ SpGridLayout build: [ :builder |
 			builder
+				beColumnNotHomogeneous;
+				column: 2 expand: true;
 				add: 'Hostname:'; add: host; nextRow;
 				add: 'SSL:'; add: ssl; nextRow;
 				add: 'Port:'; add: port; nextRow;
@@ -59,9 +89,9 @@ LDAPConnectionPresenter >> defaultLayout [
 ]
 
 { #category : 'default values' }
-LDAPConnectionPresenter >> defaultPort [
+LDAPConnectionPresenter >> defaultPort: isSSL [
 
-	^ ssl state ifTrue: [ 636 ] ifFalse: [ 389 ]
+	^ isSSL ifTrue: [ 636 ] ifFalse: [ 389 ]
 ]
 
 { #category : 'accessing' }
@@ -74,6 +104,15 @@ LDAPConnectionPresenter >> hostname [
 LDAPConnectionPresenter >> hostname: aString [
 
 	host text: aString
+]
+
+{ #category : 'initialization' }
+LDAPConnectionPresenter >> initializeDialogWindow: aDialogPresenter [
+
+	aDialogPresenter 
+		withDecorations;
+		addButton: 'Cancel' do: [ :dialog | dialog close ];
+		addButton: 'OK' do: [ :dialog | self accept. dialog beOk; close ].
 ]
 
 { #category : 'initialization' }
@@ -96,6 +135,7 @@ LDAPConnectionPresenter >> initializeWindow: aSpWindowPresenter [
 	super initializeWindow: aSpWindowPresenter.
 
 	aSpWindowPresenter title: 'LDAP Connection Settings'.
+
 ]
 
 { #category : 'testing' }
@@ -121,7 +161,7 @@ LDAPConnectionPresenter >> port [
 	
 	port text ifNotEmpty: [ ^ port number ].
 	
-	^ self defaultPort
+	^ self defaultPort: ssl state
 ]
 
 { #category : 'accessing' }
@@ -134,10 +174,12 @@ LDAPConnectionPresenter >> port: aNumber [
 { #category : 'default values' }
 LDAPConnectionPresenter >> updateDefaultPort [
 	
+	(port number = (self defaultPort: ssl state not)) ifTrue: [ port text: '' ].
+	
 	"Default port is only used if there is no user input"
 	port text ifNotEmpty: [ ^ self ].
 	
-	port placeholder: self defaultPort asString.
+	port placeholder: (self defaultPort: ssl state) asString.
 ]
 
 { #category : 'accessing' }
