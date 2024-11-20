@@ -18,7 +18,7 @@ LDAPEntryPresenter class >> example [
 "Sample tree"
 	| result |
 	result := self sampleElement.
-	^ self new entry: result; open
+	^ self show: result
 
 ]
 
@@ -47,7 +47,7 @@ LDAPEntryPresenter class >> sampleElement [
 
 { #category : 'opening' }
 LDAPEntryPresenter class >> show: anEntry [
-	^ self new entry: anEntry; open
+	^ (self on: anEntry) open
 
 ]
 
@@ -118,6 +118,19 @@ LDAPEntryPresenter >> selectedItem [
 	"Return selected item."
 	
 	^ table selectedItem
+]
+
+{ #category : 'accessing - model' }
+LDAPEntryPresenter >> setModel: aModel [
+
+	self entry: aModel
+	
+]
+
+{ #category : 'accessing - model' }
+LDAPEntryPresenter >> setModelBeforeInitialization: aModel [
+
+	entry := aModel
 ]
 
 { #category : 'initialization' }
