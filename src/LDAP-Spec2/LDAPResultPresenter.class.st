@@ -20,7 +20,7 @@ LDAPResultPresenter class >> example [
 "Sample tree"
 	| result |
 	result := self sampleElement.
-	^ (self on: result) openDialog
+	^ self show: result
 
 ]
 
@@ -37,14 +37,15 @@ LDAPResultPresenter class >> sampleElement [
 
 	^ LDAPBindResult new addAll: { 
 		LDAPResultCode new value: 34. 
-		BEROctetString new value: ''.
+		BEROctetString new value: 'cn=foo,cn=bar'.
 		BEROctetString new value: 'invalid DN'
 	 }; yourself
 ]
 
 { #category : 'opening' }
 LDAPResultPresenter class >> show: anEntry [
-	^ self new entry: anEntry; open
+	^ (self on: anEntry) openDialog
+
 
 ]
 
@@ -58,10 +59,18 @@ LDAPResultPresenter >> connectPresenters [
 { #category : 'layout' }
 LDAPResultPresenter >> defaultLayout [ 
 	^ SpBoxLayout newTopToBottom
-		add: #code;
-		add: #name;
+		add: (SpBoxLayout newLeftToRight hAlignCenter; add: #code) expand: false;
+		add: #name expand: false;
 		add: #message;
 		yourself
+]
+
+{ #category : 'initialization' }
+LDAPResultPresenter >> initializeDialogWindow: aDialogPresenter [
+
+	aDialogPresenter 
+		withDecorations;
+		addButton: 'OK' do: [ :dialog | dialog beOk; close ].
 ]
 
 { #category : 'initialization' }
@@ -69,10 +78,12 @@ LDAPResultPresenter >> initializePresenters [
 
 	code := self newLabel displayBold; yourself.
 	name := self newLabel.
-	message := self newLabel.
-
-	
-
+	message := self newText
+		beNotWrapWord;
+		propagateNaturalWidth: true;
+		propagateNaturalHeight: false;
+		editable: false;
+		yourself.
 ]
 
 { #category : 'initialization' }
@@ -102,5 +113,5 @@ LDAPResultPresenter >> updatePresenter [
 
 	code label: result resultElement displayString.
 	name label: result name.
-	message label: result diagnosticMessage.
+	message text: result diagnosticMessage.
 ]
