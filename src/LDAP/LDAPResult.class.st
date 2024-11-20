@@ -16,7 +16,7 @@ LDAPResult class >> tagValue [
 
 { #category : 'accessing' }
 LDAPResult >> diagnosticElement [
-	^ elements third value
+	^ elements third
 ]
 
 { #category : 'accessing' }
