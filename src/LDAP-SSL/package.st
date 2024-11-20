@@ -1,1 +1,1 @@
-Package { #name : #'LDAP-SSL' }
+Package { #name : 'LDAP-SSL' }

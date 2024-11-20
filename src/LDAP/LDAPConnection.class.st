@@ -70,7 +70,13 @@ LDAPConnection >> abandon: aCommand [
 LDAPConnection >> connect [
 
 	worker := self class workerClass new.
-	workerThread := worker connectTo: host port: port.
+	workerThread := worker connectTo: host port: self port.
+]
+
+{ #category : 'accessing - defaults' }
+LDAPConnection >> defaultPort [
+
+	^ 389
 ]
 
 { #category : 'connecting' }
@@ -99,6 +105,11 @@ LDAPConnection >> host: anObject [
 ]
 
 { #category : 'testing' }
+LDAPConnection >> isSSL [
+	^ false
+]
+
+{ #category : 'testing' }
 LDAPConnection >> isValid [
 	"Answers whether the connection looks still valid"
 	^ worker ifNotNil: [ :w | w isRunning ] ifNil: [ false ]
@@ -107,13 +118,23 @@ LDAPConnection >> isValid [
 { #category : 'accessing' }
 LDAPConnection >> port [
 
-	^ port
+	^ port ifNil: [ self defaultPort ]
 ]
 
 { #category : 'accessing' }
 LDAPConnection >> port: anObject [
 
 	port := anObject
+]
+
+{ #category : 'copying' }
+LDAPConnection >> postCopy [ 
+
+	super postCopy.
+	
+	"Copy start as disconnected, remove reference to original worker"
+	worker := nil.
+	workerThread := nil.
 ]
 
 { #category : 'command execution' }

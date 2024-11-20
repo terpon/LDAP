@@ -2,20 +2,21 @@
 A secure worker (thread)
 "
 Class {
-	#name : #LDAPSWorker,
-	#superclass : #LDAPWorker,
+	#name : 'LDAPSWorker',
+	#superclass : 'LDAPWorker',
 	#instVars : [
 		'ssl'
 	],
-	#category : #'LDAP-SSL'
+	#category : 'LDAP-SSL',
+	#package : 'LDAP-SSL'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LDAPSWorker class >> socketClass [
 	^ ZdcSecureSocketStream
 ]
 
-{ #category : #connecting }
+{ #category : 'connecting' }
 LDAPSWorker >> postConnect [
 	"SSL handshake"
 	sockStream connect.
