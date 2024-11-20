@@ -5,8 +5,7 @@ Class {
 	#name : 'LDAPBrowser',
 	#superclass : 'SpApplication',
 	#instVars : [
-		'queue',
-		'connection',
+		'session',
 		'errorHandler'
 	],
 	#category : 'LDAP-Spec2-Presenters',
@@ -25,11 +24,11 @@ LDAPBrowser >> checkAndReport: aCommand [
 ]
 
 { #category : 'connecting' }
-LDAPBrowser >> connectionAccept: aModel [
-
-	self reset.
-	connection := aModel.
-	self updateConnection
+LDAPBrowser >> connectionAccept: aSessionOrPresenter [
+	| success |
+	success := session copyFrom: aSessionOrPresenter.
+	(success and: [ session connected ]) ifTrue: [ ^ self ].
+	session connect.
 ]
 
 { #category : 'accessing' }
@@ -49,40 +48,25 @@ LDAPBrowser >> initialize [
 
 	super initialize.
 	
-	queue := LDAPRequestQueue new.
-	connection := LDAPConnectionModel new.
+	session := LDAPSession new application: self.
 	errorHandler := LDAPDialogErrorHandler new application: self; yourself.
 ]
 
-{ #category : 'callbacks' }
-LDAPBrowser >> onConnect: aCommand [
-	| connected |
-	connected := self checkAndReport: aCommand.
-	connection connected: connected.
-	connected ifFalse: [ ^ self ].
+{ #category : 'ui - dialogs' }
+LDAPBrowser >> openBrowser [
 
-	self sendNamingContextsSearch.
-]
-
-{ #category : 'callbacks' }
-LDAPBrowser >> onNamingContexts: aCommand [
-	| success presenter searchResult |
-	success := self checkAndReport: aCommand.
-	success ifFalse: [ ^ self ].
-
-	searchResult := aCommand responses first.
-	presenter := LDAPEntryPresenter newApplication: self model: searchResult.
-	presenter open
+	| presenter |
+	presenter := LDAPBrowserPresenter newApplication: self model: session.
+	^ presenter open
 
 ]
 
 { #category : 'ui - dialogs' }
 LDAPBrowser >> openConnectionDialog [
 	
-	| presenter model |
-	"Make a copy so variable is not modified until dialog is accepted"
-	model := connection copy.
-	presenter := LDAPConnectionPresenter newApplication: self model: model.
+	| presenter |
+	presenter := LDAPConnectionPresenter newApplication: self.
+	presenter onAccept: [ :sender | self connectionAccept: sender ].
 	^ presenter openDialog
 	
 	
@@ -91,30 +75,18 @@ LDAPBrowser >> openConnectionDialog [
 { #category : 'connecting' }
 LDAPBrowser >> reset [ 
 
-	connection server disconnect.
-	queue stop; flush.
 	errorHandler reset.
 
 ]
 
-{ #category : 'requests' }
-LDAPBrowser >> sendNamingContextsSearch [
+{ #category : 'accessing' }
+LDAPBrowser >> session [
 
-	| search |
-	search := LDAPSearchRequest new
-		          base: '';
-		          scope: LDAPBaseObjectScope new;
-		          attributes: { 'namingContexts' }.
-	queue nextPut: search onResponseDo: [ :command | self onNamingContexts: command ]
+	^ session
 ]
 
-{ #category : 'connecting' }
-LDAPBrowser >> updateConnection [
-"Try to connect and refresh naming context"
-	| request |
-	connection reconnect.
-	queue connection: connection server.
-	
-	request := connection bindRequest.
-	queue nextPut: request onResponseDo: [ :command | self onConnect: command ]
+{ #category : 'accessing' }
+LDAPBrowser >> session: anObject [
+
+	session := anObject
 ]
