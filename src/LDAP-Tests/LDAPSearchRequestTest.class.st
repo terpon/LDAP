@@ -112,6 +112,7 @@ LDAPSearchRequestTest >> testNamingContexts [
 		          scope: LDAPBaseObjectScope new;
 		          attributes: { 'namingContexts' }.
 	responses := self requestAndAssertSuccess: search.
+
 	self assert: responses size equals: 2.
 	self assert: responses second resultCode equals: 0.
 	attrs := responses first asDictionary.

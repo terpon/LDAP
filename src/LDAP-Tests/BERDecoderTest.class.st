@@ -1,5 +1,5 @@
 Class {
-	#name : 'BERTest',
+	#name : 'BERDecoderTest',
 	#superclass : 'TestCase',
 	#category : 'LDAP-Tests-Tests',
 	#package : 'LDAP-Tests',
@@ -7,7 +7,7 @@ Class {
 }
 
 { #category : 'test data' }
-BERTest >> booleanTestSet [
+BERDecoderTest >> booleanTestSet [
 
 	^ #(
 		  ( 0     '010100' )
@@ -21,7 +21,7 @@ BERTest >> booleanTestSet [
 ]
 
 { #category : 'tools' }
-BERTest >> debugHex: aString [
+BERDecoderTest >> debugHex: aString [
 	
 	^ ByteString streamContents: [ :s |
 			aString groupsOf: 2 atATimeDo: [ :hi :lo | | byte |
@@ -32,7 +32,7 @@ BERTest >> debugHex: aString [
 ]
 
 { #category : 'tools' }
-BERTest >> formatWithHex: aString [
+BERDecoderTest >> formatWithHex: aString [
 
 	^ String streamContents: [ :stream |
 			aString groupsOf: 2 atATimeDo: [ :hi :lo |
@@ -44,7 +44,7 @@ BERTest >> formatWithHex: aString [
 ]
 
 { #category : 'test data' }
-BERTest >> integerTestSet [
+BERDecoderTest >> integerTestSet [
 	^  #(
 			( 27066 '020269BA') 
 			( -27066 '02029646')
@@ -63,7 +63,7 @@ BERTest >> integerTestSet [
 ]
 
 { #category : 'tests' }
-BERTest >> testAddRequest [
+BERDecoderTest >> testAddRequest [
 	| request encoded hex expected attrs |
 	"using a Dictionary could generate different encodings depending on the order of iteration."
 	"we'll rely on the implementation calling associationsDo: to work with this Array."
@@ -81,7 +81,7 @@ BERTest >> testAddRequest [
 ]
 
 { #category : 'tests' }
-BERTest >> testBindRequest [
+BERDecoderTest >> testBindRequest [
 	| request encoded expected |
 	request := LDAPBindRequest new username: 'cn=admin,dc=linalco,dc=test'; password: 'secret'.
 	encoded := (LDAPMessage new id: 1; operation: request) encoded.
@@ -92,21 +92,7 @@ BERTest >> testBindRequest [
 ]
 
 { #category : 'tests' }
-BERTest >> testBooleanEncoding [
-
-	| ber output expected |
-	ber := BERBoolean new.
-
-	self booleanTestSet do: [ :test |
-		ber value: test first.
-		output := ber encoded asHex.
-		expected := self formatWithHex: test second.
-		self assert: output equals: expected
-	]
-]
-
-{ #category : 'tests' }
-BERTest >> testDelRequest [
+BERDecoderTest >> testDelRequest [
 	| request encoded expected |
 	request := LDAPDeleteRequest new name: 'cn=test2,dc=linalco,dc=test'.
 	encoded := (LDAPMessage new id: 1; operation: request) encoded.
@@ -118,36 +104,7 @@ BERTest >> testDelRequest [
 ]
 
 { #category : 'tests' }
-BERTest >> testIntegerDecoding [
-
-	self integerTestSet do: [:test | 
-		|ber encoded expectedValue |
-		encoded := self debugHex: test second.
-		ber := BERDecoder new readFrom: encoded readStream.
-		self assert: ber class equals: BERInteger.
-		
-		expectedValue := test first.
-		self assert: ber value equals: expectedValue. 
-	]
-
-]
-
-{ #category : 'tests' }
-BERTest >> testIntegerEncoding [
-
-	| ber output expected |
-	ber := BERInteger new.
-
-	self integerTestSet do: [ :test |
-		ber value: test first.
-		output := ber encoded asHex.
-		expected := self formatWithHex: test second.
-		self assert: output equals: expected 
-	]
-]
-
-{ #category : 'tests' }
-BERTest >> testModifyRequest [
+BERDecoderTest >> testModifyRequest [
 	| request encoded expected ops |
 	ops :=  { 
 			LDAPSetAttributeChange new description: 'sn'; values: { 'test5sn' . 'foo' . 'bar'}; yourself.
@@ -163,7 +120,7 @@ BERTest >> testModifyRequest [
 ]
 
 { #category : 'tests' }
-BERTest >> testSearchRequest [
+BERDecoderTest >> testSearchRequest [
 	| request encoded hex expected |
 	request := LDAPSearchRequest new 
 		base: 'dc=linalco, dc=test'; 
@@ -175,22 +132,5 @@ BERTest >> testSearchRequest [
 
 	expected := self formatWithHex: '30380201016333041364633D6C696E616C636F2C2064633D746573740A01020A0100020100020100010100870B6F626A656374636C6173733000'.
 	self assert: hex equals: expected
-
-]
-
-{ #category : 'tests' }
-BERTest >> testSequenceEncoding [
-	|ber0 ber1 ber2 result expected |
-	ber0 := BERSequence new.
-	ber1 := BERInteger new value: 17.
-	ber2 := BERInteger new value: 170.
-	
-	ber0 addElement: ber1.
-	ber0 addElement: ber2.
-
-	result := String streamContents: [ :stream | ber0 writeOn: stream ].
-	expected := self formatWithHex: '3007020111020200AA'.
-	self assert: result asHex equals: expected
-
 
 ]

@@ -124,6 +124,7 @@ LDAPRequestTest >> port [
 LDAPRequestTest >> request: aLDAPRequest [
 	| command |	
 	command := connection request: aLDAPRequest.
+	command ifNil: [ ^ nil ].
 	^ command responses
 ]
 

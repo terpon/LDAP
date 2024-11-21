@@ -1,6 +1,6 @@
 Class {
 	#name : 'BEROctetStringTest',
-	#superclass : 'BERTest',
+	#superclass : 'BERDecoderTest',
 	#category : 'LDAP-Tests-Tests',
 	#package : 'LDAP-Tests',
 	#tag : 'Tests'
