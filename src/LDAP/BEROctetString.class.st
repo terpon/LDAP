@@ -23,12 +23,12 @@ BEROctetString >> decode: aStream length: aLength with: aDecoder [
 BEROctetString >> inspectionString [
 	<inspectorPresentationOrder: -10 title: 'Octet String'>
 	
-	^ value asString inspectionString 
+	^ self value asString inspectionString 
 ]
 
 { #category : 'accessing' }
 BEROctetString >> length [ 
-	^ value size
+	^ self value size
 ]
 
 { #category : 'accessing' }
@@ -44,6 +44,6 @@ BEROctetString >> value: anObject [
 
 { #category : 'writing' }
 BEROctetString >> writeBodyOn: aStream [
-	aStream nextPutAll: value asString.
+	aStream nextPutAll: self value asString.
 
 ]

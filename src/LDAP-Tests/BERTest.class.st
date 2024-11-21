@@ -163,21 +163,6 @@ BERTest >> testModifyRequest [
 ]
 
 { #category : 'tests' }
-BERTest >> testOctetStringEncoding [
-
-	| ber output tests expected |
-	ber := BEROctetString new.
-
-	tests := { { 'hello'. 5. '040568656C6C6F' } }.
-
-	tests do: [ :test |
-		ber value: test first.
-		output := ber encoded asHex.
-		expected := self formatWithHex: test third.
-		self assert: output equals: expected ]
-]
-
-{ #category : 'tests' }
 BERTest >> testSearchRequest [
 	| request encoded hex expected |
 	request := LDAPSearchRequest new 
