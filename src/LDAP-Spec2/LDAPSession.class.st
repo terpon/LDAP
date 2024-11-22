@@ -5,59 +5,14 @@ Class {
 	#name : 'LDAPSession',
 	#superclass : 'Model',
 	#instVars : [
-		'username',
-		'password',
 		'server',
 		'connected',
-		'queue',
-		'roots',
-		'application'
+		'roots'
 	],
-	#category : 'LDAP-Spec2-Tasks',
+	#category : 'LDAP-Spec2-Models',
 	#package : 'LDAP-Spec2',
-	#tag : 'Tasks'
+	#tag : 'Models'
 }
-
-{ #category : 'accessing' }
-LDAPSession >> application [
-
-	^ application
-]
-
-{ #category : 'accessing' }
-LDAPSession >> application: anObject [
-
-	application := anObject
-]
-
-{ #category : 'accessing' }
-LDAPSession >> beSSL: aBoolean [
-
-	| newConnection |
-	(aBoolean = server isSSL) ifTrue: [ ^ self ].
-
-	newConnection := aBoolean ifTrue: [ LDAPSConnection new ]  ifFalse: [ LDAPConnection new ].
-	newConnection host: server host.
-	(server port = server defaultPort) ifFalse: [ newConnection port: server port ].
-	self disconnect.
-	server := newConnection
-]
-
-{ #category : 'running' }
-LDAPSession >> bindRequest [ 
-
-	^ 	LDAPBindRequest new username: username; password: password.
-
-]
-
-{ #category : 'circuit setup' }
-LDAPSession >> connect [
-	| request |
-	server isValid ifTrue: [ server unbind ] ifFalse: [ server connect ].
-	
-	request := self bindRequest.
-	queue nextPut: request onResponseDo: [ :command | self onConnect: command ]
-]
 
 { #category : 'accessing' }
 LDAPSession >> connected [
@@ -65,139 +20,36 @@ LDAPSession >> connected [
 	^ connected
 ]
 
-{ #category : 'copying' }
-LDAPSession >> copyFrom: aSessionOrPresenter [
-"Return true if we should reconnect"
-	| request newConnection |
-	(self isSameConnection: aSessionOrPresenter) ifTrue: [ ^ false ].
-	
-	self disconnect.
-	newConnection := (self isSSL = aSessionOrPresenter isSSL) 
-		ifTrue: [ server ]
-		ifFalse: [ aSessionOrPresenter isSSL ifTrue: [ LDAPSConnection new ]  ifFalse: [ LDAPConnection new ] ].
+{ #category : 'accessing' }
+LDAPSession >> connected: aBoolean [
 
-	newConnection host: aSessionOrPresenter hostname.
-	newConnection port: aSessionOrPresenter port.
-	server := newConnection.
+	connected := aBoolean
+]
 
-	username := aSessionOrPresenter username.
-	password := aSessionOrPresenter password.
-	
-	queue connection: server.
-	^ true
+{ #category : 'instance creation' }
+LDAPSession >> connectionClass [ 
+
+	^  self isSSL ifTrue: [ LDAPSConnection ]  ifFalse: [ LDAPConnection ]
 ]
 
 { #category : 'accessing - defaults' }
 LDAPSession >> defaultPort [
 
-	^ server defaultPort
-]
-
-{ #category : 'running' }
-LDAPSession >> disconnect [
-
-	server disconnect.
-	queue stop; flush.
-	connected := false.
-
-]
-
-{ #category : 'accessing' }
-LDAPSession >> hostname [
-
-	^ server host ifNil: [ '' ]
-]
-
-{ #category : 'accessing' }
-LDAPSession >> hostname: anObject [
-
-	server host: anObject
+	^ self isSSL ifTrue: [ 636 ] ifFalse: [ 389 ]
 ]
 
 { #category : 'initialization' }
 LDAPSession >> initialize [ 
 
 	super initialize.
-	
-	server := LDAPConnection new.
-	username := ''.
-	password := ''.
-	
+	server := LDAPServerInfo new.
 	self reset
 ]
 
-{ #category : 'testing' }
-LDAPSession >> isSSL [
-	^ server isSSL
-]
-
-{ #category : 'testing' }
-LDAPSession >> isSameConnection: anObject [
-	
-	(self hostname = anObject hostname) ifFalse:  [ ^ false ].
-	(self port = anObject port) ifFalse:  [ ^ false ].
-	(self isSSL = anObject isSSL) ifFalse:  [ ^ false ].
-	(self username = anObject username) ifFalse:  [ ^ false ].
-	(self password = anObject password) ifFalse:  [ ^ false ].
-
-	"Other properties can be different"
-	^ true
-]
-
-{ #category : 'callbacks' }
-LDAPSession >> onConnect: aCommand [
-	| success |
-	success := application checkAndReport: aCommand.
-	connected := success.
-	success ifFalse: [ ^ self ].
-
-	self sendNamingContextsSearch.
-]
-
-{ #category : 'callbacks' }
-LDAPSession >> onNamingContexts: aCommand [
-	| success searchResult |
-	success := application checkAndReport: aCommand.
-	
-	roots := success
-		ifFalse: [ #() ]
-		ifTrue: [  
-			searchResult := aCommand responses first.
-			searchResult asDictionary at: 'namingContexts' ifAbsent: [ #() ] 
-		].
-
-	application openBrowser
-]
-
-{ #category : 'accessing' }
-LDAPSession >> password [
-
-	^ password
-]
-
-{ #category : 'accessing' }
-LDAPSession >> password: anObject [
-
-	password := anObject
-]
-
-{ #category : 'accessing' }
-LDAPSession >> port [
-
-	^ server port
-]
-
-{ #category : 'accessing' }
-LDAPSession >> port: anObject [
-
-	server port: anObject
-]
-
-{ #category : 'running' }
+{ #category : 'initialization' }
 LDAPSession >> reset [
 "Initialize"
 	connected := false.
-	queue := LDAPRequestQueue new.
 	roots := #().
 
 ]
@@ -207,15 +59,11 @@ LDAPSession >> roots [
 	^ roots
 ]
 
-{ #category : 'requests' }
-LDAPSession >> sendNamingContextsSearch [
+{ #category : 'accessing' }
+LDAPSession >> roots: anObject [
 
-	| search |
-	search := LDAPSearchRequest new
-		          base: '';
-		          scope: LDAPBaseObjectScope new;
-		          attributes: { 'namingContexts' }.
-	queue nextPut: search onResponseDo: [ :command | self onNamingContexts: command ]
+	roots := anObject.
+	self valueChanged 
 ]
 
 { #category : 'accessing' }
@@ -225,13 +73,7 @@ LDAPSession >> server [
 ]
 
 { #category : 'accessing' }
-LDAPSession >> username [
+LDAPSession >> server: anObject [
 
-	^ username
-]
-
-{ #category : 'accessing' }
-LDAPSession >> username: anObject [
-
-	username := anObject
+	server := anObject
 ]

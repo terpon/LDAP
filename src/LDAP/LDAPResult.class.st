@@ -9,6 +9,12 @@ Class {
 	#tag : 'Results'
 }
 
+{ #category : 'instance creation' }
+LDAPResult class >> newCode: aNumber name: aString message: aMessage [
+
+	^ self new fromCode: aNumber name: aString message: aMessage 
+]
+
 { #category : 'accessing' }
 LDAPResult class >> tagValue [
 	self subclassResponsibility
@@ -22,6 +28,15 @@ LDAPResult >> diagnosticElement [
 { #category : 'accessing' }
 LDAPResult >> diagnosticMessage [
 	^ self diagnosticElement value
+]
+
+{ #category : 'instance creation' }
+LDAPResult >> fromCode: aNumber name: aString message: aMessage [
+
+	self removeAll;
+		addElement: (LDAPResultCode new value: aNumber);
+		addElement: (BEROctetString new value: aString);
+		addElement: (BEROctetString new value: aMessage).
 ]
 
 { #category : 'testing' }

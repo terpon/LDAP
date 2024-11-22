@@ -6,29 +6,44 @@ Class {
 	#superclass : 'SpApplication',
 	#instVars : [
 		'session',
-		'errorHandler'
+		'queue',
+		'errorHandler',
+		'main'
 	],
 	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
 	#tag : 'Presenters'
 }
 
-{ #category : 'error handling' }
-LDAPBrowser >> checkAndReport: aCommand [
+{ #category : 'ui - dialogs' }
+LDAPBrowser class >> openConnectionDialog [
+<example>
 
-	| success result |
-	success := aCommand success.
-	result := aCommand responses last.
-	success ifFalse: [ errorHandler report: result ].
-	^ success
+	| aLDAPBrowser |
+	aLDAPBrowser := self new.
+	^ aLDAPBrowser mainPresenter openConnectionDialog
 ]
 
-{ #category : 'connecting' }
-LDAPBrowser >> connectionAccept: aSessionOrPresenter [
-	| success |
-	success := session copyFrom: aSessionOrPresenter.
-	(success and: [ session connected ]) ifTrue: [ ^ self ].
-	session connect.
+{ #category : 'accessing' }
+LDAPBrowser class >> start [
+<example>
+	^ self new start
+]
+
+{ #category : 'circuit setup' }
+LDAPBrowser >> connect [
+
+	session connected: false.
+	queue connectWith: session server.
+
+]
+
+{ #category : 'running' }
+LDAPBrowser >> disconnect [
+
+	session connected: false.
+	queue disconnect.
+
 ]
 
 { #category : 'accessing' }
@@ -41,6 +56,7 @@ LDAPBrowser >> errorHandler [
 LDAPBrowser >> errorHandler: anObject [
 
 	errorHandler := anObject
+	
 ]
 
 { #category : 'initialization' }
@@ -48,28 +64,46 @@ LDAPBrowser >> initialize [
 
 	super initialize.
 	
-	session := LDAPSession new application: self.
-	errorHandler := LDAPDialogErrorHandler new application: self; yourself.
+	errorHandler := LDAPDialogErrorHandler new application: self.
+
+	queue := LDAPRequestQueue new.
+	queue onErrorDo: [ :task | self errorHandler report: task result ].
+	self subscribeToAnnouncements.
+	
+	session := LDAPSession new.
+	self initializeMainPresenter 
 ]
 
-{ #category : 'ui - dialogs' }
-LDAPBrowser >> openBrowser [
+{ #category : 'initialization' }
+LDAPBrowser >> initializeMainPresenter [
 
-	| presenter |
-	presenter := LDAPBrowserPresenter newApplication: self model: session.
-	^ presenter open
+	main := LDAPInspectorPresenter
+		          newApplication: self
+		          model: session.
+
 
 ]
 
-{ #category : 'ui - dialogs' }
-LDAPBrowser >> openConnectionDialog [
-	
-	| presenter |
-	presenter := LDAPConnectionPresenter newApplication: self.
-	presenter onAccept: [ :sender | self connectionAccept: sender ].
-	^ presenter openDialog
-	
-	
+{ #category : 'accessing' }
+LDAPBrowser >> mainPresenter [
+
+	^ main
+]
+
+{ #category : 'enumerating' }
+LDAPBrowser >> openCustomRootDialog [
+
+	| dialog |
+	dialog := self newRequest
+		title: 'Custom Naming Context';
+		label: 'Enter new root DN:'.
+	dialog openDialog.
+	^ dialog
+]
+
+{ #category : 'accessing' }
+LDAPBrowser >> queue [
+	^ queue
 ]
 
 { #category : 'connecting' }
@@ -89,4 +123,20 @@ LDAPBrowser >> session [
 LDAPBrowser >> session: anObject [
 
 	session := anObject
+]
+
+{ #category : 'running' }
+LDAPBrowser >> start [
+<script: 'self start'>
+
+	^ main open
+]
+
+{ #category : 'initialization' }
+LDAPBrowser >> subscribeToAnnouncements [
+
+	queue when: LDAPSessionConnected do: [ self session connected: true ].
+	queue when: LDAPSessionDisconnected do: [ self session connected: false ].
+	queue when: LDAPNamingContextsChange do: [ :ann | self session roots: ann roots ].
+
 ]

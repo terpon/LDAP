@@ -3,9 +3,10 @@ I am a presenter to display BER elements as trees in the inspector.
 "
 Class {
 	#name : 'LDAPEntryPresenter',
-	#superclass : 'SpPresenter',
+	#superclass : 'SpPresenterWithModel',
+	#traits : 'SpTActivable',
+	#classTraits : 'SpTActivable classTrait',
 	#instVars : [
-		'entry',
 		'table'
 	],
 	#category : 'LDAP-Spec2-Presenters',
@@ -15,9 +16,11 @@ Class {
 
 { #category : 'examples' }
 LDAPEntryPresenter class >> example [
-"Sample tree"
 	| result |
-	result := self sampleElement.
+	result := LDAPEntry new name: 'dc=example,dc=com'.
+	result populateFromResults: self sampleList.
+	result populateFromPartialAttributeList: self sampleElement.
+	"result inspect."
 	^ self show: result
 
 ]
@@ -26,6 +29,24 @@ LDAPEntryPresenter class >> example [
 LDAPEntryPresenter class >> exampleInspect [
 "Sample tree"
 	self sampleElement inspect.
+
+]
+
+{ #category : 'examples' }
+LDAPEntryPresenter class >> exampleList [
+"Sample from array"
+	| result |
+	result := LDAPEntry new name: 'dc=example,dc=com'; populateFromResults: self sampleList; yourself.
+	^ self show: result
+
+]
+
+{ #category : 'examples' }
+LDAPEntryPresenter class >> examplePartialAttributes [
+"Sample tree"
+	| result |
+	result := LDAPEntry new name: 'cn=foo,dc=example,dc=com'; populateFromPartialAttributeList: self sampleElement; yourself.
+	^ self show: result
 
 ]
 
@@ -45,21 +66,50 @@ LDAPEntryPresenter class >> sampleElement [
 
 ]
 
+{ #category : 'examples' }
+LDAPEntryPresenter class >> sampleList [
+^ {
+	  LDAPSearchResultEntry new addAll: { (BEROctetString new value: 'cn=qux1,cn=bar55,dc=example,dc=com'). (LDAPPartialAttributeList new addAll: { (LDAPPartialAttribute new addAll: { (BEROctetString new value: 'objectClass'). (BERSet new addElement: (BEROctetString new value: 'person')) }; yourself). (LDAPPartialAttribute new addAll: { (BEROctetString new value: 'cn'). (BERSet new addElement: (BEROctetString new value: 'qux1')) }; yourself). }; yourself) }; yourself.
+	LDAPSearchResultEntry new addAll: { (BEROctetString new value: 'cn=qux2,cn=bar55,dc=example,dc=com'). (LDAPPartialAttributeList new addAll: { (LDAPPartialAttribute new addAll: { (BEROctetString new value: 'objectClass'). (BERSet new addElement: (BEROctetString new value: 'person')) }; yourself). (LDAPPartialAttribute new addAll: { (BEROctetString new value: 'cn'). (BERSet new addElement: (BEROctetString new value: 'qux2')) }; yourself). }; yourself) }; yourself.
+	LDAPSearchResultEntry new addAll: { (BEROctetString new value: 'cn=qux3,cn=bar56,dc=example,dc=com'). (LDAPPartialAttributeList new addAll: { (LDAPPartialAttribute new addAll: { (BEROctetString new value: 'objectClass'). (BERSet new addElement: (BEROctetString new value: 'person')) }; yourself). (LDAPPartialAttribute new addAll: { (BEROctetString new value: 'cn'). (BERSet new addElement: (BEROctetString new value: 'qux3')) }; yourself). }; yourself) }; yourself
+	}
+]
+
 { #category : 'opening' }
 LDAPEntryPresenter class >> show: anEntry [
 	^ (self on: anEntry) open
 
 ]
 
-{ #category : 'forwarding' }
+{ #category : 'activation' }
+LDAPEntryPresenter >> activate: anItem [
+	"Perform here the activation."
+	
+	self activationAction ifNil: [ ^ self ].
+	anItem hasChildren ifFalse: [ ^ self ].
+	
+	self activationAction cull: (SpActivatedSelection newValue: anItem)
+
+]
+
+{ #category : 'api' }
+LDAPEntryPresenter >> activateOnDoubleClick [
+
+	table activateOnDoubleClick
+]
+
+{ #category : 'api' }
 LDAPEntryPresenter >> activateOnSingleClick [
-	table activateOnSingleClick.
+
+	table activateOnSingleClick
 ]
 
 { #category : 'initialization' }
 LDAPEntryPresenter >> connectPresenters [ 
 
 	super connectPresenters.
+	
+	table whenActivatedDo: [ :selection | self activate: selection selectedItem ].
 
 ]
 
@@ -68,32 +118,22 @@ LDAPEntryPresenter >> defaultLayout [
 	^ SpBoxLayout newVertical add: #table; yourself
 ]
 
-{ #category : 'accessing' }
-LDAPEntryPresenter >> entry [
-	
-	^ entry
-]
-
-{ #category : 'accessing' }
-LDAPEntryPresenter >> entry: anObject [
-	entry := anObject.
-	self updatePresenter.
-	
-]
-
-{ #category : 'accessing' }
-LDAPEntryPresenter >> flattenedAttributes [
-
-	^ entry ifNil: [ #() ] ifNotNil: [ entry flattened ]
-]
-
 { #category : 'initialization' }
 LDAPEntryPresenter >> initializePresenters [ 
 
 	table := self newTable
 		isResizable: true;
-		addColumn: (SpStringTableColumn title: 'Attribute' evaluated: [ :each | each first ]);
-		addColumn: (SpStringTableColumn title: 'Value' evaluated: [ :each | each second ]);
+		alternateRowsColor;
+		addColumn: (SpCompositeTableColumn new
+			title: 'Attribute';
+			addColumn: (SpImageTableColumn new
+				width: 30;
+				evaluated: [ :i | i icon: self application ];
+				yourself);
+			addColumn: (SpStringTableColumn new
+				evaluated: [ :i | i description ];
+				yourself));
+		addColumn: (SpStringTableColumn title: 'Value' evaluated: [ :each | each value ]);
 		yourself.
 	
 
@@ -104,8 +144,17 @@ LDAPEntryPresenter >> initializeWindow: aSpWindowPresenter [
 
 	super initializeWindow: aSpWindowPresenter.
 
-	aSpWindowPresenter
-		title: self titleForWindow
+	aSpWindowPresenter title: self titleForWindow.
+
+]
+
+{ #category : 'updating' }
+LDAPEntryPresenter >> modelChanged [ 
+	
+	| items |
+	items := self model ifNil: [ #() ] ifNotNil: [ :model | model attributes ].
+	table items: items.
+	self withWindowDo: [ :w | w title: self titleForWindow ]
 ]
 
 { #category : 'ports' }
@@ -120,33 +169,8 @@ LDAPEntryPresenter >> selectedItem [
 	^ table selectedItem
 ]
 
-{ #category : 'accessing - model' }
-LDAPEntryPresenter >> setModel: aModel [
-
-	self entry: aModel
-	
-]
-
-{ #category : 'accessing - model' }
-LDAPEntryPresenter >> setModelBeforeInitialization: aModel [
-
-	entry := aModel
-]
-
 { #category : 'initialization' }
 LDAPEntryPresenter >> titleForWindow [ 
 
-	^ entry ifNil: [ self className ] ifNotNil: [ entry name ]
-]
-
-{ #category : 'initialization' }
-LDAPEntryPresenter >> updatePresenter [ 
-
-	table items: self flattenedAttributes.
-	self withWindowDo: [ :w | w title: self titleForWindow ]
-]
-
-{ #category : 'enumerating' }
-LDAPEntryPresenter >> whenActivatedDo: aBlock [
-	table whenActivatedDo: aBlock.
+	^ self model ifNil: [ self className ] ifNotNil: [ :model | model name ]
 ]

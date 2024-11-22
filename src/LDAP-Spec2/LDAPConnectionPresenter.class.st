@@ -5,7 +5,7 @@ The data I gather will be used in `LDAPConnection` and `LDAPBindRequest` instanc
 "
 Class {
 	#name : 'LDAPConnectionPresenter',
-	#superclass : 'SpPresenter',
+	#superclass : 'SpPresenterWithModel',
 	#instVars : [
 		'port',
 		'ssl',
@@ -14,28 +14,21 @@ Class {
 		'hostname',
 		'acceptBlock'
 	],
-	#category : 'LDAP-Spec2-Connection',
+	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
-	#tag : 'Connection'
+	#tag : 'Presenters'
 }
-
-{ #category : 'accessing' }
-LDAPConnectionPresenter class >> currentApplication [
-
-	^ LDAPBrowser new
-]
 
 { #category : 'examples' }
 LDAPConnectionPresenter class >> example [
 	| model presenter |
-	presenter := self new.
-	model := LDAPSession new
+	model := LDAPServerInfo new
 		hostname: 'localhost';
 		port: 777;
 		username: 'cn=user,cn=example,cn=com';
 		password: '12345678';
 		yourself.
-	presenter fromSession: model.
+	presenter := self on: model.
 	^ presenter openDialog
 ]
 
@@ -45,15 +38,18 @@ LDAPConnectionPresenter class >> exampleEmpty [
 	^ self new openDialog
 ]
 
-{ #category : 'instance creation' }
-LDAPConnectionPresenter class >> new [
-
-	^ self newApplication: self currentApplication
-]
-
 { #category : 'callbacks' }
 LDAPConnectionPresenter >> accept [
 
+	| server |
+	server := self model.
+	server ifNotNil: [
+		server hostname: self hostname.
+		server ssl: self isSSL.
+		server port: self port.
+		server username: self username.
+		server password: self password.
+	].
 	acceptBlock ifNotNil: [ :block | block cull: self ]
 ]
 
@@ -61,7 +57,6 @@ LDAPConnectionPresenter >> accept [
 LDAPConnectionPresenter >> connectPresenters [ 
 
 	ssl whenChangedDo: [ :state | self updateDefaultPort ].
-	
 ]
 
 { #category : 'layout' }
@@ -77,23 +72,6 @@ LDAPConnectionPresenter >> defaultLayout [
 				add: 'Username:'; add: username; nextRow;
 				add: 'Password:'; add: password
  	]
-]
-
-{ #category : 'default values' }
-LDAPConnectionPresenter >> defaultPort [
-
-	^ self isSSL ifTrue: [ 636 ] ifFalse: [ 389 ]
-]
-
-{ #category : 'initialization' }
-LDAPConnectionPresenter >> fromSession: aSession [
-
-	hostname text: (aSession hostname ifNil: [ '' ]).
-	port number: aSession port.
-	ssl state: aSession isSSL.
-	username text: (aSession username ifNil: [ '' ]).
-	password text: (aSession password ifNil: [ '' ]).
-
 ]
 
 { #category : 'accessing' }
@@ -136,6 +114,19 @@ LDAPConnectionPresenter >> isSSL [
 	^ ssl state
 ]
 
+{ #category : 'initialization' }
+LDAPConnectionPresenter >> modelChanged [ 
+	| server |
+	server := self model.
+	server ifNil: [ ^ self ].
+	
+	hostname text: server hostname.
+	port number: server port.
+	ssl state: server isSSL.
+	username text: server username.
+	password text: server password.
+]
+
 { #category : 'events' }
 LDAPConnectionPresenter >> onAccept: aBlock [
 
@@ -151,39 +142,21 @@ LDAPConnectionPresenter >> password [
 { #category : 'accessing' }
 LDAPConnectionPresenter >> port [ 
 	
-	^ port text ifEmpty: [ self defaultPort ] ifNotEmpty: [ port number ]
-]
-
-{ #category : 'accessing - model' }
-LDAPConnectionPresenter >> setModel: aModel [
-
-	application session: aModel.
-	self updatePresenter 
-	
-]
-
-{ #category : 'accessing - model' }
-LDAPConnectionPresenter >> setModelBeforeInitialization: aModel [
-
-	application session: aModel
+	^ port text ifEmpty: [ self model defaultPort ] ifNotEmpty: [ port number ]
 ]
 
 { #category : 'default values' }
 LDAPConnectionPresenter >> updateDefaultPort [
+	| default |
+	default := self model defaultPort.
 	
 	"Clear value if default"
-	(port number = self defaultPort) ifTrue: [ port text: '' ].
+	(port number = default) ifTrue: [ port text: '' ].
 	
 	"Default port is only used if there is no user input"
 	port text ifNotEmpty: [ ^ self ].
 	
-	port placeholder: (self defaultPort) asString.
-]
-
-{ #category : 'initialization' }
-LDAPConnectionPresenter >> updatePresenter [ 
-
-	self fromSession: application session.
+	port placeholder: default asString.
 ]
 
 { #category : 'accessing' }
