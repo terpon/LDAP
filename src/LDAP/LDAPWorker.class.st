@@ -5,6 +5,8 @@ Class {
 	#name : 'LDAPWorker',
 	#superclass : 'Object',
 	#instVars : [
+		'host',
+		'port',
 		'sockStream',
 		'nextMessageId',
 		'lock',
@@ -43,29 +45,10 @@ LDAPWorker >> addTarget: aCommand [
 
 { #category : 'running' }
 LDAPWorker >> connectTo: aHostname port: aPort [
-	[ 
-		sockStream := self class socketClass openConnectionToHostNamed: aHostname port: aPort.
-	]
-	on: Exception do: [:ex | sockStream := nil.  ex pass ].
-
-	sockStream ifNil: [ ^ self ].
-	sockStream 
-		binary;
-		shouldSignal: true;
-		timeout: 0;
-		autoFlush: false.
-		
-	self postConnect.
+	host := aHostname.
+	port := aPort.
 	^ self start
 
-]
-
-{ #category : 'running' }
-LDAPWorker >> disconnect [
-	self stop.
-	sockStream close.
-	sockStream := nil.
-	
 ]
 
 { #category : 'private - dispatching' }
@@ -104,6 +87,27 @@ LDAPWorker >> initialize [
 	running := false.
 ]
 
+{ #category : 'running' }
+LDAPWorker >> initializeServerSocket [
+
+	lock critical: [
+	
+	sockStream := [ self class socketClass openConnectionToHostNamed: host port: port ]
+		ifCurtailed: [ sockStream := nil. ].
+
+	sockStream ifNil: [ ^ self ].
+	sockStream 
+		binary;
+		shouldSignal: true;
+		timeout: 60;
+		autoFlush: false.
+		
+	self postConnect.
+	]
+
+
+]
+
 { #category : 'dispatching' }
 LDAPWorker >> isCommandPending: aCommand [
 	| messageId |
@@ -126,6 +130,25 @@ LDAPWorker >> isRunning [
 	^ self isConnected and: running
 ]
 
+{ #category : 'request handling' }
+LDAPWorker >> listenLoop [
+	"We create a listening Socket, then wait for a connection.
+	After each connection we also check that the listening Socket is still valid
+	- if not we just make a recursive call to this method to start over."
+	self initializeServerSocket.
+	[ 
+		[running] whileTrue: [
+			sockStream isConnected ifFalse: [
+				"will trigger #ifCurtailed: block and destroy socket"
+				^ self listenLoop ].
+			
+			self readMessage.
+		] 
+	] ifCurtailed: [ self releaseServerSocket ].
+		
+	self releaseServerSocket.
+]
+
 { #category : 'private - dispatching' }
 LDAPWorker >> nextMessageId [
 	"here we should check wether we're past the message id limit, and if so reconnect and bind"
@@ -140,14 +163,33 @@ LDAPWorker >> postConnect [
 
 { #category : 'private - running' }
 LDAPWorker >> readMessage [
-	|  message  |
-	message := [ LDAPDecoder from: sockStream ] 
-		on: ConnectionClosed do:[ :ex| 
-				Transcript cr; show: ex description.
-				running := false.
-				"ex pass."
-		].
-	^ message
+	[ 
+		|  message  |
+		message := [ LDAPDecoder from: sockStream ] 
+			on: ConnectionClosed,ConnectionTimedOut do:[ :ex| 
+				Transcript cr; show: ex description; cr.
+				"reconnect"
+				^ self.
+			]. 
+		"Transcript show: '********* READ ONE OF:  ', message asString; cr."
+		self dispatchMessage: message.
+	] on: Exception do: [ :ex |
+		"Cannot recover"
+		Transcript cr; show: ex description; cr.
+		running := false.
+		ex pass.
+	].
+
+
+]
+
+{ #category : 'private - running' }
+LDAPWorker >> releaseServerSocket [
+
+	lock critical: [
+		sockStream close.
+		sockStream := nil.
+	]	
 ]
 
 { #category : 'private - dispatching' }
@@ -173,16 +215,11 @@ LDAPWorker >> send: aCommand [
 { #category : 'private - running' }
 LDAPWorker >> start [
 	| process |
-	self isConnected ifFalse: [ ^ nil ].
+	process := [self listenLoop] newProcess.
+	process priority: Processor highIOPriority.
+
 	running := true.
-	process := [
-		[running] whileTrue: [
-			|  message  |
-			message := self readMessage.
-			"Transcript show: '********* READ ONE OF:  ', message asString; cr."
-			running ifTrue: [self dispatchMessage: message].
-		]
-	] fork.
+	process resume.
 	^ process
 ]
 

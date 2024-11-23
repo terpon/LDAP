@@ -85,8 +85,8 @@ LDAPConnection >> disconnect [
 	workerThread ifNil: [ ^ self ].
 	worker isRunning ifTrue: [ self unbind ].
 
-	worker disconnect.
-	workerThread terminate.
+	worker stop.
+	"workerThread terminate. should be taken care by the stop"
 	
 	worker := nil.
 	workerThread := nil.
