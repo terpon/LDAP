@@ -79,9 +79,8 @@ LDAPInspectorPresenter >> initializePresenters [
 		yourself.
 	
 	connection := self newButton
-							label: 'Server';
 				  			icon: (self iconNamed: #smallHome);
-				     		help: 'Open te connection dialog';
+				     		help: 'Open the connection dialog';
 				       	action: [ self openConnectionDialog ];
 				        	yourself.
 					
@@ -151,6 +150,8 @@ LDAPInspectorPresenter >> openConnectionDialog [
 LDAPInspectorPresenter >> openCustomRootDialog [
 
 	| dialog |
+	self model connected ifFalse: [ ^ self ].
+	
 	dialog := application newRequest
 		title: 'Custom Naming Context';
 		label: 'Enter new root DN:';
@@ -226,8 +227,9 @@ LDAPInspectorPresenter >> selectRoots [
 
 	| roots |
 	roots := self model roots asOrderedCollection.
+	customRoot ifEmpty: [ ^ roots ].
+	
 	(roots indexOf: customRoot) isZero ifTrue: [ roots addLast: customRoot ]. 
-
 	^ roots
 ]
 

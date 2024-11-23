@@ -70,10 +70,6 @@ LDAPRequestQueue >> initialize [
 	requests := SharedQueue new.
 	running := false.
 
-	self announcer
-		when: LDAPResponseReceived 
-		do: [ :command | self processTaskResponse: command ]
-		for: self
 ]
 
 { #category : 'private - dispatching' }
@@ -108,7 +104,7 @@ LDAPRequestQueue >> processTaskResponse: aTask [
 			ifFalse: [ 
 				self announcer announce: (LDAPError new result: result).
 				aTask activateOnFailure ifTrue: [ aTask activate ]
-			]
+			].
 	] fork
 ]
 
