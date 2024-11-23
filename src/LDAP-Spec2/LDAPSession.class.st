@@ -7,7 +7,8 @@ Class {
 	#instVars : [
 		'server',
 		'connected',
-		'roots'
+		'roots',
+		'currentRoot'
 	],
 	#category : 'LDAP-Spec2-Models',
 	#package : 'LDAP-Spec2',
@@ -32,6 +33,18 @@ LDAPSession >> connectionClass [
 	^  self isSSL ifTrue: [ LDAPSConnection ]  ifFalse: [ LDAPConnection ]
 ]
 
+{ #category : 'accessing' }
+LDAPSession >> currentRoot [
+
+	^ currentRoot
+]
+
+{ #category : 'accessing' }
+LDAPSession >> currentRoot: anObject [
+
+	currentRoot := anObject
+]
+
 { #category : 'accessing - defaults' }
 LDAPSession >> defaultPort [
 
@@ -51,6 +64,7 @@ LDAPSession >> reset [
 "Initialize"
 	connected := false.
 	roots := #().
+	currentRoot := ''.
 
 ]
 

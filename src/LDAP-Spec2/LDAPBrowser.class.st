@@ -8,7 +8,8 @@ Class {
 		'session',
 		'queue',
 		'errorHandler',
-		'main'
+		'main',
+		'cache'
 	],
 	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
@@ -30,6 +31,13 @@ LDAPBrowser class >> start [
 	^ self new start
 ]
 
+{ #category : 'clearing' }
+LDAPBrowser >> clearCache [
+"Empty cache when a new root is selected"
+
+	cache removeAll.
+]
+
 { #category : 'circuit setup' }
 LDAPBrowser >> connect [
 
@@ -38,11 +46,37 @@ LDAPBrowser >> connect [
 
 ]
 
+{ #category : 'accessing' }
+LDAPBrowser >> currentRoot [
+	
+	^ session currentRoot
+]
+
+{ #category : 'accessing' }
+LDAPBrowser >> currentRoot: aDN [
+
+	(session currentRoot = aDN) ifTrue: [ ^ self ].
+	
+	self clearCache.
+	session currentRoot: aDN.
+]
+
 { #category : 'running' }
 LDAPBrowser >> disconnect [
 
 	session connected: false.
 	queue disconnect.
+
+]
+
+{ #category : 'accessing' }
+LDAPBrowser >> entryFor: aDN [
+"Gets entry from the cache or search it"
+	| entry |
+	entry := cache at: aDN ifAbsentPut: [ LDAPEntryModel new name: aDN ].
+	entry needSelfRefresh ifTrue: [ self searchSelf: aDN for: entry. ].
+	entry needSubRefresh ifTrue: [ self searchSub: aDN for: entry. ].
+	^ entry
 
 ]
 
@@ -70,6 +104,8 @@ LDAPBrowser >> initialize [
 	queue onErrorDo: [ :task | self errorHandler report: task result ].
 	self subscribeToAnnouncements.
 	
+	cache := Dictionary new.
+
 	session := LDAPSession new.
 	self initializeMainPresenter 
 ]
@@ -121,6 +157,29 @@ LDAPBrowser >> onNamingContexts: aCommand [
 	session roots: roots.
 ]
 
+{ #category : 'searching' }
+LDAPBrowser >> onSearchResult: aCommand for: anEntry [
+	| responses |
+	aCommand success ifFalse: [ ^ self ].
+	responses := aCommand responses allButLast.
+	
+	anEntry populateFromResults: responses.
+]
+
+{ #category : 'searching' }
+LDAPBrowser >> onSearchSelf: aCommand for: anEntry [
+	| response |
+	aCommand success ifFalse: [ ^ self ].
+	(aCommand responses size = 1) ifTrue: [ 
+		"No result DN does not exist"
+		"'report error'"
+		^ self.
+	].
+	response := aCommand responses first.
+	
+	anEntry populateFromPartialAttributeList: response attributes.
+]
+
 { #category : 'enumerating' }
 LDAPBrowser >> openCustomRootDialog [
 
@@ -141,6 +200,34 @@ LDAPBrowser >> queue [
 LDAPBrowser >> reset [ 
 
 	errorHandler reset.
+
+]
+
+{ #category : 'searching' }
+LDAPBrowser >> searchSelf: aDN for: anEntry [
+"Search will return the base node for aDN"
+	| request |
+	session connected ifFalse: [ ^ self ].
+	
+	request := LDAPSearchRequest new
+		          base: aDN;
+		          scope: LDAPBaseObjectScope new.
+
+	queue sendRequest: request onResultDo: [ :command | self onSearchSelf: command for: anEntry ].
+
+]
+
+{ #category : 'searching' }
+LDAPBrowser >> searchSub: aDN for: anEntry [
+"Search will return the child nodes of aDN"
+	| request |
+	session connected ifFalse: [ ^ self ].
+	
+	request := LDAPSearchRequest new
+		          base: aDN;
+		          scope: LDAPSingleLevelScope new.
+
+	queue sendRequest: request onResultDo: [ :command | self onSearchResult: command for: anEntry ].
 
 ]
 

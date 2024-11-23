@@ -8,24 +8,17 @@ Class {
 	#superclass : 'SpPresenterWithModel',
 	#instVars : [
 		'customRoot',
-		'currentRoot',
 		'cache',
 		'dropRoot',
 		'miller',
 		'statusBar',
-		'connection'
+		'connection',
+		'rootDialog'
 	],
 	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
 	#tag : 'Presenters'
 }
-
-{ #category : 'clearing' }
-LDAPInspectorPresenter >> clearCache [
-"Empty cache when a new root is selected"
-
-	cache removeAll.
-]
 
 { #category : 'callbacks' }
 LDAPInspectorPresenter >> connectionAccept: aPresenter [
@@ -39,10 +32,26 @@ LDAPInspectorPresenter >> connectionAccept: aPresenter [
 	window isClosed ifTrue: [ ^ window open ].
 ]
 
+{ #category : 'updating' }
+LDAPInspectorPresenter >> currentRoot: aDN [
+
+	| root |
+	application currentRoot: aDN.
+	root := application entryFor: aDN.
+	miller millerListPresenter setRootModel: root.
+]
+
+{ #category : 'accessing' }
+LDAPInspectorPresenter >> customRoot [
+
+	^ customRoot ifNil: [ '' ] 
+]
+
 { #category : 'accessing' }
 LDAPInspectorPresenter >> customRoot: aString [
 
 	customRoot := aString.
+	self currentRoot: aString.
 	self updateRoots 
 ]
 
@@ -58,22 +67,15 @@ LDAPInspectorPresenter >> defaultLayout [
 		yourself
 ]
 
-{ #category : 'accessing' }
-LDAPInspectorPresenter >> entryFor: aDN [
-"Gets entry from the cache or search it"
-	| entry |
-	entry := cache at: aDN ifAbsentPut: [ LDAPEntryModel new name: aDN ].
-	entry needSelfRefresh ifTrue: [ self searchSelf: aDN for: entry. ].
-	entry needSubRefresh ifTrue: [ self searchSub: aDN for: entry. ].
-	^ entry
-
-]
-
 { #category : 'initialization' }
 LDAPInspectorPresenter >> initializePresenters [ 
 
-	cache := Dictionary new.
-	customRoot := ''.
+	rootDialog := application newRequest
+		title: 'Custom Naming Context';
+		label: 'Enter new root DN:';
+		onAccept: [ :d | self customRoot: d presenter text ];
+		onCancel: [ :d | self updateRoots ].
+
 	dropRoot := self newDropList
 		whenSelectionChangedDo: [ self rootChanged ];
 		yourself.
@@ -115,26 +117,6 @@ LDAPInspectorPresenter >> modelChanged [
 	self updateRoots 
 ]
 
-{ #category : 'searching' }
-LDAPInspectorPresenter >> onSearchResult: aCommand for: anEntry [
-	| responses |
-	aCommand success ifFalse: [ ^ self ].
-	responses := aCommand responses allButLast.
-	
-	anEntry populateFromResults: responses.
-	anEntry changed.
-]
-
-{ #category : 'searching' }
-LDAPInspectorPresenter >> onSearchSelf: aCommand for: anEntry [
-	| response |
-	aCommand success ifFalse: [ ^ self ].
-	response := aCommand responses first.
-	
-	anEntry populateFromPartialAttributeList: response attributes.
-	anEntry changed.
-]
-
 { #category : 'ui - dialogs' }
 LDAPInspectorPresenter >> openConnectionDialog [
 	
@@ -164,7 +146,7 @@ LDAPInspectorPresenter >> openCustomRootDialog [
 LDAPInspectorPresenter >> presenterFor: anAttribute [
 
 	| entry presenter |
-	entry := self entryFor: anAttribute name.
+	entry := application entryFor: anAttribute name.
 	presenter := LDAPEntryPresenter newApplication: application model: entry.
 	presenter activateOnSingleClick.
 	^ presenter
@@ -180,56 +162,25 @@ LDAPInspectorPresenter >> reset [
 { #category : 'updating' }
 LDAPInspectorPresenter >> rootChanged [
 
-	| item root |
+	| item |
 	"Last item is '...' and means user gets to choose a DN"
 	(dropRoot selectedIndex = dropRoot listSize) ifTrue: [ ^ self openCustomRootDialog ].
 
-	item := dropRoot selectedItem ifNil: [ ^ self ].
-	item ifEmpty: [ ^ self ].
-	(currentRoot = item) ifTrue: [ ^ self ].
+	item := dropRoot selectedItem.
+	item isEmptyOrNil ifTrue: [ ^ self ].
 	
-	currentRoot := item.
-	self clearCache.
-	root := self entryFor: currentRoot.
-	miller millerListPresenter setRootModel: root.
-]
-
-{ #category : 'searching' }
-LDAPInspectorPresenter >> searchSelf: aDN for: anEntry [
-"Search will return the base node for aDN"
-	| request |
-	application session connected ifFalse: [ ^ self ].
-	
-	request := LDAPSearchRequest new
-		          base: aDN;
-		          scope: LDAPBaseObjectScope new.
-
-	application queue sendRequest: request onResultDo: [ :command | self onSearchSelf: command for: anEntry ].
-
-]
-
-{ #category : 'searching' }
-LDAPInspectorPresenter >> searchSub: aDN for: anEntry [
-"Search will return the child nodes of aDN"
-	| request |
-	application session connected ifFalse: [ ^ self ].
-	
-	request := LDAPSearchRequest new
-		          base: aDN;
-		          scope: LDAPSingleLevelScope new.
-
-	application queue sendRequest: request onResultDo: [ :command | self onSearchResult: command for: anEntry ].
-
+	self currentRoot: item.
 ]
 
 { #category : 'updating' }
 LDAPInspectorPresenter >> selectRoots [
 
-	| roots |
-	roots := self model roots asOrderedCollection.
-	customRoot ifEmpty: [ ^ roots ].
+	| roots custom |
+	roots := self model roots copy asOrderedCollection.
+	custom := self customRoot.
+	custom ifEmpty: [ ^ roots ].
 	
-	(roots indexOf: customRoot) isZero ifTrue: [ roots addLast: customRoot ]. 
+	(roots indexOf: custom) isZero ifTrue: [ roots addLast: custom ]. 
 	^ roots
 ]
 
@@ -242,13 +193,13 @@ LDAPInspectorPresenter >> titleForWindow [
 { #category : 'updating' }
 LDAPInspectorPresenter >> updateRoots [
 
-	| previousRoot roots newIndex |
-	"Last item is '...' and means no selection"
-	previousRoot := (dropRoot selectedIndex = dropRoot listSize) ifFalse: [ dropRoot selectedItem ].
-	previousRoot isEmptyOrNil ifTrue: [ previousRoot := nil ].
+	| roots newIndex |
 	
 	roots := self selectRoots.
-	newIndex := (roots includes: previousRoot) ifFalse: [ 1 ] ifTrue: [ roots indexOf: previousRoot ].
+	newIndex := roots indexOf: application currentRoot.
+	
+	"Always select something if there is a root"
+	((newIndex = 0) and: [ roots isNotEmpty ]) ifTrue: [ newIndex := 1 ].
 	
 	roots addLast: '...'.		
 	dropRoot items: roots.
