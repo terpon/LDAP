@@ -1,5 +1,12 @@
+"
+I represent an entry in a LDAP directory.
+
+Search requests for a DN either returns the whole subtree, the attributes for the given DN or the entries just beneath. Unless asking for the whole subtree, there is no way to get both the attributes for the DN and the relative DNs of its sub-entries.
+
+I keep two lists, one of `LDAPBranchEntryAttribute` instances and one of `LDAPLeafEntryAttribute` instances.
+"
 Class {
-	#name : 'LDAPEntry',
+	#name : 'LDAPEntryModel',
 	#superclass : 'Model',
 	#instVars : [
 		'name',
@@ -14,13 +21,13 @@ Class {
 }
 
 { #category : 'accessing' }
-LDAPEntry >> attributes [
+LDAPEntryModel >> attributes [
 
 	^ branches, leaves
 ]
 
 { #category : 'accessing' }
-LDAPEntry >> firstPairFrom: aString [
+LDAPEntryModel >> firstPairFrom: aString [
 
 	| rdn |
 	rdn := aString copyUpToSubstring: ','.
@@ -29,7 +36,7 @@ LDAPEntry >> firstPairFrom: aString [
 ]
 
 { #category : 'initialization' }
-LDAPEntry >> initialize [ 
+LDAPEntryModel >> initialize [ 
 
 	super initialize.
 	
@@ -40,51 +47,51 @@ LDAPEntry >> initialize [
 ]
 
 { #category : 'invalidate' }
-LDAPEntry >> invalidate [
+LDAPEntryModel >> invalidate [
 
 	self invalidateSelf.
 	self invalidateSub.
 ]
 
 { #category : 'invalidate' }
-LDAPEntry >> invalidateSelf [
+LDAPEntryModel >> invalidateSelf [
 
 	needSelfRefresh := true
 ]
 
 { #category : 'invalidate' }
-LDAPEntry >> invalidateSub [
+LDAPEntryModel >> invalidateSub [
 
 	needSubRefresh := true
 ]
 
 { #category : 'accessing' }
-LDAPEntry >> name [
+LDAPEntryModel >> name [
 "Full DN"
 	^ name
 ]
 
 { #category : 'accessing' }
-LDAPEntry >> name: anObject [
+LDAPEntryModel >> name: anObject [
 
 	name := anObject.
 	self valueChanged
 ]
 
 { #category : 'accessing' }
-LDAPEntry >> needSelfRefresh [
+LDAPEntryModel >> needSelfRefresh [
 
 	^ needSelfRefresh 
 ]
 
 { #category : 'accessing' }
-LDAPEntry >> needSubRefresh [
+LDAPEntryModel >> needSubRefresh [
 
 	^ needSubRefresh 
 ]
 
 { #category : 'initialization' }
-LDAPEntry >> populateFromPartialAttributeList: anObject [
+LDAPEntryModel >> populateFromPartialAttributeList: anObject [
 "only leaves"
 
 	needSelfRefresh := false.
@@ -97,7 +104,7 @@ LDAPEntry >> populateFromPartialAttributeList: anObject [
 ]
 
 { #category : 'initialization' }
-LDAPEntry >> populateFromResults: aCollection [
+LDAPEntryModel >> populateFromResults: aCollection [
 "at this level all results are children on the current entry"
 	| elements |
 	needSubRefresh := false.

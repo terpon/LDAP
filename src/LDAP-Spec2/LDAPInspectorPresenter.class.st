@@ -62,7 +62,7 @@ LDAPInspectorPresenter >> defaultLayout [
 LDAPInspectorPresenter >> entryFor: aDN [
 "Gets entry from the cache or search it"
 	| entry |
-	entry := cache at: aDN ifAbsentPut: [ LDAPEntry new name: aDN ].
+	entry := cache at: aDN ifAbsentPut: [ LDAPEntryModel new name: aDN ].
 	entry needSelfRefresh ifTrue: [ self searchSelf: aDN for: entry. ].
 	entry needSubRefresh ifTrue: [ self searchSub: aDN for: entry. ].
 	^ entry
@@ -92,7 +92,7 @@ LDAPInspectorPresenter >> initializePresenters [
 		spacing: 5."
 	miller millerListPresenter 
 		presenterBlock: [ :aModel | self presenterFor: aModel value ];
-		setRootModel: LDAPEntry new.
+		setRootModel: LDAPEntryModel new.
 		 		
 	statusBar := self newStatusBar.
 	

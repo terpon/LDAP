@@ -7,7 +7,7 @@ I respond to `description` and `value` messages for display.
 "
 Class {
 	#name : 'LDAPEntryAttribute',
-	#superclass : 'Model',
+	#superclass : 'Object',
 	#instVars : [
 		'description',
 		'value'
@@ -27,12 +27,6 @@ LDAPEntryAttribute >> description [
 LDAPEntryAttribute >> description: anObject [
 
 	description := anObject
-]
-
-{ #category : 'testing' }
-LDAPEntryAttribute >> hasChildren [ 
-
-	^ self isLeaf not
 ]
 
 { #category : 'accessing' }

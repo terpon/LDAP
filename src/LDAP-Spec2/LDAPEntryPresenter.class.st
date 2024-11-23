@@ -17,7 +17,7 @@ Class {
 { #category : 'examples' }
 LDAPEntryPresenter class >> example [
 	| result |
-	result := LDAPEntry new name: 'dc=example,dc=com'.
+	result := LDAPEntryModel new name: 'dc=example,dc=com'.
 	result populateFromResults: self sampleList.
 	result populateFromPartialAttributeList: self sampleElement.
 	"result inspect."
@@ -36,7 +36,7 @@ LDAPEntryPresenter class >> exampleInspect [
 LDAPEntryPresenter class >> exampleList [
 "Sample from array"
 	| result |
-	result := LDAPEntry new name: 'dc=example,dc=com'; populateFromResults: self sampleList; yourself.
+	result := LDAPEntryModel new name: 'dc=example,dc=com'; populateFromResults: self sampleList; yourself.
 	^ self show: result
 
 ]
@@ -45,7 +45,7 @@ LDAPEntryPresenter class >> exampleList [
 LDAPEntryPresenter class >> examplePartialAttributes [
 "Sample tree"
 	| result |
-	result := LDAPEntry new name: 'cn=foo,dc=example,dc=com'; populateFromPartialAttributeList: self sampleElement; yourself.
+	result := LDAPEntryModel new name: 'cn=foo,dc=example,dc=com'; populateFromPartialAttributeList: self sampleElement; yourself.
 	^ self show: result
 
 ]
@@ -86,7 +86,7 @@ LDAPEntryPresenter >> activate: anItem [
 	"Perform here the activation."
 	
 	self activationAction ifNil: [ ^ self ].
-	anItem hasChildren ifFalse: [ ^ self ].
+	anItem isLeaf ifTrue: [ ^ self ].
 	
 	self activationAction cull: (SpActivatedSelection newValue: anItem)
 

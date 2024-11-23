@@ -1,3 +1,6 @@
+"
+I represent a RDN attribute for a LDAP entry.
+"
 Class {
 	#name : 'LDAPBranchEntryAttribute',
 	#superclass : 'LDAPEntryAttribute',
