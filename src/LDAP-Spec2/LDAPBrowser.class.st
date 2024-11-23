@@ -90,6 +90,37 @@ LDAPBrowser >> mainPresenter [
 	^ main
 ]
 
+{ #category : 'callbacks' }
+LDAPBrowser >> onConnect [
+	| search |
+
+	self session connected: true.
+	search := LDAPSearchRequest new
+		          base: '';
+		          scope: LDAPBaseObjectScope new;
+		          attributes: { 'namingContexts' }.
+		
+	queue sendRequest: search onResultDo: [ :command | self onNamingContexts: command ].
+
+]
+
+{ #category : 'callbacks' }
+LDAPBrowser >> onDisconnect [
+
+	self session connected: false.
+]
+
+{ #category : 'callbacks' }
+LDAPBrowser >> onNamingContexts: aCommand [
+
+	| roots searchResult |
+	aCommand success ifFalse: [ session roots: #(). ^ self ].
+	 
+	searchResult := aCommand responses first asDictionary.
+	roots := searchResult at: 'namingContexts' ifAbsent: [ #() ].
+	session roots: roots.
+]
+
 { #category : 'enumerating' }
 LDAPBrowser >> openCustomRootDialog [
 
@@ -135,8 +166,7 @@ LDAPBrowser >> start [
 { #category : 'initialization' }
 LDAPBrowser >> subscribeToAnnouncements [
 
-	queue when: LDAPSessionConnected do: [ self session connected: true ].
-	queue when: LDAPSessionDisconnected do: [ self session connected: false ].
-	queue when: LDAPNamingContextsChange do: [ :ann | self session roots: ann roots ].
+	queue when: LDAPSessionConnected do: [ self onConnect ].
+	queue when: LDAPSessionDisconnected do: [ self onDisconnect ].
 
 ]

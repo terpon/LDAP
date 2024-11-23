@@ -9,8 +9,7 @@ Class {
 		'connection',
 		'process',
 		'requests',
-		'running',
-		'errorBlock'
+		'running'
 	],
 	#category : 'LDAP-Spec2-Tasks',
 	#package : 'LDAP-Spec2',
@@ -29,7 +28,9 @@ LDAPRequestQueue >> checkAndReport: aCommand [
 	| success result |
 	success := aCommand success.
 	result := aCommand responses last.
-	success ifFalse: [ errorBlock cull: result ].
+	success ifFalse: [ 
+		self announcer announce: (LDAPError new result: result)
+	].
 	^ success
 ]
 
@@ -40,10 +41,10 @@ LDAPRequestQueue >> connectWith: aServerInfo [
 	connection := aServerInfo connection.
 	connection connect.
 	
-	command := LDAPCommandProcessor new 
+	command := LDAPRequestTask new 
 		request: aServerInfo bindRequest; 
-		onSuccessDo: [ self onBind: aServerInfo ];
-		onFailureDo: errorBlock.
+		onResponseDo: [ self announcer announce: LDAPSessionConnected new ];
+		activateOnFailure: false.
 
 	self nextPut: command
 ]
@@ -67,69 +68,60 @@ LDAPRequestQueue >> initialize [
 	super initialize.
 	
 	requests := SharedQueue new.
-	errorBlock := [ :e | e traceCr ].
 	running := false.
 
+	self announcer
+		when: LDAPResponseReceived 
+		do: [ :command | self processTaskResponse: command ]
+		for: self
 ]
 
 { #category : 'private - dispatching' }
-LDAPRequestQueue >> nextPut: aCommand [
+LDAPRequestQueue >> nextPut: aTask [
 
-	requests nextPut: aCommand.
+	requests nextPut: aTask.
 	running ifFalse: [ self start ]
 
-]
-
-{ #category : 'callbacks' }
-LDAPRequestQueue >> onBind: aSession [
-
-	self announcer announce: LDAPSessionConnected new.
-	self sendNamingContextsSearchFor: aSession.
 ]
 
 { #category : 'enumerating' }
 LDAPRequestQueue >> onErrorDo: aBlock [
 
-	errorBlock := aBlock.
+	self announcer
+		when: LDAPError
+		do: aBlock
+		for: aBlock receiver
 ]
 
-{ #category : 'callbacks' }
-LDAPRequestQueue >> onNamingContexts: aSession result: aCommand [
+{ #category : 'executing' }
+LDAPRequestQueue >> processTaskResponse: aTask [
+	"Process command in a fork to avoid blocking the request queue"
 
-	| searchResult |
-	searchResult := aCommand responses first asDictionary.
-	searchResult at: 'namingContexts' ifPresent: [ :roots | 
-		self announcer announce: (LDAPNamingContextsChange new roots: roots)
-	].
-]
-
-{ #category : 'requests' }
-LDAPRequestQueue >> sendNamingContextsSearchFor: aSession [
-
-	| search command |
-	search := LDAPSearchRequest new
-		          base: '';
-		          scope: LDAPBaseObjectScope new;
-		          attributes: { 'namingContexts' }.
+	[ 
+		| command result |
+		command := aTask command.
+		command ifNil: [ ^ self error: 'nil command in task' ].
 		
-	command := LDAPCommandProcessor new 
-		request: search; 
-		onSuccessDo: [ :task | self onNamingContexts: aSession result: task command ];
-		onFailureDo: [ :task | aSession roots: #(). errorBlock cull: task ].
-
-	self nextPut: command
+		result := command responses last.
+		result success 
+			ifTrue: [ aTask activate ]
+			ifFalse: [ 
+				self announcer announce: (LDAPError new result: result).
+				aTask activateOnFailure ifTrue: [ aTask activate ]
+			]
+	] fork
 ]
 
 { #category : 'requests' }
 LDAPRequestQueue >> sendRequest: aRequest onResultDo: aBlock [
 
-	| command |
-	command := LDAPCommandProcessor new 
+	| task |
+	task := LDAPRequestTask new 
 		request: aRequest; 
-		onSuccessDo: [ :task | aBlock cull: task command ];
-		onFailureDo: [ :task | errorBlock cull: task. aBlock cull: task command ].
+		onResponseDo: [ :command | aBlock cull: command ];
+		activateOnFailure: true.
 
-	self nextPut: command
+	self nextPut: task
 ]
 
 { #category : 'private - running' }
@@ -137,11 +129,11 @@ LDAPRequestQueue >> start [
 	running := true.
 	process := [
 		[ running ] whileTrue: [
-			| command processor |
-			processor := requests next.
-			command := connection request: processor request.
-			command wait.
-			processor processCommand: command.
+			| task |
+			task := requests next.
+			task command: (connection request: task request).
+			task command wait.
+			self processTaskResponse: task.
 			requests isEmpty ifTrue: [ running := false ]
 		].
 		running := false.	

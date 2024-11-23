@@ -1,8 +1,8 @@
 Class {
-	#name : 'LDAPNamingContextsChange',
+	#name : 'LDAPResponseReceived',
 	#superclass : 'Announcement',
 	#instVars : [
-		'roots'
+		'command'
 	],
 	#category : 'LDAP-Spec2-Announcements',
 	#package : 'LDAP-Spec2',
@@ -10,13 +10,13 @@ Class {
 }
 
 { #category : 'accessing' }
-LDAPNamingContextsChange >> roots [
+LDAPResponseReceived >> command [
 
-	^ roots
+	^ command
 ]
 
 { #category : 'accessing' }
-LDAPNamingContextsChange >> roots: anObject [
+LDAPResponseReceived >> command: anObject [
 
-	roots := anObject
+	command := anObject
 ]
