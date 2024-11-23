@@ -43,15 +43,17 @@ LDAPWorker >> addTarget: aCommand [
 
 { #category : 'running' }
 LDAPWorker >> connectTo: aHostname port: aPort [
-	[ sockStream := self class socketClass openConnectionToHostNamed: aHostname port: aPort ]
-		on: Exception do: [:ex | sockStream := nil.  ex pass ].
+	[ 
+		sockStream := self class socketClass openConnectionToHostNamed: aHostname port: aPort.
+	]
+	on: Exception do: [:ex | sockStream := nil.  ex pass ].
 
 	sockStream ifNil: [ ^ self ].
-	
 	sockStream 
 		binary;
-		autoFlush: false;
-		timeout: 30.
+		shouldSignal: true;
+		timeout: 0;
+		autoFlush: false.
 		
 	self postConnect.
 	^ self start
@@ -136,6 +138,18 @@ LDAPWorker >> postConnect [
 "Nothing in base class"
 ]
 
+{ #category : 'private - running' }
+LDAPWorker >> readMessage [
+	|  message  |
+	message := [ LDAPDecoder from: sockStream ] 
+		on: ConnectionClosed do:[ :ex| 
+				Transcript cr; show: ex description.
+				running := false.
+				"ex pass."
+		].
+	^ message
+]
+
 { #category : 'private - dispatching' }
 LDAPWorker >> removeTargetId: aMessageId [
 	lock critical: [
@@ -162,17 +176,11 @@ LDAPWorker >> start [
 	self isConnected ifFalse: [ ^ nil ].
 	running := true.
 	process := [
-		| decoder |
-		decoder := LDAPDecoder new.
 		[running] whileTrue: [
-			|  element  |
-			element := [ decoder readFrom: sockStream ] on: Error do:[:ex| 
-				Transcript cr; show: ex description.
-				running := false.
-				"ex pass."
-			].
-			"Transcript show: '********* READ ONE OF:  ', element asString; cr."
-			running ifTrue:[self dispatchMessage: element].
+			|  message  |
+			message := self readMessage.
+			"Transcript show: '********* READ ONE OF:  ', message asString; cr."
+			running ifTrue: [self dispatchMessage: message].
 		]
 	] fork.
 	^ process

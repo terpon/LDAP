@@ -16,6 +16,12 @@ Class {
 	#tag : 'BER'
 }
 
+{ #category : 'instance creation' }
+BERDecoder class >> from: aStream [
+"Start decoding from a stream."
+	^ self new readFrom: aStream
+]
+
 { #category : 'class initialization' }
 BERDecoder class >> initialize [ 
 "BERElement class initialization. Populate the knownTags variable for universal elements creation."

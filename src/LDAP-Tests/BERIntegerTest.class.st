@@ -12,7 +12,7 @@ BERIntegerTest >> testDecodeLengthWith [
 	self integerTestSet do: [:test | 
 		|ber encoded expectedValue |
 		encoded := self debugHex: test second.
-		ber := BERDecoder new readFrom: encoded readStream.
+		ber := BERDecoder from: encoded readStream.
 		self assert: ber class equals: BERInteger.
 		
 		expectedValue := test first.
