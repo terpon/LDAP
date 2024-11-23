@@ -12,37 +12,43 @@ Class {
 		'miller',
 		'statusBar',
 		'connection',
-		'rootDialog'
+		'rootDialog',
+		'modelChanging'
 	],
 	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
 	#tag : 'Presenters'
 }
 
+{ #category : 'ui' }
+LDAPInspectorPresenter >> buildRootDropList: aCollection andSelect: anInteger [
+
+	| models |
+	models := aCollection collect: [ :each | { each. nil } ].
+	models addLast: { 'choose custom root DN…' . application iconNamed: #edit }.
+	dropRoot items: models.
+	dropRoot selectIndex: anInteger.
+	dropRoot enabled: self model connected.
+]
+
 { #category : 'callbacks' }
 LDAPInspectorPresenter >> connectionAccept: aPresenter [
 	| window |
-	application disconnect.
-	application session server: aPresenter model.
-	application connect.
+	application connectTo: aPresenter model copy.
 	
 	window := self window.
 	window ifNil: [ self open ].
-	self withWindowDo: [ :aWindow | 
-		aWindow title: self titleForWindow.
-		aWindow isClosed ifTrue: [ aWindow open ].
-	].
-
+	window isClosed ifTrue: [ window open ].
 ]
 
 { #category : 'updating' }
 LDAPInspectorPresenter >> currentRoot: aDN [
 
-	| root |
+	(aDN = application currentRoot) ifTrue: [ ^ self ].
+
+	"this will trigger a modelChanged"
 	application currentRoot: aDN.
-	root := application entryFor: aDN.
-	miller millerListPresenter setRootModel: root.
-	self withWindowDo: [ :aWindow | aWindow title: self titleForWindow ].
+
 ]
 
 { #category : 'accessing' }
@@ -56,7 +62,6 @@ LDAPInspectorPresenter >> customRoot: aString [
 
 	customRoot := aString.
 	self currentRoot: aString.
-	self updateRoots 
 ]
 
 { #category : 'layout' }
@@ -74,6 +79,8 @@ LDAPInspectorPresenter >> defaultLayout [
 { #category : 'initialization' }
 LDAPInspectorPresenter >> initializePresenters [ 
 
+	modelChanging := false.
+	
 	rootDialog := application newRequest
 		title: 'Custom Naming Context';
 		label: 'Enter new root DN:';
@@ -81,7 +88,10 @@ LDAPInspectorPresenter >> initializePresenters [
 		onCancel: [ :d | self updateRoots ].
 
 	dropRoot := self newDropList
+	   display: [ :model | model first ];
+		displayIcon: [ :model | model second ];
 		whenSelectionChangedDo: [ self rootChanged ];
+		enabled: false;
 		yourself.
 	
 	connection := self newButton
@@ -91,17 +101,11 @@ LDAPInspectorPresenter >> initializePresenters [
 				        	yourself.
 					
 	miller := self instantiate: SpMillerPaginatorPresenter.
-"	miller  
-		withoutHorizontalScrollBar;
-		visiblePages: 1;
-		spacing: 5."
 	miller millerListPresenter 
 		presenterBlock: [ :aModel | self presenterFor: aModel value ];
 		setRootModel: LDAPEntryModel new.
 		 		
 	statusBar := self newStatusBar.
-	
-	self updateRoots.
 
 ]
 
@@ -118,14 +122,21 @@ LDAPInspectorPresenter >> initializeWindow: aSpWindowPresenter [
 { #category : 'initialization' }
 LDAPInspectorPresenter >> modelChanged [ 
 
-	self updateRoots 
+	modelChanging := true.
+	[ 
+		self updateRoots.
+		self updateMiller.
+
+		self withWindowDo: [ :aWindow | aWindow title: self titleForWindow ]
+		
+	] ensure: [ modelChanging := false ]
 ]
 
 { #category : 'ui - dialogs' }
 LDAPInspectorPresenter >> openConnectionDialog [
 	
 	| presenter |
-	presenter := LDAPConnectionPresenter newApplication: application model: application session server.
+	presenter := LDAPConnectionPresenter newApplication: application model: self model server copy.
 	presenter onAccept: [ :sender | self connectionAccept: sender ].
 	^ presenter openDialog
 	
@@ -135,6 +146,8 @@ LDAPInspectorPresenter >> openConnectionDialog [
 { #category : 'ui - dialogs' }
 LDAPInspectorPresenter >> openCustomRootDialog [
 
+	modelChanging ifTrue: [ ^ self ].
+	
 	self model connected ifFalse: [ ^ self ].
 	self customRoot ifNotEmpty: [ :string | rootDialog text: string ].
 	^ rootDialog openDialog
@@ -164,7 +177,7 @@ LDAPInspectorPresenter >> rootChanged [
 	"Last item is '...' and means user gets to choose a DN"
 	(dropRoot selectedIndex = dropRoot listSize) ifTrue: [ ^ self openCustomRootDialog ].
 
-	item := dropRoot selectedItem.
+	item := dropRoot selectedItem ifNotNil: [ :i | i first ].
 	item isEmptyOrNil ifTrue: [ ^ self ].
 	
 	self currentRoot: item.
@@ -198,6 +211,21 @@ LDAPInspectorPresenter >> titleForWindow [
 ]
 
 { #category : 'updating' }
+LDAPInspectorPresenter >> updateMiller [
+
+	| pages model root entry |
+	pages := miller millerListPresenter presenters.
+	pages ifEmpty: [ ^ self ].
+	
+	model := pages first model.
+	root := application currentRoot.
+	(root = model name) ifTrue: [ ^ self ].
+	
+	entry := application entryFor: root.
+	miller millerListPresenter setRootModel: entry
+]
+
+{ #category : 'updating' }
 LDAPInspectorPresenter >> updateRoots [
 
 	| roots newIndex |
@@ -208,7 +236,5 @@ LDAPInspectorPresenter >> updateRoots [
 	"Always select something if there is a root"
 	((newIndex = 0) and: [ roots isNotEmpty ]) ifTrue: [ newIndex := 1 ].
 	
-	roots addLast: '...'.		
-	dropRoot items: roots.
-	dropRoot selectIndex: newIndex.
+	self buildRootDropList: roots andSelect: newIndex
 ]

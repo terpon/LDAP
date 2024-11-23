@@ -39,10 +39,14 @@ LDAPBrowser >> clearCache [
 ]
 
 { #category : 'circuit setup' }
-LDAPBrowser >> connect [
+LDAPBrowser >> connectTo: aServerInfo [
 
-	session connected: false.
-	queue connectWith: session server.
+	self disconnect.
+	
+	"triggers ValueChanged so order is important"
+	session server: aServerInfo.
+	
+	queue connectWith: aServerInfo.
 
 ]
 
@@ -130,7 +134,8 @@ LDAPBrowser >> mainPresenter [
 LDAPBrowser >> onConnect [
 	| search |
 
-	self session connected: true.
+	session connected: true.
+
 	search := LDAPSearchRequest new
 		          base: '';
 		          scope: LDAPBaseObjectScope new;
@@ -143,7 +148,8 @@ LDAPBrowser >> onConnect [
 { #category : 'callbacks' }
 LDAPBrowser >> onDisconnect [
 
-	self session connected: false.
+	session connected: false.
+
 ]
 
 { #category : 'callbacks' }
@@ -229,18 +235,6 @@ LDAPBrowser >> searchSub: aDN for: anEntry [
 
 	queue sendRequest: request onResultDo: [ :command | self onSearchResult: command for: anEntry ].
 
-]
-
-{ #category : 'accessing' }
-LDAPBrowser >> session [
-
-	^ session
-]
-
-{ #category : 'accessing' }
-LDAPBrowser >> session: anObject [
-
-	session := anObject
 ]
 
 { #category : 'running' }

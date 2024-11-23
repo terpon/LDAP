@@ -154,7 +154,7 @@ LDAPEntryPresenter >> initializeWindow: aSpWindowPresenter [
 
 ]
 
-{ #category : 'updating' }
+{ #category : 'initialization' }
 LDAPEntryPresenter >> modelChanged [ 
 	
 	| items |

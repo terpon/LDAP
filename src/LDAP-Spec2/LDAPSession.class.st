@@ -24,7 +24,10 @@ LDAPSession >> connected [
 { #category : 'accessing' }
 LDAPSession >> connected: aBoolean [
 
-	connected := aBoolean
+	connected = aBoolean ifTrue: [ ^ self ].
+	
+	connected := aBoolean.
+	self valueChanged 
 ]
 
 { #category : 'instance creation' }
@@ -42,7 +45,10 @@ LDAPSession >> currentRoot [
 { #category : 'accessing' }
 LDAPSession >> currentRoot: anObject [
 
-	currentRoot := anObject
+	currentRoot = anObject ifTrue: [ ^ self ].
+
+	currentRoot := anObject.
+	self valueChanged 
 ]
 
 { #category : 'accessing - defaults' }
@@ -76,6 +82,8 @@ LDAPSession >> roots [
 { #category : 'accessing' }
 LDAPSession >> roots: anObject [
 
+	roots = anObject ifTrue: [ ^ self ].
+
 	roots := anObject.
 	self valueChanged 
 ]
@@ -89,5 +97,6 @@ LDAPSession >> server [
 { #category : 'accessing' }
 LDAPSession >> server: anObject [
 
-	server := anObject
+	server := anObject copy.
+	self valueChanged
 ]
