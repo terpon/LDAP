@@ -1,3 +1,6 @@
+"
+I am announced after the connection to the server and the bind succeeded.
+"
 Class {
 	#name : 'LDAPSessionConnected',
 	#superclass : 'Announcement',

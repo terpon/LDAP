@@ -27,8 +27,12 @@ LDAPInspectorPresenter >> connectionAccept: aPresenter [
 	application connect.
 	
 	window := self window.
-	window ifNil: [ ^ self open ].
-	window isClosed ifTrue: [ ^ window open ].
+	window ifNil: [ self open ].
+	self withWindowDo: [ :aWindow | 
+		aWindow title: self titleForWindow.
+		aWindow isClosed ifTrue: [ aWindow open ].
+	].
+
 ]
 
 { #category : 'updating' }

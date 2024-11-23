@@ -1,3 +1,6 @@
+"
+I am announced when the connection is halted for whatever reason.
+"
 Class {
 	#name : 'LDAPSessionDisconnected',
 	#superclass : 'Announcement',

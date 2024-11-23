@@ -1,3 +1,6 @@
+"
+I wrap all information for asynchronous request handling.
+"
 Class {
 	#name : 'LDAPRequestTask',
 	#superclass : 'Object',

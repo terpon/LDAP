@@ -1,3 +1,6 @@
+"
+I am announced whenever the received response from the server reports an error.
+"
 Class {
 	#name : 'LDAPError',
 	#superclass : 'Announcement',
