@@ -94,6 +94,11 @@ LDAPServerInfo >> initialize [
 ]
 
 { #category : 'testing' }
+LDAPServerInfo >> isPortDefault [
+	^ port isZero or: [ port = self defaultPort ]
+]
+
+{ #category : 'testing' }
 LDAPServerInfo >> isSSL [
 	^ ssl
 ]
@@ -120,6 +125,12 @@ LDAPServerInfo >> port [
 LDAPServerInfo >> port: aNumber [
 
 	port := aNumber
+]
+
+{ #category : 'accessing' }
+LDAPServerInfo >> scheme [
+
+	^ self isSSL ifTrue: [ 'ldaps' ] ifFalse: [ 'ldap' ]
 ]
 
 { #category : 'accessing' }

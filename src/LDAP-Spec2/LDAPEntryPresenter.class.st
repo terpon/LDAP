@@ -7,7 +7,8 @@ Class {
 	#traits : 'SpTActivable',
 	#classTraits : 'SpTActivable classTrait',
 	#instVars : [
-		'table'
+		'table',
+		'updateTitle'
 	],
 	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
@@ -77,7 +78,10 @@ LDAPEntryPresenter class >> sampleList [
 
 { #category : 'opening' }
 LDAPEntryPresenter class >> show: anEntry [
-	^ (self on: anEntry) open
+	| presenter |
+	presenter := self on: anEntry.
+	presenter updateTitle: true.
+	^ presenter open
 
 ]
 
@@ -121,6 +125,8 @@ LDAPEntryPresenter >> defaultLayout [
 { #category : 'initialization' }
 LDAPEntryPresenter >> initializePresenters [ 
 
+	updateTitle := false.
+	
 	table := self newTable
 		isResizable: true;
 		alternateRowsColor;
@@ -154,7 +160,8 @@ LDAPEntryPresenter >> modelChanged [
 	| items |
 	items := self model ifNil: [ #() ] ifNotNil: [ :model | model attributes ].
 	table items: items.
-	self withWindowDo: [ :w | w title: self titleForWindow ]
+	
+	updateTitle ifTrue: [ self withWindowDo: [ :w | w title: self titleForWindow ] ].
 ]
 
 { #category : 'ports' }
@@ -173,4 +180,10 @@ LDAPEntryPresenter >> selectedItem [
 LDAPEntryPresenter >> titleForWindow [ 
 
 	^ self model ifNil: [ self className ] ifNotNil: [ :model | model name ]
+]
+
+{ #category : 'accessing' }
+LDAPEntryPresenter >> updateTitle: anObject [
+
+	updateTitle := anObject
 ]

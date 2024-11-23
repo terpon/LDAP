@@ -8,7 +8,6 @@ Class {
 	#superclass : 'SpPresenterWithModel',
 	#instVars : [
 		'customRoot',
-		'cache',
 		'dropRoot',
 		'miller',
 		'statusBar',
@@ -39,6 +38,7 @@ LDAPInspectorPresenter >> currentRoot: aDN [
 	application currentRoot: aDN.
 	root := application entryFor: aDN.
 	miller millerListPresenter setRootModel: root.
+	self withWindowDo: [ :aWindow | aWindow title: self titleForWindow ].
 ]
 
 { #category : 'accessing' }
@@ -131,15 +131,9 @@ LDAPInspectorPresenter >> openConnectionDialog [
 { #category : 'ui - dialogs' }
 LDAPInspectorPresenter >> openCustomRootDialog [
 
-	| dialog |
 	self model connected ifFalse: [ ^ self ].
-	
-	dialog := application newRequest
-		title: 'Custom Naming Context';
-		label: 'Enter new root DN:';
-		onAccept: [ :d | self customRoot: d presenter text ];
-		onCancel: [ :d | dropRoot selectFirst ].
-	^ dialog openDialog
+	self customRoot ifNotEmpty: [ :string | rootDialog text: string ].
+	^ rootDialog openDialog
 ]
 
 { #category : 'ui' }
@@ -187,7 +181,16 @@ LDAPInspectorPresenter >> selectRoots [
 { #category : 'ui - dialogs' }
 LDAPInspectorPresenter >> titleForWindow [
 
-	^ self className
+	| session server url |
+	session := self model ifNil: [ ^ self className ].
+	server := session server.
+	server hostname ifEmpty: [ ^ self className ].
+
+	url := ZnUrl new scheme: server scheme; host: server hostname.
+	server isPortDefault ifFalse: [ url port: server port ].
+	session currentRoot isEmptyOrNil ifFalse: [ url addPathSegment: session currentRoot ].
+		
+	^ url printString
 ]
 
 { #category : 'updating' }
