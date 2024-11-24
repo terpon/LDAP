@@ -8,7 +8,8 @@ Class {
 		'host',
 		'port',
 		'worker',
-		'workerThread'
+		'workerThread',
+		'connectRequest'
 	],
 	#category : 'LDAP-Core',
 	#package : 'LDAP',
@@ -69,7 +70,7 @@ LDAPConnection >> abandon: aCommand [
 { #category : 'running' }
 LDAPConnection >> connect [
 
-	worker := self class workerClass new.
+	worker := self class workerClass new connectBlock: [ self onNewSocket ].
 	workerThread := worker connectTo: host port: self port.
 ]
 
@@ -120,6 +121,14 @@ LDAPConnection >> isValid [
 	^ worker ifNotNil: [ :w | w isRunning ] ifNil: [ false ]
 ]
 
+{ #category : 'callbacks' }
+LDAPConnection >> onNewSocket [
+
+	connectRequest ifNil: [ ^self ].
+	self isConnected ifFalse: [ ^self ].
+	self request: connectRequest.
+]
+
 { #category : 'accessing' }
 LDAPConnection >> port [
 
@@ -152,6 +161,13 @@ LDAPConnection >> request: aRequest [
 
 	worker send: command.
 	^ command
+]
+
+{ #category : 'enumerating' }
+LDAPConnection >> requestOnConnect: aRequest [
+"Request to send on socket reconnection. Usually a bind request to authenticate the connection"
+
+	connectRequest := aRequest.
 ]
 
 { #category : 'binding' }

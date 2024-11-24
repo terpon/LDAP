@@ -11,7 +11,8 @@ Class {
 		'nextMessageId',
 		'lock',
 		'targets',
-		'running'
+		'running',
+		'connectBlock'
 	],
 	#category : 'LDAP-Core',
 	#package : 'LDAP',
@@ -41,6 +42,27 @@ LDAPWorker >> addTarget: aCommand [
 	].
 	^  messageId 
 
+]
+
+{ #category : 'error handling' }
+LDAPWorker >> announceTargetsLost [
+"The connection is lost. If request are pending, notify them"
+
+	| result |
+	result := LDAPResult newCode: 80 name: 'Connection lost' message: 'Connection to server lost. No response from request.'.
+	lock critical: [
+		targets keysAndValuesDo: [ :key :command |
+			command processResponse: result.
+		].
+		
+		targets removeAll.
+	]
+]
+
+{ #category : 'accessing' }
+LDAPWorker >> connectBlock: aBlock [
+
+	connectBlock := aBlock.
 ]
 
 { #category : 'running' }
@@ -91,21 +113,18 @@ LDAPWorker >> initialize [
 LDAPWorker >> initializeServerSocket [
 
 	lock critical: [
-	
-	sockStream := [ self class socketClass openConnectionToHostNamed: host port: port ]
-		ifCurtailed: [ sockStream := nil. ].
+		sockStream := [ self class socketClass openConnectionToHostNamed: host port: port ]
+			ifCurtailed: [ sockStream := nil. ].
+		sockStream ifNil: [ ^ self ].
+		sockStream 
+			binary;
+			shouldSignal: true;
+			timeout: 60;
+			autoFlush: false.
+		self postConnect.
+	].
 
-	sockStream ifNil: [ ^ self ].
-	sockStream 
-		binary;
-		shouldSignal: true;
-		timeout: 60;
-		autoFlush: false.
-		
-	self postConnect.
-	]
-
-
+	connectBlock ifNotNil: [ :block | block cull: self ].
 ]
 
 { #category : 'dispatching' }
@@ -186,12 +205,15 @@ LDAPWorker >> readMessage [
 
 { #category : 'private - running' }
 LDAPWorker >> releaseServerSocket [
+
+	self announceTargetsLost.
+
 	sockStream ifNil: [ ^ self ].
 	
 	lock critical: [
 		sockStream close.
 		sockStream := nil.
-	]	
+	]
 ]
 
 { #category : 'private - dispatching' }
@@ -222,6 +244,10 @@ LDAPWorker >> start [
 
 	running := true.
 	process resume.
+	
+	"Wait a bit so that the thread has a chance to connect"
+	(Delay forMilliseconds: 10) wait.
+
 	^ process
 ]
 
