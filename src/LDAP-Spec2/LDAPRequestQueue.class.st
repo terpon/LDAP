@@ -36,19 +36,17 @@ LDAPRequestQueue >> checkAndReport: aCommand [
 
 { #category : 'running' }
 LDAPRequestQueue >> connectWith: aServerInfo [
-	| command |
+	| bind |
 	self disconnect.
 	connection := aServerInfo connection.
+	bind := aServerInfo bindRequest.
+	
+	connection requestOnConnect: bind.
 	connection connect.
 	(Delay forMilliseconds: 10) wait.
 	connection isConnected ifFalse: [ ^ self ]. 
 	
-	command := LDAPRequestTask new 
-		request: aServerInfo bindRequest; 
-		onResponseDo: [ self announcer announce: LDAPSessionConnected new ];
-		activateOnFailure: false.
-
-	self nextPut: command
+	self announcer announce: LDAPSessionConnected new.
 ]
 
 { #category : 'running' }
@@ -80,15 +78,6 @@ LDAPRequestQueue >> nextPut: aTask [
 	requests nextPut: aTask.
 	running ifFalse: [ self start ]
 
-]
-
-{ #category : 'enumerating' }
-LDAPRequestQueue >> onErrorDo: aBlock [
-
-	self announcer
-		when: LDAPError
-		do: aBlock
-		for: aBlock receiver
 ]
 
 { #category : 'executing' }

@@ -15,18 +15,21 @@ Class {
 { #category : 'api - events' }
 LDAPStatusBarPresenter >> beConnected [
 
-	connected image: (self iconNamed: #testGreen);
-		help: 'Connected';
-		updatePresenter.
-
+	connected image: (self iconNamed: #testGreen).
+	
+	connected help: 'Connected'. 
+	"Does not update help with morphic"	
+	connected withAdapterDo: [ :anAdapter | anAdapter setBalloonText: 'Connected' ]
 ]
 
 { #category : 'api - events' }
 LDAPStatusBarPresenter >> beDisconnected [
 
-	connected image: (self iconNamed: #testNotRun);
-		help: 'Disconnected'.
-
+	connected image: (self iconNamed: #testNotRun).
+	
+	connected help: 'Disconnected'. 
+	"Does not update help with morphic"	
+	connected withAdapterDo: [ :anAdapter | anAdapter setBalloonText: 'Disconnected' ]
 ]
 
 { #category : 'accessing' }

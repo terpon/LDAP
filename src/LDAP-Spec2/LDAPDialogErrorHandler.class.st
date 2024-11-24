@@ -19,13 +19,12 @@ Class {
 { #category : 'private - sizing' }
 LDAPDialogErrorHandler >> clipQueue [
 
-	(queue size > max) ifTrue: [ queue removeFirst: (queue size - max) ]
+	(queue size > max) ifTrue: [ queue removeLast: (queue size - max) ]
 ]
 
 { #category : 'callbacks' }
 LDAPDialogErrorHandler >> dialogClosed [
 
-	dialog := nil.
 	queue ifEmpty: [ ^ self ].
 	self openDialog.
 ]
@@ -43,13 +42,14 @@ LDAPDialogErrorHandler >> initialize [
 LDAPDialogErrorHandler >> openDialog [
 
 	| result presenter |
-	dialog ifNotNil: [ ^ self ].
-	queue ifEmpty: [ ^ self ].
+	queue ifEmpty: [ ^ nil ].
 
 	result := queue removeFirst.
 	presenter := LDAPResultPresenter
 		             newApplication: application
 		             model: result.
+
+	dialog ifNotNil: [ dialog open. ^ dialog ].
 	dialog := presenter openDialog.
 	dialog whenClosedDo: [ self dialogClosed ].
 	^ dialog

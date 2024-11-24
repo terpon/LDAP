@@ -41,7 +41,11 @@ LDAPBrowser >> clearCache [
 { #category : 'circuit setup' }
 LDAPBrowser >> connectTo: aServerInfo [
 
+	(aServerInfo = session server) ifTrue: [ ^ self ].
+	
 	self disconnect.
+	
+	
 	
 	"triggers ValueChanged so order is important"
 	session server: aServerInfo.
@@ -103,15 +107,13 @@ LDAPBrowser >> initialize [
 	super initialize.
 	
 	errorHandler := LDAPDialogErrorHandler new application: self.
-
 	queue := LDAPRequestQueue new.
-	queue onErrorDo: [ :task | self errorHandler report: task result ].
-	self subscribeToAnnouncements.
-	
 	cache := Dictionary new.
-
 	session := LDAPSession new.
-	self initializeMainPresenter 
+	
+	self subscribeToAnnouncements.
+	self initializeMainPresenter.
+
 ]
 
 { #category : 'initialization' }
@@ -249,5 +251,5 @@ LDAPBrowser >> subscribeToAnnouncements [
 
 	queue when: LDAPSessionConnected do: [ self onConnect ].
 	queue when: LDAPSessionDisconnected do: [ self onDisconnect ].
-
+	queue when: LDAPError do: [ :e | self errorHandler report: e result ].
 ]
