@@ -40,6 +40,8 @@ LDAPRequestQueue >> connectWith: aServerInfo [
 	self disconnect.
 	connection := aServerInfo connection.
 	connection connect.
+	(Delay forMilliseconds: 10) wait.
+	connection isConnected ifFalse: [ ^ self ]. 
 	
 	command := LDAPRequestTask new 
 		request: aServerInfo bindRequest; 
@@ -121,15 +123,30 @@ LDAPRequestQueue >> sendRequest: aRequest onResultDo: aBlock [
 ]
 
 { #category : 'private - running' }
+LDAPRequestQueue >> sendRequestFor: aTask [ 
+
+	| command |
+	aTask ifNil: [ running := false. ^ nil ].
+	command := connection request: aTask request.
+	command ifNil: [ running := false. ^ nil ].
+	
+	aTask command: command.
+	^ aTask
+]
+
+{ #category : 'private - running' }
 LDAPRequestQueue >> start [
 	running := true.
 	process := [
 		[ running ] whileTrue: [
 			| task |
-			task := requests next.
-			task command: (connection request: task request).
-			task command wait.
-			self processTaskResponse: task.
+			task := requests peek.
+			task := self sendRequestFor: task.
+			task ifNotNil: [ 
+				requests next. "pop the peeked task"
+				task command wait.
+				self processTaskResponse: task.
+			].
 			requests isEmpty ifTrue: [ running := false ]
 		].
 		running := false.	

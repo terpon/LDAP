@@ -9,7 +9,7 @@ Class {
 	#instVars : [
 		'table',
 		'name',
-		'toolbar'
+		'toolBar'
 	],
 	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
@@ -56,6 +56,7 @@ LDAPEntryPresenter class >> sampleList [
 LDAPEntryPresenter class >> show: anEntry [
 	| presenter |
 	presenter := self on: anEntry.
+	presenter inspect.
 	^ presenter open
 
 ]
@@ -100,6 +101,15 @@ LDAPEntryPresenter >> defaultLayout [
 		yourself
 ]
 
+{ #category : 'layout' }
+LDAPEntryPresenter >> editorLayout [ 
+	^ SpBoxLayout newTopToBottom
+		add: #name expand: false;
+		add: #toolBar expand: false;
+		add: #table;
+		yourself
+]
+
 { #category : 'initialization' }
 LDAPEntryPresenter >> initializePresenters [ 
 
@@ -120,6 +130,22 @@ LDAPEntryPresenter >> initializePresenters [
 		addColumn: (SpStringTableColumn title: 'Value' evaluated: [ :each | each value ]);
 		yourself.
 	
+		toolBar := self newToolbar
+					beIcons;
+		          addItem: (SpToolbarButtonPresenter new
+				            label: 'New DN';
+				            icon: (self iconNamed: #smallAdd);
+				            help: 'Add a new sub entry to current DN';
+				            action: [ self addAction ];
+				            yourself);
+		           addItem: (SpToolbarButtonPresenter new
+				            label: 'Delete';
+				            icon: (self iconNamed: #smallCancel);
+				            help: 'Delete current DN entry';
+				            action: [ self deleteAction ];
+				            yourself);
+		           yourself.
+
 
 ]
 

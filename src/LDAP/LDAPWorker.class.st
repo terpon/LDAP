@@ -121,7 +121,7 @@ LDAPWorker >> isCommandPending: aCommand [
 
 { #category : 'testing' }
 LDAPWorker >> isConnected [
-	 sockStream ifNil: [ ^ true ].	
+	 sockStream ifNil: [ ^ false ].	
 	^ sockStream isConnected
 ]
 

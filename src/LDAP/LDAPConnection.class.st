@@ -105,6 +105,11 @@ LDAPConnection >> host: anObject [
 ]
 
 { #category : 'testing' }
+LDAPConnection >> isConnected [
+	^ self isValid and: [ worker isConnected ]
+]
+
+{ #category : 'testing' }
 LDAPConnection >> isSSL [
 	^ false
 ]
@@ -140,7 +145,7 @@ LDAPConnection >> postCopy [
 { #category : 'command execution' }
 LDAPConnection >> request: aRequest [
 	| command message |
-	self isValid ifFalse: [ LDAPNoConnectionException signal. ^ nil ].
+	self isConnected ifFalse: [ LDAPNoConnectionException signal. ^ nil ].
 	
 	message := LDAPMessage new operation: aRequest.
 	command := LDAPCommand new initializeWith: message.

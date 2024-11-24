@@ -97,7 +97,9 @@ BERDecoder >> newUnknownElementFrom: anInteger [
 BERDecoder >> readElementFrom: aStream in: aParent [
 "Create a BER element from a stream"
 	| firstByte element length |
-	firstByte := aStream next asInteger.
+	firstByte := aStream next.
+	firstByte ifNil: [ ^ nil ].
+	firstByte := firstByte asInteger.
 	"Transcript show: '*** Next byte is: ', firstByte asString; cr."
 	element := self newElementWith: firstByte in: aParent.
 	"If no element, signal but still create a BERUnknown element"

@@ -31,6 +31,15 @@ LDAPInspectorPresenter >> buildRootDropList: aCollection andSelect: anInteger [
 	dropRoot enabled: self model connected.
 ]
 
+{ #category : 'initialization' }
+LDAPInspectorPresenter >> connectPresenters [ 
+
+	super connectPresenters.
+	
+	statusBar onDisconnectDo: [ self application disconnect ].
+
+]
+
 { #category : 'callbacks' }
 LDAPInspectorPresenter >> connectionAccept: aPresenter [
 	| window |
@@ -107,7 +116,7 @@ LDAPInspectorPresenter >> initializePresenters [
 		presenterBlock: [ :aModel | self presenterFor: aModel value ];
 		setRootModel: LDAPEntryModel new.
 		 		
-	statusBar := self newStatusBar.
+	statusBar := self instantiate: LDAPStatusBarPresenter.
 
 ]
 
@@ -128,6 +137,7 @@ LDAPInspectorPresenter >> modelChanged [
 	[ 
 		self updateRoots.
 		self updateMiller.
+		self updateStatusBar.
 
 		self withWindowDo: [ :aWindow | aWindow title: self titleForWindow ]
 		
@@ -239,4 +249,10 @@ LDAPInspectorPresenter >> updateRoots [
 	((newIndex = 0) and: [ roots isNotEmpty ]) ifTrue: [ newIndex := 1 ].
 	
 	self buildRootDropList: roots andSelect: newIndex
+]
+
+{ #category : 'updating' }
+LDAPInspectorPresenter >> updateStatusBar [
+
+	statusBar connected: self model connected.
 ]
