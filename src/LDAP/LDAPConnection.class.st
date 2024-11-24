@@ -118,7 +118,7 @@ LDAPConnection >> isValid [
 { #category : 'accessing' }
 LDAPConnection >> port [
 
-	^ port ifNil: [ self defaultPort ]
+	^ ((port isNil) or: [ port isZero ]) ifTrue: [ self defaultPort ] ifFalse: [ port ]
 ]
 
 { #category : 'accessing' }

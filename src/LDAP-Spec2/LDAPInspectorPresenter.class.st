@@ -67,6 +67,7 @@ LDAPInspectorPresenter >> customRoot: aString [
 { #category : 'layout' }
 LDAPInspectorPresenter >> defaultLayout [ 
 	^ SpBoxLayout newTopToBottom
+		spacing: 5;
 		add: (SpBoxLayout newLeftToRight 
 			add: connection expand: false;
 			add: dropRoot;
@@ -102,6 +103,7 @@ LDAPInspectorPresenter >> initializePresenters [
 					
 	miller := self instantiate: SpMillerPaginatorPresenter.
 	miller millerListPresenter 
+		spacing: 5;
 		presenterBlock: [ :aModel | self presenterFor: aModel value ];
 		setRootModel: LDAPEntryModel new.
 		 		

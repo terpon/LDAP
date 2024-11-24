@@ -16,6 +16,12 @@ Class {
 	#tag : 'Models'
 }
 
+{ #category : 'accessing - defaults' }
+LDAPServerInfo class >> defaultPortForSSL: aBoolean [
+
+	^ aBoolean ifTrue: [ 636 ] ifFalse: [ 389 ]
+]
+
 { #category : 'comparing' }
 LDAPServerInfo >> = anObject [
 
@@ -40,8 +46,8 @@ LDAPServerInfo >> connection [
 
 	| newConnection |
 	newConnection := self connectionClass new.
-	newConnection host: hostname.
-	newConnection port: port.
+	newConnection host: self hostname.
+	newConnection port: self port.
 	^ newConnection
 ]
 
@@ -54,7 +60,7 @@ LDAPServerInfo >> connectionClass [
 { #category : 'accessing - defaults' }
 LDAPServerInfo >> defaultPort [
 
-	^ self isSSL ifTrue: [ 636 ] ifFalse: [ 389 ]
+	^ self class defaultPortForSSL: ssl
 ]
 
 { #category : 'comparing' }

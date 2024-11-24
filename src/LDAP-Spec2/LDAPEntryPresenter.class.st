@@ -8,7 +8,8 @@ Class {
 	#classTraits : 'SpTActivable classTrait',
 	#instVars : [
 		'table',
-		'updateTitle'
+		'name',
+		'toolbar'
 	],
 	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
@@ -22,31 +23,6 @@ LDAPEntryPresenter class >> example [
 	result populateFromResults: self sampleList.
 	result populateFromPartialAttributeList: self sampleElement.
 	"result inspect."
-	^ self show: result
-
-]
-
-{ #category : 'examples' }
-LDAPEntryPresenter class >> exampleInspect [
-"Sample tree"
-	self sampleElement inspect.
-
-]
-
-{ #category : 'examples' }
-LDAPEntryPresenter class >> exampleList [
-"Sample from array"
-	| result |
-	result := LDAPEntryModel new name: 'dc=example,dc=com'; populateFromResults: self sampleList; yourself.
-	^ self show: result
-
-]
-
-{ #category : 'examples' }
-LDAPEntryPresenter class >> examplePartialAttributes [
-"Sample tree"
-	| result |
-	result := LDAPEntryModel new name: 'cn=foo,dc=example,dc=com'; populateFromPartialAttributeList: self sampleElement; yourself.
 	^ self show: result
 
 ]
@@ -80,7 +56,6 @@ LDAPEntryPresenter class >> sampleList [
 LDAPEntryPresenter class >> show: anEntry [
 	| presenter |
 	presenter := self on: anEntry.
-	presenter updateTitle: true.
 	^ presenter open
 
 ]
@@ -119,13 +94,16 @@ LDAPEntryPresenter >> connectPresenters [
 
 { #category : 'layout' }
 LDAPEntryPresenter >> defaultLayout [ 
-	^ SpBoxLayout newVertical add: #table; yourself
+	^ SpBoxLayout newTopToBottom
+		add: #name expand: false;
+		add: #table;
+		yourself
 ]
 
 { #category : 'initialization' }
 LDAPEntryPresenter >> initializePresenters [ 
 
-	updateTitle := false.
+	name := self newTextInput beNotEditable.
 	
 	table := self newTable
 		isResizable: true;
@@ -133,7 +111,7 @@ LDAPEntryPresenter >> initializePresenters [
 		addColumn: (SpCompositeTableColumn new
 			title: 'Attribute';
 			addColumn: (SpImageTableColumn new
-				width: 30;
+				width: 20;
 				evaluated: [ :i | i icon: self application ];
 				yourself);
 			addColumn: (SpStringTableColumn new
@@ -146,27 +124,27 @@ LDAPEntryPresenter >> initializePresenters [
 ]
 
 { #category : 'initialization' }
-LDAPEntryPresenter >> initializeWindow: aSpWindowPresenter [
-
-	super initializeWindow: aSpWindowPresenter.
-
-	aSpWindowPresenter title: self titleForWindow.
-
-]
-
-{ #category : 'initialization' }
 LDAPEntryPresenter >> modelChanged [ 
 	
-	| items |
-	items := self model ifNil: [ #() ] ifNotNil: [ :model | model attributes ].
-	table items: items.
+	| model |
+	model := self model ifNil: [ ^ self reset ].
 	
-	updateTitle ifTrue: [ self withWindowDo: [ :w | w title: self titleForWindow ] ].
+	table items: model attributes.
+	name text: model name; help: model name.
+
 ]
 
 { #category : 'ports' }
 LDAPEntryPresenter >> outputActivationPort [ 
 	^ table outputActivationPort
+]
+
+{ #category : 'initialization' }
+LDAPEntryPresenter >> reset [
+
+	table items: #().
+	name label: ''.
+
 ]
 
 { #category : 'accessing' }
@@ -180,10 +158,4 @@ LDAPEntryPresenter >> selectedItem [
 LDAPEntryPresenter >> titleForWindow [ 
 
 	^ self model ifNil: [ self className ] ifNotNil: [ :model | model name ]
-]
-
-{ #category : 'accessing' }
-LDAPEntryPresenter >> updateTitle: anObject [
-
-	updateTitle := anObject
 ]

@@ -41,22 +41,17 @@ LDAPConnectionPresenter class >> exampleEmpty [
 { #category : 'callbacks' }
 LDAPConnectionPresenter >> accept [
 
-	| server |
-	server := self model.
-	server ifNotNil: [
-		server hostname: self hostname.
-		server ssl: self isSSL.
-		server port: self port.
-		server username: self username.
-		server password: self password.
-	].
 	acceptBlock ifNotNil: [ :block | block cull: self ]
 ]
 
 { #category : 'initialization' }
 LDAPConnectionPresenter >> connectPresenters [ 
 
-	ssl whenChangedDo: [ :state | self updateDefaultPort ].
+	hostname whenTextChangedDo: [ :text | self model ifNotNil: [ :m | m hostname: text ] ] .
+	ssl whenChangedDo: [ :state | self model ifNotNil: [ :m | m ssl: state ]. self updateDefaultPort ].
+	port whenNumberChangedDo: [ :number | self model ifNotNil: [ :m | m port: number ] ] .
+	username whenTextChangedDo: [ :text | self model ifNotNil: [ :m | m username: text ] ] .
+	password whenTextChangedDo: [ :text | self model ifNotNil: [ :m | m password: text ] ] .
 ]
 
 { #category : 'layout' }
@@ -72,12 +67,6 @@ LDAPConnectionPresenter >> defaultLayout [
 				add: 'Username:'; add: username; nextRow;
 				add: 'Password:'; add: password
  	]
-]
-
-{ #category : 'accessing' }
-LDAPConnectionPresenter >> hostname [
-
-	^ hostname text
 ]
 
 { #category : 'initialization' }
@@ -108,12 +97,6 @@ LDAPConnectionPresenter >> initializeWindow: aSpWindowPresenter [
 
 ]
 
-{ #category : 'accessing' }
-LDAPConnectionPresenter >> isSSL [ 
-
-	^ ssl state
-]
-
 { #category : 'initialization' }
 LDAPConnectionPresenter >> modelChanged [ 
 	| server |
@@ -121,8 +104,8 @@ LDAPConnectionPresenter >> modelChanged [
 	server ifNil: [ ^ self ].
 	
 	hostname text: server hostname.
-	port number: server port.
 	ssl state: server isSSL.
+	port number: server port.
 	username text: server username.
 	password text: server password.
 ]
@@ -133,34 +116,14 @@ LDAPConnectionPresenter >> onAccept: aBlock [
 	acceptBlock := aBlock
 ]
 
-{ #category : 'accessing' }
-LDAPConnectionPresenter >> password [ 
-
-	^ password text
-]
-
-{ #category : 'accessing' }
-LDAPConnectionPresenter >> port [ 
-	
-	^ port text ifEmpty: [ self model defaultPort ] ifNotEmpty: [ port number ]
-]
-
 { #category : 'default values' }
 LDAPConnectionPresenter >> updateDefaultPort [
-	| default |
+	| default wasDefault |
 	default := self model defaultPort.
-	
+	port placeholder: default asString.	
+
 	"Clear value if default"
-	(port number = default) ifTrue: [ port text: '' ].
-	
-	"Default port is only used if there is no user input"
-	port text ifNotEmpty: [ ^ self ].
-	
-	port placeholder: default asString.
-]
+	wasDefault := LDAPServerInfo defaultPortForSSL: ssl state not.
+	(port number = wasDefault) ifTrue: [ port text: '' ].
 
-{ #category : 'accessing' }
-LDAPConnectionPresenter >> username [ 
-
-	^ username text
 ]

@@ -133,20 +133,21 @@ LDAPWorker >> isRunning [
 { #category : 'request handling' }
 LDAPWorker >> listenLoop [
 	"We create a listening Socket, then wait for a connection.
-	After each connection we also check that the listening Socket is still valid
-	- if not we just make a recursive call to this method to start over."
-	self initializeServerSocket.
-	[ 
-		[running] whileTrue: [
-			sockStream isConnected ifFalse: [
-				"will trigger #ifCurtailed: block and destroy socket"
-				^ self listenLoop ].
-			
-			self readMessage.
-		] 
-	] ifCurtailed: [ self releaseServerSocket ].
-		
-	self releaseServerSocket.
+	After each connection we also check that the listening Socket is still valid"
+	[ [running] whileTrue: [
+		| looping |
+		looping := true.
+		self initializeServerSocket.
+		[looping] whileTrue: [
+			sockStream isConnected 
+				ifFalse: [ looping := false ]
+				ifTrue: [ self readMessage ].
+			running ifFalse: [ looping := false ].
+		].
+		self releaseServerSocket
+	] 
+	] ensure: [ self releaseServerSocket ].
+
 ]
 
 { #category : 'private - dispatching' }
@@ -185,7 +186,8 @@ LDAPWorker >> readMessage [
 
 { #category : 'private - running' }
 LDAPWorker >> releaseServerSocket [
-
+	sockStream ifNil: [ ^ self ].
+	
 	lock critical: [
 		sockStream close.
 		sockStream := nil.

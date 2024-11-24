@@ -51,12 +51,6 @@ LDAPSession >> currentRoot: anObject [
 	self valueChanged 
 ]
 
-{ #category : 'accessing - defaults' }
-LDAPSession >> defaultPort [
-
-	^ self isSSL ifTrue: [ 636 ] ifFalse: [ 389 ]
-]
-
 { #category : 'initialization' }
 LDAPSession >> initialize [ 
 
