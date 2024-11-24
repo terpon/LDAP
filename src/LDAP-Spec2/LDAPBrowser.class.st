@@ -157,10 +157,11 @@ LDAPBrowser >> onDisconnect [
 { #category : 'callbacks' }
 LDAPBrowser >> onNamingContexts: aCommand [
 
-	| roots searchResult |
-	aCommand success ifFalse: [ session roots: #(). ^ self ].
+	| roots searchResult responses |
+	responses := aCommand responses.
+	responses size > 1 ifFalse: [ session roots: #(). ^ self ].
 	 
-	searchResult := aCommand responses first asDictionary.
+	searchResult := responses first asDictionary.
 	roots := searchResult at: 'namingContexts' ifAbsent: [ #() ].
 	session roots: roots.
 ]

@@ -254,4 +254,5 @@ LDAPWorker >> start [
 { #category : 'private - running' }
 LDAPWorker >> stop [
 	running := false.
+	self releaseServerSocket.
 ]

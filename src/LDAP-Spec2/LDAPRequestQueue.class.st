@@ -27,6 +27,7 @@ LDAPRequestQueue >> checkAndReport: aCommand [
 
 	| success result |
 	success := aCommand success.
+	aCommand responses ifEmpty: [ LDAPNoConnectionException signal. ^ false ].
 	result := aCommand responses last.
 	success ifFalse: [ 
 		self announcer announce: (LDAPError new result: result)
@@ -88,6 +89,7 @@ LDAPRequestQueue >> processTaskResponse: aTask [
 		| command result |
 		command := aTask command.
 		command ifNil: [ ^ self error: 'nil command in task' ].
+		command responses ifEmpty: [ ^ self error: 'no responses in task' ].
 		
 		result := command responses last.
 		result success 
