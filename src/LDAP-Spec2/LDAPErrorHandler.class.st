@@ -5,7 +5,7 @@ I keep the current application if I need to show some UI.
 "
 Class {
 	#name : 'LDAPErrorHandler',
-	#superclass : 'Object',
+	#superclass : 'Model',
 	#instVars : [
 		'application'
 	],

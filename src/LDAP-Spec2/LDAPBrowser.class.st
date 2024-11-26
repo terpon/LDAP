@@ -199,6 +199,12 @@ LDAPBrowser >> openCustomRootDialog [
 	^ dialog
 ]
 
+{ #category : 'enumerating' }
+LDAPBrowser >> openErrorWindow [
+
+	^ errorHandler openPresenter.
+]
+
 { #category : 'accessing' }
 LDAPBrowser >> queue [
 	^ queue

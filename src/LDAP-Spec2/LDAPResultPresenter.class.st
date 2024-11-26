@@ -5,6 +5,7 @@ Class {
 	#name : 'LDAPResultPresenter',
 	#superclass : 'SpPresenter',
 	#instVars : [
+		'type',
 		'result',
 		'code',
 		'name',
@@ -24,10 +25,13 @@ LDAPResultPresenter class >> example [
 
 ]
 
-{ #category : 'examples' }
-LDAPResultPresenter class >> exampleInspect [
-"Sample tree"
-	self sampleElement inspect.
+{ #category : 'opening' }
+LDAPResultPresenter class >> exampleFullLayout [
+	| p |
+	p := self on: self sampleElement.
+	p layout: p fullLayout.
+	^ p openDialog
+
 
 ]
 
@@ -49,17 +53,24 @@ LDAPResultPresenter class >> show: anEntry [
 
 ]
 
-{ #category : 'initialization' }
-LDAPResultPresenter >> connectPresenters [ 
-
-	super connectPresenters.
-
-]
-
 { #category : 'layout' }
 LDAPResultPresenter >> defaultLayout [ 
 	^ SpBoxLayout newTopToBottom
-		add: (SpBoxLayout newLeftToRight hAlignCenter; add: #code) expand: false;
+		add: #code expand: false;
+		add: #name expand: false;
+		add: #message;
+		yourself
+]
+
+{ #category : 'layout' }
+LDAPResultPresenter >> fullLayout [ 
+	^ SpBoxLayout newTopToBottom
+		spacing: 3;
+		add: (SpBoxLayout newLeftToRight
+			spacing: 5; 
+			add: #type expand: false; 
+			add: #code; 
+			yourself) expand: false;
 		add: #name expand: false;
 		add: #message;
 		yourself
@@ -76,7 +87,8 @@ LDAPResultPresenter >> initializeDialogWindow: aDialogPresenter [
 { #category : 'initialization' }
 LDAPResultPresenter >> initializePresenters [ 
 
-	code := self newLabel displayBold; yourself.
+	type := self newLabel.
+	code := self newTextInput beNotEditable.
 	name := self newLabel.
 	message := self newText
 		beNotWrapWord;
@@ -95,6 +107,15 @@ LDAPResultPresenter >> initializeWindow: aSpWindowPresenter [
 		title: result className
 ]
 
+{ #category : 'initialization' }
+LDAPResultPresenter >> reset [ 
+
+	type label: 'LDAPResult'.
+	code text: ''.
+	name label: ''.
+	message text: ''.
+]
+
 { #category : 'accessing - model' }
 LDAPResultPresenter >> setModel: aDomainObject [
 
@@ -111,7 +132,10 @@ LDAPResultPresenter >> setModelBeforeInitialization: aDomainObject [
 { #category : 'initialization' }
 LDAPResultPresenter >> updatePresenter [ 
 
-	code label: result resultElement displayString.
+	result ifNil: [ ^ self reset ].
+	
+	type label: result className.
+	code text: result resultElement displayString.
 	name label: result name.
 	message text: result diagnosticMessage.
 ]

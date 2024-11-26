@@ -7,26 +7,27 @@ Class {
 	#name : 'LDAPDialogErrorHandler',
 	#superclass : 'LDAPErrorHandler',
 	#instVars : [
-		'dialog',
 		'max',
-		'queue'
+		'queue',
+		'lock'
 	],
 	#category : 'LDAP-Spec2-Tasks',
 	#package : 'LDAP-Spec2',
 	#tag : 'Tasks'
 }
 
+{ #category : 'accessing' }
+LDAPDialogErrorHandler >> at: anIndex [
+
+	| element |
+	element := lock critical: [queue at: anIndex].
+	^ element
+]
+
 { #category : 'private - sizing' }
 LDAPDialogErrorHandler >> clipQueue [
 
 	(queue size > max) ifTrue: [ queue removeLast: (queue size - max) ]
-]
-
-{ #category : 'callbacks' }
-LDAPDialogErrorHandler >> dialogClosed [
-
-	queue ifEmpty: [ ^ self ].
-	self openDialog.
 ]
 
 { #category : 'initialization' }
@@ -36,44 +37,67 @@ LDAPDialogErrorHandler >> initialize [
 	
 	max := 10.
 	queue := OrderedCollection new.
+	lock := Semaphore forMutualExclusion.
+
 ]
 
 { #category : 'showing' }
-LDAPDialogErrorHandler >> openDialog [
+LDAPDialogErrorHandler >> openPresenter [
 
-	| result presenter |
-	queue ifEmpty: [ ^ nil ].
-
-	result := queue removeFirst.
-	presenter := LDAPResultPresenter
+	| presenter |
+	presenter := LDAPErrorPresenter
 		             newApplication: application
-		             model: result.
+		             model: self.
 
-	dialog ifNotNil: [ dialog open. ^ dialog ].
-	dialog := presenter openDialog.
-	dialog whenClosedDo: [ self dialogClosed ].
-	^ dialog
+	^ presenter open
 ]
 
 { #category : 'accessing' }
 LDAPDialogErrorHandler >> queueSize: anInteger [
 
-	max := anInteger.
-	self clipQueue.
+	lock critical: [
+		max := anInteger.
+		self clipQueue.
+	]
+]
+
+{ #category : 'removing' }
+LDAPDialogErrorHandler >> removeAll [
+	
+	lock critical: [queue removeAll].
+	self valueChanged
+]
+
+{ #category : 'removing' }
+LDAPDialogErrorHandler >> removeAt: anIndex [
+
+	| element |
+	element := lock critical: [queue removeAt: anIndex].
+	self valueChanged.
+	^ element
 ]
 
 { #category : 'reporting' }
 LDAPDialogErrorHandler >> report: aLDAPResult [
 
-	queue addLast: aLDAPResult.
-	self clipQueue.
-	
-	self openDialog
+	lock critical: [
+		(queue size >= max) ifTrue: [ ^ self ].
+		queue addLast: aLDAPResult.
+	].
+	self valueChanged
+
+
 ]
 
 { #category : 'initialization' }
 LDAPDialogErrorHandler >> reset [
 
-	queue removeAll.
-	dialog ifNotNil: [ dialog close ].
+	self removeAll.
+
+]
+
+{ #category : 'accessing' }
+LDAPDialogErrorHandler >> size [
+
+	^ queue size
 ]
