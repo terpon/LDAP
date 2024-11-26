@@ -30,7 +30,7 @@ LDAPRequestQueue >> checkAndReport: aCommand [
 	aCommand responses ifEmpty: [ LDAPNoConnectionException signal. ^ false ].
 	result := aCommand responses last.
 	success ifFalse: [ 
-		self announcer announce: (LDAPError new result: result)
+		self announcer announce: (LDAPErrorAnnouncement new result: result)
 	].
 	^ success
 ]
@@ -47,13 +47,13 @@ LDAPRequestQueue >> connectWith: aServerInfo [
 	(Delay forMilliseconds: 10) wait.
 	connection isConnected ifFalse: [ ^ self ]. 
 	
-	self announcer announce: LDAPSessionConnected new.
+	self announcer announce: LDAPConnectionAnnouncement new.
 ]
 
 { #category : 'running' }
 LDAPRequestQueue >> disconnect [
 
-	self announcer announce: LDAPSessionDisconnected new.
+	self announcer announce: LDAPDisconnectionAnnouncement new.
 	connection ifNotNil: [ connection  disconnect ].
 	self stop; flush.
 ]
@@ -95,7 +95,7 @@ LDAPRequestQueue >> processTaskResponse: aTask [
 		result success 
 			ifTrue: [ aTask activate ]
 			ifFalse: [ 
-				self announcer announce: (LDAPError new result: result).
+				self announcer announce: (LDAPErrorAnnouncement new result: result).
 				aTask activateOnFailure ifTrue: [ aTask activate ]
 			].
 	] fork

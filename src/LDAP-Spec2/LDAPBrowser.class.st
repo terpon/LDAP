@@ -41,12 +41,11 @@ LDAPBrowser >> clearCache [
 { #category : 'circuit setup' }
 LDAPBrowser >> connectTo: aServerInfo [
 
-	(aServerInfo = session server) ifTrue: [ ^ self ].
-	
-	self disconnect.
-	
-	
-	
+	session connected ifTrue: [
+		(aServerInfo = session server) ifTrue: [ ^ self ].
+		self disconnect.
+	].
+
 	"triggers ValueChanged so order is important"
 	session server: aServerInfo.
 	
@@ -250,7 +249,7 @@ LDAPBrowser >> start [
 { #category : 'initialization' }
 LDAPBrowser >> subscribeToAnnouncements [
 
-	queue when: LDAPSessionConnected do: [ self onConnect ].
-	queue when: LDAPSessionDisconnected do: [ self onDisconnect ].
-	queue when: LDAPError do: [ :e | self errorHandler report: e result ].
+	queue when: LDAPConnectionAnnouncement do: [ self onConnect ].
+	queue when: LDAPDisconnectionAnnouncement do: [ self onDisconnect ].
+	queue when: LDAPErrorAnnouncement do: [ :e | self errorHandler report: e result ].
 ]

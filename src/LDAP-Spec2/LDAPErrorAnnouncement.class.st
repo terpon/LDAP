@@ -2,7 +2,7 @@
 I am announced whenever the received response from the server reports an error.
 "
 Class {
-	#name : 'LDAPError',
+	#name : 'LDAPErrorAnnouncement',
 	#superclass : 'Announcement',
 	#instVars : [
 		'result'
@@ -13,13 +13,13 @@ Class {
 }
 
 { #category : 'accessing' }
-LDAPError >> result [
+LDAPErrorAnnouncement >> result [
 
 	^ result
 ]
 
 { #category : 'accessing' }
-LDAPError >> result: anObject [
+LDAPErrorAnnouncement >> result: anObject [
 
 	result := anObject
 ]

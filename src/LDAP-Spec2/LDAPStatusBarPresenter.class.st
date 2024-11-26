@@ -1,3 +1,6 @@
+"
+I am a status bar presenter with connection status, last error message.
+"
 Class {
 	#name : 'LDAPStatusBarPresenter',
 	#superclass : 'SpPresenter',
@@ -41,6 +44,7 @@ LDAPStatusBarPresenter >> connected: aBoolean [
 { #category : 'layout' }
 LDAPStatusBarPresenter >> defaultLayout [ 
 	^ SpBoxLayout newLeftToRight 
+		spacing: 3;
 		add: #connected expand: false;
 		add: #message;
 		add: #disconnect expand: false;
