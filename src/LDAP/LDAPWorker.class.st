@@ -183,22 +183,28 @@ LDAPWorker >> postConnect [
 
 { #category : 'private - running' }
 LDAPWorker >> readMessage [
-	[ 
+	[ [ [ 
 		|  message  |
-		message := [ LDAPDecoder from: sockStream ] 
-			on: ConnectionClosed,ConnectionTimedOut do:[ :ex| 
+		self waitForData.
+		message := LDAPDecoder from: sockStream.
+		"Transcript show: '********* READ ONE OF:  ', message asString; cr."
+		self dispatchMessage: message.
+		
+	] on: ConnectionTimedOut do:[ :ex| 
+				"wait for another loop"
+				^ self.
+		].
+	] on: ConnectionClosed do:[ :ex| 
 				Transcript cr; show: ex description; cr.
 				"reconnect"
 				^ self.
-			]. 
-		"Transcript show: '********* READ ONE OF:  ', message asString; cr."
-		self dispatchMessage: message.
+		].
 	] on: Exception do: [ :ex |
-		"Cannot recover"
-		Transcript cr; show: ex description; cr.
-		running := false.
-		ex pass.
-	].
+			"Cannot recover"
+			Transcript cr; show: ex description; cr.
+			running := false.
+			ex pass.
+		].
 
 
 ]
@@ -255,4 +261,14 @@ LDAPWorker >> start [
 LDAPWorker >> stop [
 	running := false.
 	self releaseServerSocket.
+]
+
+{ #category : 'private - running' }
+LDAPWorker >> waitForData [
+
+	"Check buffered stream first"
+	sockStream isDataAvailable ifTrue: [ ^ self ].
+
+	sockStream socket ifNil: [ ^ self ] ifNotNil: [ :s | s waitForDataFor: 5 ].
+
 ]
