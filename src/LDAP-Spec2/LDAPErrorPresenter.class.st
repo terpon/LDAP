@@ -3,14 +3,14 @@ Class {
 	#superclass : 'SpPresenterWithModel',
 	#instVars : [
 		'current',
-		'result',
+		'slash',
+		'max',
+		'shown',
 		'next',
 		'previous',
 		'clear',
 		'clearAll',
-		'close',
-		'serverName',
-		'position'
+		'close'
 	],
 	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
@@ -48,7 +48,7 @@ LDAPErrorPresenter >> defaultLayout [
 	^ SpBoxLayout newTopToBottom
 		spacing: 3;
 		add: self navigationLayout expand: false;
-		add: result;
+		add: shown layout: #fullLayout;
 		add: self buttonsLayout expand: false;
 		yourself
 ]
@@ -56,18 +56,20 @@ LDAPErrorPresenter >> defaultLayout [
 { #category : 'initialization' }
 LDAPErrorPresenter >> initializePresenters [ 
 
-	previous := self newButton disable;
+	previous := self newButton
 				  			icon: (self iconNamed: #back);
 				     		help: 'See previous error';
 				       	action: [ self previous ];
 				        	yourself.
-	next := self newButton disable;
+	next := self newButton
 				  			icon: (self iconNamed: #forward);
 				     		help: 'See next error';
 				       	action: [ self next ];
 				        	yourself.
-	position := self newLabel label: '0/0'; yourself.
-	result := self instantiate: LDAPResultPresenter.
+	current := self newNumberInput beNotEditable; yourself.
+	slash := self newLabel label: '/'; yourself.
+	max := self newNumberInput beNotEditable; yourself.
+	shown := self instantiate: LDAPResultPresenter.
 	clear := self newButton label: 'Clear';
 				     		help: 'Remove current error from the queue';
 				       	action: [ self removeCurrent ];
@@ -90,75 +92,84 @@ LDAPErrorPresenter >> initializeWindow: aSpWindowPresenter [
 
 	super initializeWindow: aSpWindowPresenter.
 
-	serverName ifNotNil: [ :name | 
+	application connectedServer ifNotNil: [ :server |
 		aSpWindowPresenter title: (String streamContents: [ :stream | 
-			stream nextPutAll: 'Errors from '; nextPutAll: name ])
-		].
+			stream nextPutAll: 'Errors from '; nextPutAll: server ])
+		]. 
+
 	aSpWindowPresenter whenOpenedDo: [ clear takeKeyboardFocus ].
 ]
 
 { #category : 'initialization' }
 LDAPErrorPresenter >> modelChanged [ 
 
-	| count |
-	count := self model ifNil: [ 0 ] ifNotNil: [ :model | model size ].
-	current := self current min: count max: 1.
-	result result: (count isZero 
-		ifTrue: [ current := 0. nil ]
-		ifFalse: [ self model at: current ]).
+	| model count index |
+	model := self model ifNil: [ ^ self reset ].
+	index := model current.
+	count := model size.
 
-	position label: (String streamContents: [:s| s << current asString << $/ << count asString ]).
-	previous enabled: current > 1.
-	next enabled: (current > 0) & (current < count).
-	
-	^ self
+	current number: index.
+	max number: count.
+	slash label: (String streamContents: [:s | s nextPutAll: index asString; nextPut: $/; nextPutAll: count asString ]).
+	shown result: (count isZero 
+		ifTrue: [ nil ]
+		ifFalse: [ model currentResult ]).
+
+	previous enabled: index > 1.
+	next enabled: (index > 0) & (index < count).
+
 ]
 
 { #category : 'layout' }
 LDAPErrorPresenter >> navigationLayout [ 
 	^ SpBoxLayout newLeftToRight 
 		spacing: 3;
-		add: (SpBoxLayout newLeftToRight add: previous; yourself); 
-		add: (SpBoxLayout newLeftToRight hAlignCenter; add: position; yourself);
-		add: (SpBoxLayout newLeftToRight hAlignEnd; add: next; yourself);
+		add: (SpBoxLayout newLeftToRight add: previous; yourself) expand: false; 
+		add: (SpBoxLayout newLeftToRight hAlignCenter; vAlignCenter;
+			"add: current;" 
+			add: slash expand: false; 
+			"add: max; "
+			yourself);
+		add: (SpBoxLayout newLeftToRight hAlignEnd; add: next; yourself) expand: false;
 		yourself
 ]
 
 { #category : 'api - events' }
 LDAPErrorPresenter >> next [
 
-	self model ifNil: [ ^ self ].
-	current := current + 1.
-	self modelChanged.
+	self model ifNotNil: [ :model | model next ].
+
 ]
 
 { #category : 'api - events' }
 LDAPErrorPresenter >> previous [
 
-	self model ifNil: [ ^ self ].
-	current := current - 1.
-	self modelChanged.
+	self model ifNotNil: [ :model | model previous ].
+
 ]
 
 { #category : 'api - events' }
 LDAPErrorPresenter >> removeAll [
 
-	self model ifNil: [ ^ self ].
-	self model removeAll.
+	self model ifNotNil: [ :model | model removeAll ].
+
 ]
 
 { #category : 'api - events' }
 LDAPErrorPresenter >> removeCurrent [
 	
-	| model |
-	model := self model ifNil: [ ^ self ].
-	(current = 0) ifTrue: [ ^ self modelChanged ].
-	(current <= model size) ifFalse: [ ^ self modelChanged ].
-	model removeAt: current.
+	self model ifNotNil: [ :model | model removeCurrent ].
+
 ]
 
-{ #category : 'accessing' }
-LDAPErrorPresenter >> serverName: anObject [
+{ #category : 'initialization' }
+LDAPErrorPresenter >> reset [ 
 
-	serverName := anObject
+	current number: 0.
+	max number: 0.
+	shown result: nil.
+
+	previous disable.
+	next disable.
+
 ]

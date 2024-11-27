@@ -8,6 +8,7 @@ Class {
 		'session',
 		'queue',
 		'errorHandler',
+		'errorLock',
 		'main',
 		'cache'
 	],
@@ -54,6 +55,13 @@ LDAPBrowser >> connectTo: aServerInfo [
 ]
 
 { #category : 'accessing' }
+LDAPBrowser >> connectedServer [
+
+	session connected ifFalse: [ ^ nil ].
+	^ session server hostname
+]
+
+{ #category : 'accessing' }
 LDAPBrowser >> currentRoot [
 	
 	^ session currentRoot
@@ -90,14 +98,7 @@ LDAPBrowser >> entryFor: aDN [
 { #category : 'accessing' }
 LDAPBrowser >> errorHandler [
 
-	^ errorHandler
-]
-
-{ #category : 'accessing' }
-LDAPBrowser >> errorHandler: anObject [
-
-	errorHandler := anObject
-	
+	^ errorHandler ifNil: [ errorHandler := self initializeErrorPresenter ]
 ]
 
 { #category : 'initialization' }
@@ -105,13 +106,21 @@ LDAPBrowser >> initialize [
 
 	super initialize.
 	
-	errorHandler := LDAPDialogErrorHandler new application: self.
 	queue := LDAPRequestQueue new.
 	cache := Dictionary new.
 	session := LDAPSession new.
-	
+	errorLock := Semaphore forMutualExclusion.
+
 	self subscribeToAnnouncements.
 	self initializeMainPresenter.
+
+]
+
+{ #category : 'initialization' }
+LDAPBrowser >> initializeErrorPresenter [
+
+	^ LDAPErrorPresenter newApplication: self model: LDAPErrorQueueModel new
+
 
 ]
 
@@ -202,12 +211,24 @@ LDAPBrowser >> openCustomRootDialog [
 { #category : 'enumerating' }
 LDAPBrowser >> openErrorWindow [
 
-	^ errorHandler openPresenter.
+	| presenter |
+	presenter := self errorHandler.
+	presenter withWindowDo: [ :w | w isOpen ifTrue:[ w activate. ^ w ] ].
+	^ presenter open.
 ]
 
 { #category : 'accessing' }
 LDAPBrowser >> queue [
 	^ queue
+]
+
+{ #category : 'private' }
+LDAPBrowser >> reportError: aResult [
+
+	errorLock critical: [ 
+		self openErrorWindow.
+		errorHandler model report: aResult
+	].
 ]
 
 { #category : 'connecting' }
@@ -249,6 +270,7 @@ LDAPBrowser >> searchSub: aDN for: anEntry [
 LDAPBrowser >> start [
 <script: 'self start'>
 
+	main withWindowDo: [ :w | w isOpen ifTrue:[ w activate. ^ w ] ].
 	^ main open
 ]
 
@@ -257,5 +279,5 @@ LDAPBrowser >> subscribeToAnnouncements [
 
 	queue when: LDAPConnectionAnnouncement do: [ self onConnect ].
 	queue when: LDAPDisconnectionAnnouncement do: [ self onDisconnect ].
-	queue when: LDAPErrorAnnouncement do: [ :e | self errorHandler report: e result ].
+	queue when: LDAPErrorAnnouncement do: [ :e | self reportError: e result ].
 ]

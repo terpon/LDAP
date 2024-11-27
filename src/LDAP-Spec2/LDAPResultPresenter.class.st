@@ -73,7 +73,7 @@ LDAPResultPresenter >> fullLayout [
 	^ SpBoxLayout newTopToBottom
 		spacing: 3;
 		add: (SpBoxLayout newLeftToRight
-			spacing: 5; 
+			spacing: 5; vAlignCenter;
 			add: #type expand: false; 
 			add: #code; 
 			yourself) expand: false;
