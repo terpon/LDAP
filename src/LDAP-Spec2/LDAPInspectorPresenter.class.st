@@ -41,9 +41,9 @@ LDAPInspectorPresenter >> connectPresenters [
 ]
 
 { #category : 'callbacks' }
-LDAPInspectorPresenter >> connectionAccept: aPresenter [
+LDAPInspectorPresenter >> connectionAccept: aModel [
 	| window |
-	application connectTo: aPresenter model copy.
+	application connectTo: aModel copy.
 	
 	window := self window.
 	window ifNil: [ self open ].
@@ -149,7 +149,7 @@ LDAPInspectorPresenter >> openConnectionDialog [
 	
 	| presenter |
 	presenter := LDAPConnectionPresenter newApplication: application model: self model server copy.
-	presenter onAccept: [ :sender | self connectionAccept: sender ].
+	presenter onAccept: [ :model | self connectionAccept: model ].
 	^ presenter openDialog
 	
 	

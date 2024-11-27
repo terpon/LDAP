@@ -3,7 +3,7 @@ I represent the information to connect to a LDAP server.
 "
 Class {
 	#name : 'LDAPServerInfo',
-	#superclass : 'Model',
+	#superclass : 'Object',
 	#instVars : [
 		'username',
 		'password',

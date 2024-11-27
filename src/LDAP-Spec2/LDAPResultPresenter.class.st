@@ -53,6 +53,12 @@ LDAPResultPresenter class >> show: anEntry [
 
 ]
 
+{ #category : 'specs' }
+LDAPResultPresenter class >> title [ 
+
+	^ 'LDAPResult'
+]
+
 { #category : 'layout' }
 LDAPResultPresenter >> defaultLayout [ 
 	^ SpBoxLayout newTopToBottom
@@ -103,8 +109,7 @@ LDAPResultPresenter >> initializeWindow: aSpWindowPresenter [
 
 	super initializeWindow: aSpWindowPresenter.
 
-	aSpWindowPresenter
-		title: result className
+	result ifNotNil: [ aSpWindowPresenter title: result className ].
 ]
 
 { #category : 'initialization' }
