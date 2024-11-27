@@ -122,10 +122,16 @@ LDAPResultPresenter >> reset [
 ]
 
 { #category : 'accessing - model' }
+LDAPResultPresenter >> result: aResult [
+
+	result := aResult.
+	self updatePresenter.
+]
+
+{ #category : 'accessing - model' }
 LDAPResultPresenter >> setModel: aDomainObject [
 
-	result := aDomainObject.
-	self updatePresenter
+	self result: aDomainObject
 ]
 
 { #category : 'accessing - model' }

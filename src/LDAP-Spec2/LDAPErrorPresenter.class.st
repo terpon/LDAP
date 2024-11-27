@@ -9,13 +9,19 @@ Class {
 		'clear',
 		'clearAll',
 		'close',
-		'title',
+		'serverName',
 		'position'
 	],
 	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
 	#tag : 'Presenters'
 }
+
+{ #category : 'specs' }
+LDAPErrorPresenter class >> title [
+
+	^ 'LDAP errors'
+]
 
 { #category : 'layout' }
 LDAPErrorPresenter >> buttonsLayout [
@@ -29,6 +35,12 @@ LDAPErrorPresenter >> buttonsLayout [
 		add: close expand: false;
 		yourself.
 	^ SpBoxLayout newLeftToRight add: left; add: right; yourself
+]
+
+{ #category : 'accessing' }
+LDAPErrorPresenter >> current [
+
+	^ current ifNil: [ 0 ]
 ]
 
 { #category : 'layout' }
@@ -78,19 +90,22 @@ LDAPErrorPresenter >> initializeWindow: aSpWindowPresenter [
 
 	super initializeWindow: aSpWindowPresenter.
 
-	aSpWindowPresenter title: self title
+	serverName ifNotNil: [ :name | 
+		aSpWindowPresenter title: (String streamContents: [ :stream | 
+			stream nextPutAll: 'Errors from '; nextPutAll: name ])
+		].
+	aSpWindowPresenter whenOpenedDo: [ clear takeKeyboardFocus ].
 ]
 
 { #category : 'initialization' }
 LDAPErrorPresenter >> modelChanged [ 
 
-	| model count |
-	model := self model ifNil: [ result setModel: nil. ^ self ].
-	count := model size.
-	current := (current ifNil: [ 0 ]) min: count max: 1.
-	result setModel:(count isZero 
+	| count |
+	count := self model ifNil: [ 0 ] ifNotNil: [ :model | model size ].
+	current := self current min: count max: 1.
+	result result: (count isZero 
 		ifTrue: [ current := 0. nil ]
-		ifFalse: [ model at: current ]).
+		ifFalse: [ self model at: current ]).
 
 	position label: (String streamContents: [:s| s << current asString << $/ << count asString ]).
 	previous enabled: current > 1.
@@ -143,13 +158,7 @@ LDAPErrorPresenter >> removeCurrent [
 ]
 
 { #category : 'accessing' }
-LDAPErrorPresenter >> title [
+LDAPErrorPresenter >> serverName: anObject [
 
-	^ title ifNil: [ 'LDAP errors' ]
-]
-
-{ #category : 'accessing' }
-LDAPErrorPresenter >> title: anObject [
-
-	title := anObject
+	serverName := anObject
 ]
