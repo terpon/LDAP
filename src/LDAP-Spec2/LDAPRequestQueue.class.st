@@ -16,6 +16,20 @@ Class {
 	#tag : 'Tasks'
 }
 
+{ #category : 'executing' }
+LDAPRequestQueue >> activateResponse: aTask [
+	"Process command in a fork to avoid blocking the request queue"
+
+	[ aTask activate ] fork
+]
+
+{ #category : 'announcer' }
+LDAPRequestQueue >> announceDisconnected [
+
+	self announcer announce: LDAPDisconnectionAnnouncement new.
+
+]
+
 { #category : 'accessing' }
 LDAPRequestQueue >> announcer [
 
@@ -40,8 +54,8 @@ LDAPRequestQueue >> connectWith: aServerInfo [
 { #category : 'running' }
 LDAPRequestQueue >> disconnect [
 
-	self announcer announce: LDAPDisconnectionAnnouncement new.
-	connection ifNotNil: [ connection  disconnect ].
+	self announceDisconnected.
+	connection ifNotNil: [ connection disconnect ].
 	self stop; flush.
 ]
 
@@ -68,26 +82,6 @@ LDAPRequestQueue >> nextPut: aTask [
 
 ]
 
-{ #category : 'executing' }
-LDAPRequestQueue >> processTaskResponse: aTask [
-	"Process command in a fork to avoid blocking the request queue"
-
-	[ 
-		| command result |
-		command := aTask command.
-		command ifNil: [ ^ self reportErrorFrom: nil ].
-		command responses ifEmpty: [ ^ self reportErrorFrom: command ].
-		
-		result := command responses last.
-		result success 
-			ifTrue: [ aTask activate ]
-			ifFalse: [ 
-				self reportErrorFrom: command.
-				aTask activateOnFailure ifTrue: [ aTask activate ]
-			].
-	] fork
-]
-
 { #category : 'error handling' }
 LDAPRequestQueue >> reportErrorFrom: aCommand [
 
@@ -95,13 +89,13 @@ LDAPRequestQueue >> reportErrorFrom: aCommand [
 ]
 
 { #category : 'requests' }
-LDAPRequestQueue >> sendRequest: aRequest onResultDo: aBlock [
+LDAPRequestQueue >> sendRequest: aRequest onSuccessDo: aBlock onFailureDo: aFailBlock [
 
 	| task |
 	task := LDAPRequestTask new 
 		request: aRequest; 
-		onResponseDo: [ :command | aBlock cull: command ];
-		activateOnFailure: true.
+		onSuccessDo: aBlock;
+		onFailureDo: aFailBlock.
 
 	self nextPut: task
 ]
@@ -122,18 +116,20 @@ LDAPRequestQueue >> sendRequestFor: aTask [
 LDAPRequestQueue >> start [
 	running := true.
 	process := [
-		[ running ] whileTrue: [
-			| task |
-			task := requests peek.
-			task := self sendRequestFor: task.
-			task ifNotNil: [ 
+		[ [ running ] whileTrue: [
+			| aTask aCommand |
+			aTask := requests peek.
+			[ 
+				aCommand := connection request: aTask request.
+				aTask waitFor: aCommand.
 				requests next. "pop the peeked task"
-				task command wait.
-				self processTaskResponse: task.
+			] on: Exception do: [ 
+				connection isConnected ifFalse: [ self announceDisconnected ].
+				running := false 
 			].
+			self activateResponse: aTask.
 			requests isEmpty ifTrue: [ running := false ]
-		].
-		running := false.	
+		] ] ensure: [ 	running := false ]
 	] fork.
 
 ]
@@ -144,10 +140,15 @@ LDAPRequestQueue >> stop [
 	running := false.
 ]
 
-{ #category : 'callbacks' }
+{ #category : 'announcer' }
 LDAPRequestQueue >> when: aClass do: aFullBlockClosure [ 
 	self announcer
 		when: aClass
 		do: aFullBlockClosure
 		for: aFullBlockClosure receiver
+]
+
+{ #category : 'announcer' }
+LDAPRequestQueue >> when: anAnnouncementClass send: aSelector to: anObject [
+	^ self announcer when: anAnnouncementClass send: aSelector to: anObject
 ]

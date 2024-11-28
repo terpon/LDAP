@@ -12,9 +12,9 @@ Class {
 		'main',
 		'cache'
 	],
-	#category : 'LDAP-Spec2-Presenters',
+	#category : 'LDAP-Spec2-Applications',
 	#package : 'LDAP-Spec2',
-	#tag : 'Presenters'
+	#tag : 'Applications'
 }
 
 { #category : 'ui - dialogs' }
@@ -142,17 +142,10 @@ LDAPBrowser >> mainPresenter [
 
 { #category : 'callbacks' }
 LDAPBrowser >> onConnect [
-	| search |
 
 	session connected: true.
 
-	search := LDAPSearchRequest new
-		          base: '';
-		          scope: LDAPBaseObjectScope new;
-		          attributes: { 'namingContexts' }.
-		
-	queue sendRequest: search onResultDo: [ :command | self onNamingContexts: command ].
-
+	self searchNamingContexts.
 ]
 
 { #category : 'callbacks' }
@@ -165,28 +158,25 @@ LDAPBrowser >> onDisconnect [
 { #category : 'callbacks' }
 LDAPBrowser >> onNamingContexts: aCommand [
 
-	| roots searchResult responses |
-	responses := aCommand responses.
-	responses size > 1 ifFalse: [ session roots: #(). ^ self ].
-	 
-	searchResult := responses first asDictionary.
+	| roots searchResult |
+	searchResult := aCommand responses first asDictionary.
 	roots := searchResult at: 'namingContexts' ifAbsent: [ #() ].
 	session roots: roots.
 ]
 
 { #category : 'searching' }
 LDAPBrowser >> onSearchResult: aCommand for: anEntry [
+
 	| responses |
-	aCommand success ifFalse: [ ^ self ].
 	responses := aCommand responses allButLast.
-	
 	anEntry populateFromResults: responses.
 ]
 
 { #category : 'searching' }
 LDAPBrowser >> onSearchSelf: aCommand for: anEntry [
+
 	| response |
-	aCommand success ifFalse: [ ^ self ].
+
 	(aCommand responses size = 1) ifTrue: [ 
 		"No result DN does not exist"
 		"'report error'"
@@ -231,10 +221,36 @@ LDAPBrowser >> reportError: aResult [
 	].
 ]
 
+{ #category : 'private' }
+LDAPBrowser >> reportException: anError [
+
+	anError ifNotNil: [ :ex | ex traceCr. "ex pass" ].
+]
+
 { #category : 'connecting' }
 LDAPBrowser >> reset [ 
 
 	errorHandler reset.
+
+]
+
+{ #category : 'searching' }
+LDAPBrowser >> searchNamingContexts [
+"Search advertized root DNs"
+	| request |
+	session connected ifFalse: [ ^ self ].
+	
+	request := LDAPSearchRequest new
+		          base: '';
+		          scope: LDAPBaseObjectScope new;
+		          attributes: { 'namingContexts' }.
+		
+	queue sendRequest: request
+		onSuccessDo: [ :command | self onNamingContexts: command ]
+		onFailureDo: [ :command :error | 
+			self reportException: error.
+			session roots: #().
+			self reportError: command. ].
 
 ]
 
@@ -248,7 +264,11 @@ LDAPBrowser >> searchSelf: aDN for: anEntry [
 		          base: aDN;
 		          scope: LDAPBaseObjectScope new.
 
-	queue sendRequest: request onResultDo: [ :command | self onSearchSelf: command for: anEntry ].
+	queue sendRequest: request
+		onSuccessDo: [ :command | self onSearchSelf: command for: anEntry ]
+		onFailureDo: [ :command :error | 
+			self reportException: error.
+			self reportError: command. ].
 
 ]
 
@@ -262,7 +282,11 @@ LDAPBrowser >> searchSub: aDN for: anEntry [
 		          base: aDN;
 		          scope: LDAPSingleLevelScope new.
 
-	queue sendRequest: request onResultDo: [ :command | self onSearchResult: command for: anEntry ].
+	queue sendRequest: request
+		onSuccessDo: [ :command | self onSearchResult: command for: anEntry ]
+		onFailureDo: [ :command :error | 
+			self reportException: error.
+			self reportError: command. ].
 
 ]
 
@@ -277,7 +301,7 @@ LDAPBrowser >> start [
 { #category : 'initialization' }
 LDAPBrowser >> subscribeToAnnouncements [
 
-	queue when: LDAPConnectionAnnouncement do: [ self onConnect ].
-	queue when: LDAPDisconnectionAnnouncement do: [ self onDisconnect ].
+	queue when: LDAPConnectionAnnouncement send: #onConnect to: self.
+	queue when: LDAPDisconnectionAnnouncement send: #onDisconnect to: self.
 	queue when: LDAPErrorAnnouncement do: [ :e | self reportError: e command ].
 ]
