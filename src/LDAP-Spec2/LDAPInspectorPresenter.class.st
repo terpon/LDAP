@@ -104,11 +104,13 @@ LDAPInspectorPresenter >> initializePresenters [
 		enabled: false;
 		yourself.
 	
-	connection := self newButton
+	connection := self newToolbar beIcons;
+				add: (self newToolbarButton 
+							label: 'connection';
 				  			icon: (self iconNamed: #smallHome);
 				     		help: 'Open the connection dialog';
 				       	action: [ self openConnectionDialog ];
-				        	yourself.
+				        	yourself); yourself.
 					
 	miller := self instantiate: SpMillerPaginatorPresenter.
 	miller millerListPresenter 

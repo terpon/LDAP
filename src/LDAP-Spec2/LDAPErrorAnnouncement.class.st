@@ -5,7 +5,7 @@ Class {
 	#name : 'LDAPErrorAnnouncement',
 	#superclass : 'Announcement',
 	#instVars : [
-		'result'
+		'command'
 	],
 	#category : 'LDAP-Spec2-Announcements',
 	#package : 'LDAP-Spec2',
@@ -13,13 +13,13 @@ Class {
 }
 
 { #category : 'accessing' }
-LDAPErrorAnnouncement >> result [
+LDAPErrorAnnouncement >> command [
 
-	^ result
+	^ command
 ]
 
 { #category : 'accessing' }
-LDAPErrorAnnouncement >> result: anObject [
+LDAPErrorAnnouncement >> command: anObject [
 
-	result := anObject
+	command := anObject
 ]

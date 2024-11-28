@@ -1,3 +1,6 @@
+"
+I am a list of commands that triggered errors. I have a size limit and overflowind errors get thrown to the transcript.
+"
 Class {
 	#name : 'LDAPErrorQueueModel',
 	#superclass : 'Model',
@@ -5,7 +8,7 @@ Class {
 		'max',
 		'queue',
 		'lock',
-		'current'
+		'position'
 	],
 	#category : 'LDAP-Spec2-Tasks',
 	#package : 'LDAP-Spec2',
@@ -15,25 +18,33 @@ Class {
 { #category : 'private - sizing' }
 LDAPErrorQueueModel >> clipQueue [
 
-	(queue size > max) ifTrue: [ queue removeLast: (queue size - max) ]
+	(queue size > max) ifFalse: [ ^ self ].
+	
+	(max + 1) to: queue size do: [ :i | self traceReport: (queue at: i)].
+	queue removeLast: (queue size - max) 
+
 ]
 
-{ #category : 'api - events' }
-LDAPErrorQueueModel >> current [ 
+{ #category : 'accessing' }
+LDAPErrorQueueModel >> current [
 
+	| current |
+	current := #( 0 0 nil ) asOrderedCollection.
+	lock critical: [
+		queue ifEmpty: [ ^ current ].
+		current at: 1 put: position.
+		current at: 2 put: queue size.
+		current at: 3 put: (queue at: position).
+	].
 	^ current
 ]
 
-{ #category : 'removing' }
-LDAPErrorQueueModel >> currentResult [
+{ #category : 'accessing' }
+LDAPErrorQueueModel >> currentCommand [
 
-	| element |
-	element := nil.
-	lock critical: [
-		queue ifEmpty: [ ^ element ].
-		element := queue at: current.
-	].
-	^ element
+	^ lock critical: [
+		queue ifNotEmpty: [ queue at: position ] ifEmpty: [nil].
+	]
 ]
 
 { #category : 'initialization' }
@@ -42,33 +53,33 @@ LDAPErrorQueueModel >> initialize [
 	super initialize.
 	
 	max := 10.
-	current := 0.
+	position := 0.
 	queue := OrderedCollection new.
 	lock := Semaphore forMutualExclusion.
 
 ]
 
-{ #category : 'api - events' }
-LDAPErrorQueueModel >> next [
-	current < queue size ifFalse: [ ^ self ].
-	current := current + 1.
-	self valueChanged.
-]
-
-{ #category : 'api - events' }
-LDAPErrorQueueModel >> previous [
-	current <= 1 ifTrue: [ ^ self ].
-	current := current - 1.
-	self valueChanged.
-]
-
 { #category : 'accessing' }
-LDAPErrorQueueModel >> queueSize: anInteger [
+LDAPErrorQueueModel >> maxSize: anInteger [
 
 	lock critical: [
 		max := anInteger.
 		self clipQueue.
 	]
+]
+
+{ #category : 'api - events' }
+LDAPErrorQueueModel >> next [
+	position < queue size ifFalse: [ ^ self ].
+	position := position + 1.
+	self valueChanged.
+]
+
+{ #category : 'api - events' }
+LDAPErrorQueueModel >> previous [
+	position <= 1 ifTrue: [ ^ self ].
+	position := position - 1.
+	self valueChanged.
 ]
 
 { #category : 'removing' }
@@ -77,7 +88,7 @@ LDAPErrorQueueModel >> removeAll [
 	lock critical: [
 		queue ifEmpty: [ ^ self ].
 		queue removeAll.
-		current := 0.
+		position := 0.
 	].
 	self valueChanged
 ]
@@ -89,8 +100,8 @@ LDAPErrorQueueModel >> removeCurrent [
 	element := nil.
 	lock critical: [
 		queue ifEmpty: [ ^ element ].
-		element := queue removeAt: current.
-		current := current min: queue size.
+		element := queue removeAt: position.
+		position := position min: queue size.
 	].
 	self valueChanged.
 	^ element
@@ -102,25 +113,25 @@ LDAPErrorQueueModel >> report: aLDAPResult [
 	lock critical: [
 		(queue size >= max) ifTrue: [ ^ self traceReport: aLDAPResult ].
 		queue addLast: aLDAPResult.
-		(current = 0) ifTrue: [ current := 1 ].
+		(position = 0) ifTrue: [ position := 1 ].
 	].
 	self valueChanged
 
 
 ]
 
-{ #category : 'accessing' }
-LDAPErrorQueueModel >> size [
-
-	^ queue size
-]
-
 { #category : 'reporting' }
-LDAPErrorQueueModel >> traceReport: aLDAPResult [
-
+LDAPErrorQueueModel >> traceReport: aCommand [
+	
+	| aMessage |
+	aMessage := aCommand ifNil: [ 'a nil LDAPCommand' ]
+		ifNotNil: [
+			aCommand responses ifEmpty: [ 'a LDAPCommand with no reponses' ]
+				ifNotEmpty: [ :r | r last resultElement printString ]
+		].
 	(String streamContents: [ :s |
 		s nextPutAll: 'LDAP error overflow: ';
-		nextPutAll: aLDAPResult resultElement printString
+		nextPutAll: aMessage
 	]) traceCr.
 
 ]

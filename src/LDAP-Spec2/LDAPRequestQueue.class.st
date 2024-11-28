@@ -22,19 +22,6 @@ LDAPRequestQueue >> announcer [
 	^ announcer ifNil: [ announcer := Announcer new ]
 ]
 
-{ #category : 'error handling' }
-LDAPRequestQueue >> checkAndReport: aCommand [
-
-	| success result |
-	success := aCommand success.
-	aCommand responses ifEmpty: [ LDAPNoConnectionException signal. ^ false ].
-	result := aCommand responses last.
-	success ifFalse: [ 
-		self announcer announce: (LDAPErrorAnnouncement new result: result)
-	].
-	^ success
-]
-
 { #category : 'running' }
 LDAPRequestQueue >> connectWith: aServerInfo [
 	| bind |
@@ -88,17 +75,23 @@ LDAPRequestQueue >> processTaskResponse: aTask [
 	[ 
 		| command result |
 		command := aTask command.
-		command ifNil: [ ^ self error: 'nil command in task' ].
-		command responses ifEmpty: [ ^ self error: 'no responses in task' ].
+		command ifNil: [ ^ self reportErrorFrom: nil ].
+		command responses ifEmpty: [ ^ self reportErrorFrom: command ].
 		
 		result := command responses last.
 		result success 
 			ifTrue: [ aTask activate ]
 			ifFalse: [ 
-				self announcer announce: (LDAPErrorAnnouncement new result: result).
+				self reportErrorFrom: command.
 				aTask activateOnFailure ifTrue: [ aTask activate ]
 			].
 	] fork
+]
+
+{ #category : 'error handling' }
+LDAPRequestQueue >> reportErrorFrom: aCommand [
+
+	self announcer announce: (LDAPErrorAnnouncement new command: aCommand)
 ]
 
 { #category : 'requests' }

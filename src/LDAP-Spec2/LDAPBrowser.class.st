@@ -279,5 +279,5 @@ LDAPBrowser >> subscribeToAnnouncements [
 
 	queue when: LDAPConnectionAnnouncement do: [ self onConnect ].
 	queue when: LDAPDisconnectionAnnouncement do: [ self onDisconnect ].
-	queue when: LDAPErrorAnnouncement do: [ :e | self reportError: e result ].
+	queue when: LDAPErrorAnnouncement do: [ :e | self reportError: e command ].
 ]

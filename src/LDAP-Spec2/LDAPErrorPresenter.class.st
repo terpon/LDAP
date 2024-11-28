@@ -1,16 +1,18 @@
+"
+I am a presenter to display LDAP errors from the server
+"
 Class {
 	#name : 'LDAPErrorPresenter',
 	#superclass : 'SpPresenterWithModel',
 	#instVars : [
-		'current',
-		'slash',
-		'max',
+		'toolbar',
+		'inspect',
 		'shown',
 		'next',
 		'previous',
 		'clear',
 		'clearAll',
-		'close'
+		'position'
 	],
 	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
@@ -29,18 +31,12 @@ LDAPErrorPresenter >> buttonsLayout [
 	| left right |
 	left := SpBoxLayout newLeftToRight spacing: 5;
 		add: clear expand: false;
-		add: clearAll expand: false;
+		add: toolbar expand: false;
 		yourself.
 	right := SpBoxLayout newLeftToRight hAlignEnd;
-		add: close expand: false;
+		add: clearAll expand: false;
 		yourself.
 	^ SpBoxLayout newLeftToRight add: left; add: right; yourself
-]
-
-{ #category : 'accessing' }
-LDAPErrorPresenter >> current [
-
-	^ current ifNil: [ 0 ]
 ]
 
 { #category : 'layout' }
@@ -66,9 +62,7 @@ LDAPErrorPresenter >> initializePresenters [
 				     		help: 'See next error';
 				       	action: [ self next ];
 				        	yourself.
-	current := self newNumberInput beNotEditable; yourself.
-	slash := self newLabel label: '/'; yourself.
-	max := self newNumberInput beNotEditable; yourself.
+	position := self newLabel label: '0/0'; yourself.
 	shown := self instantiate: LDAPResultPresenter.
 	clear := self newButton label: 'Clear';
 				     		help: 'Remove current error from the queue';
@@ -76,14 +70,16 @@ LDAPErrorPresenter >> initializePresenters [
 				        	yourself.
 	clearAll := self newButton label: 'Clear all';
 				  			icon: (self iconNamed: #cancel);
-				     		help: 'Remove all errors';
+				     		help: 'Remove all errors and close window';
 				       	action: [ self removeAll ];
 				        	yourself.
-	close := self newButton label: 'Close';
-				  			icon: (self iconNamed: #close);
-				     		help: 'Remove all errors';
-				       	action: [ self withWindowDo: [ :w | w close ] ];
+	inspect := self newToolbarButton disable;
+							label: 'Inspect';
+				  			icon: (self iconNamed: #inspect);
+				     		help: 'Inspect current command';
+				       	action: [ self inspectCurrent ];
 				        	yourself.
+	toolbar := self newToolbar beIcons; add: inspect; yourself.
 
 ]
 
@@ -100,21 +96,26 @@ LDAPErrorPresenter >> initializeWindow: aSpWindowPresenter [
 	aSpWindowPresenter whenOpenedDo: [ clear takeKeyboardFocus ].
 ]
 
+{ #category : 'api - events' }
+LDAPErrorPresenter >> inspectCurrent [
+	
+	self model ifNotNil: [ :model | model currentCommand ifNotNil: [ :command | command message inspect ] ]
+]
+
 { #category : 'initialization' }
 LDAPErrorPresenter >> modelChanged [ 
 
-	| model count index |
+	| model current count index |
 	model := self model ifNil: [ ^ self reset ].
-	index := model current.
-	count := model size.
+	current := model current.
+	index := current first.
+	count := current second.
+	index = 0 ifTrue: [ self reset. ^ self withWindowDo: [ :window | window close ] ].
 
-	current number: index.
-	max number: count.
-	slash label: (String streamContents: [:s | s nextPutAll: index asString; nextPut: $/; nextPutAll: count asString ]).
-	shown result: (count isZero 
-		ifTrue: [ nil ]
-		ifFalse: [ model currentResult ]).
+	position label: ('{1}/{2}' format: { index. count }).
+	shown result: (self resultFrom: current third).
 
+	inspect enabled: current third isNotNil.
 	previous enabled: index > 1.
 	next enabled: (index > 0) & (index < count).
 
@@ -126,8 +127,8 @@ LDAPErrorPresenter >> navigationLayout [
 		spacing: 3;
 		add: (SpBoxLayout newLeftToRight add: previous; yourself) expand: false; 
 		add: (SpBoxLayout newLeftToRight hAlignCenter; vAlignCenter;
-			"add: current;" 
-			add: slash expand: false; 
+			"add: guilll;" 
+			add: position expand: false; 
 			"add: max; "
 			yourself);
 		add: (SpBoxLayout newLeftToRight hAlignEnd; add: next; yourself) expand: false;
@@ -165,11 +166,20 @@ LDAPErrorPresenter >> removeCurrent [
 { #category : 'initialization' }
 LDAPErrorPresenter >> reset [ 
 
-	current number: 0.
-	max number: 0.
+	position label: ''.
 	shown result: nil.
 
 	previous disable.
 	next disable.
+	inspect disable.
 
+]
+
+{ #category : 'converting' }
+LDAPErrorPresenter >> resultFrom: aCommand [
+	
+	| responses |
+	aCommand ifNil: [ ^ LDAPResult newCode: 80 name: '' message: 'Connection returned a nil LDAPCommand' ].
+	responses := aCommand responses ifEmpty: [ ^ LDAPResult newCode: 80 name: '' message: 'No responses in LDAPCommand'].
+	^ responses last
 ]
