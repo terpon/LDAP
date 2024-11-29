@@ -20,6 +20,11 @@ Class {
 	#tag : 'Presenters'
 }
 
+{ #category : 'factory' }
+LDAPInspectorPresenter class >> entryClass [
+	^ LDAPEntryPresenter
+]
+
 { #category : 'ui' }
 LDAPInspectorPresenter >> buildRootDropList: aCollection andSelect: anInteger [
 
@@ -146,6 +151,12 @@ LDAPInspectorPresenter >> modelChanged [
 	] ensure: [ modelChanging := false ]
 ]
 
+{ #category : 'simple dialog helpers' }
+LDAPInspectorPresenter >> notify: aString [
+
+	statusBar display: aString
+]
+
 { #category : 'ui - dialogs' }
 LDAPInspectorPresenter >> openConnectionDialog [
 	
@@ -170,9 +181,10 @@ LDAPInspectorPresenter >> openCustomRootDialog [
 { #category : 'ui' }
 LDAPInspectorPresenter >> presenterFor: anAttribute [
 
-	| entry presenter |
+	| entry presenterClass presenter |
 	entry := application entryFor: anAttribute name.
-	presenter := LDAPEntryPresenter newApplication: application model: entry.
+	presenterClass := self class entryClass.
+	presenter := presenterClass newApplication: application model: entry.
 	presenter activateOnSingleClick.
 	^ presenter
 ]

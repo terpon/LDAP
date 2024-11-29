@@ -57,6 +57,12 @@ LDAPStatusBarPresenter >> disconnectAction [
 	disconnectAction ifNotNil: [ :block | block cull: self ].
 ]
 
+{ #category : 'api' }
+LDAPStatusBarPresenter >> display: aString [
+
+	message text: (aString ifNil: [''])
+]
+
 { #category : 'initialization' }
 LDAPStatusBarPresenter >> initializePresenters [ 
 
@@ -66,10 +72,10 @@ LDAPStatusBarPresenter >> initializePresenters [
 		
 	message := self newTextInput beNotEditable.
 
-	disconnect := self newImage
+	disconnect := self newImage"
 		image: (self iconNamed: #smallQuit);
 		help: 'Disconnect from current server';
-		action: [ self disconnectAction ].
+		action: [ self disconnectAction ]".
 ]
 
 { #category : 'api - events' }

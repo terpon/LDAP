@@ -11,9 +11,7 @@ Class {
 	#instVars : [
 		'name',
 		'branches',
-		'leaves',
-		'needSelfRefresh',
-		'needSubRefresh'
+		'leaves'
 	],
 	#category : 'LDAP-Spec2-Models',
 	#package : 'LDAP-Spec2',
@@ -42,27 +40,6 @@ LDAPEntryModel >> initialize [
 	
 	branches := OrderedCollection new.
 	leaves := OrderedCollection new.
-	needSelfRefresh := true.
-	needSubRefresh := true.
-]
-
-{ #category : 'invalidate' }
-LDAPEntryModel >> invalidate [
-
-	self invalidateSelf.
-	self invalidateSub.
-]
-
-{ #category : 'invalidate' }
-LDAPEntryModel >> invalidateSelf [
-
-	needSelfRefresh := true
-]
-
-{ #category : 'invalidate' }
-LDAPEntryModel >> invalidateSub [
-
-	needSubRefresh := true
 ]
 
 { #category : 'accessing' }
@@ -78,23 +55,10 @@ LDAPEntryModel >> name: anObject [
 	self valueChanged
 ]
 
-{ #category : 'accessing' }
-LDAPEntryModel >> needSelfRefresh [
-
-	^ needSelfRefresh 
-]
-
-{ #category : 'accessing' }
-LDAPEntryModel >> needSubRefresh [
-
-	^ needSubRefresh 
-]
-
 { #category : 'initialization' }
 LDAPEntryModel >> populateFromPartialAttributeList: anObject [
 "only leaves"
 
-	needSelfRefresh := false.
 	leaves := anObject flattened collect: [ :pair |
 		LDAPLeafEntryAttribute new 
 			description: pair first; 
@@ -107,7 +71,6 @@ LDAPEntryModel >> populateFromPartialAttributeList: anObject [
 LDAPEntryModel >> populateFromResults: aCollection [
 "at this level all results are children on the current entry"
 	| elements |
-	needSubRefresh := false.
 	elements := aCollection reject: [ :each | each isReference ].
 	branches := elements collect: [ :each | | dn pair |
 		dn := each name.

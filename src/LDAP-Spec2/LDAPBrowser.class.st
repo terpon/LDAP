@@ -54,6 +54,12 @@ LDAPBrowser >> connectTo: aServerInfo [
 
 ]
 
+{ #category : 'testing' }
+LDAPBrowser >> connected [
+
+	^ 	session connected
+]
+
 { #category : 'accessing' }
 LDAPBrowser >> connectedServer [
 
@@ -87,11 +93,10 @@ LDAPBrowser >> disconnect [
 { #category : 'accessing' }
 LDAPBrowser >> entryFor: aDN [
 "Gets entry from the cache or search it"
-	| entry |
-	entry := cache at: aDN ifAbsentPut: [ LDAPEntryModel new name: aDN ].
-	entry needSelfRefresh ifTrue: [ self searchSelf: aDN for: entry. ].
-	entry needSubRefresh ifTrue: [ self searchSub: aDN for: entry. ].
-	^ entry
+	| aCachedEntry |
+	aCachedEntry := cache at: aDN ifAbsentPut: [ LDAPCachedEntry on: self for: aDN ].
+	aCachedEntry update.
+	^ aCachedEntry entry
 
 ]
 
@@ -144,6 +149,7 @@ LDAPBrowser >> mainPresenter [
 LDAPBrowser >> onConnect [
 
 	session connected: true.
+	main notify: ''.
 
 	self searchNamingContexts.
 ]
@@ -152,6 +158,7 @@ LDAPBrowser >> onConnect [
 LDAPBrowser >> onDisconnect [
 
 	session connected: false.
+	main notify: ''.
 
 ]
 
@@ -162,29 +169,6 @@ LDAPBrowser >> onNamingContexts: aCommand [
 	searchResult := aCommand responses first asDictionary.
 	roots := searchResult at: 'namingContexts' ifAbsent: [ #() ].
 	session roots: roots.
-]
-
-{ #category : 'searching' }
-LDAPBrowser >> onSearchResult: aCommand for: anEntry [
-
-	| responses |
-	responses := aCommand responses allButLast.
-	anEntry populateFromResults: responses.
-]
-
-{ #category : 'searching' }
-LDAPBrowser >> onSearchSelf: aCommand for: anEntry [
-
-	| response |
-
-	(aCommand responses size = 1) ifTrue: [ 
-		"No result DN does not exist"
-		"'report error'"
-		^ self.
-	].
-	response := aCommand responses first.
-	
-	anEntry populateFromPartialAttributeList: response attributes.
 ]
 
 { #category : 'enumerating' }
@@ -224,7 +208,10 @@ LDAPBrowser >> reportError: aResult [
 { #category : 'private' }
 LDAPBrowser >> reportException: anError [
 
-	anError ifNotNil: [ :ex | ex traceCr. "ex pass" ].
+	anError ifNotNil: [ :ex | 
+		main notify: ex printString.
+		ex traceCr. "ex pass" 
+	].
 ]
 
 { #category : 'connecting' }
@@ -250,42 +237,6 @@ LDAPBrowser >> searchNamingContexts [
 		onFailureDo: [ :command :error | 
 			self reportException: error.
 			session roots: #().
-			self reportError: command. ].
-
-]
-
-{ #category : 'searching' }
-LDAPBrowser >> searchSelf: aDN for: anEntry [
-"Search will return the base node for aDN"
-	| request |
-	session connected ifFalse: [ ^ self ].
-	
-	request := LDAPSearchRequest new
-		          base: aDN;
-		          scope: LDAPBaseObjectScope new.
-
-	queue sendRequest: request
-		onSuccessDo: [ :command | self onSearchSelf: command for: anEntry ]
-		onFailureDo: [ :command :error | 
-			self reportException: error.
-			self reportError: command. ].
-
-]
-
-{ #category : 'searching' }
-LDAPBrowser >> searchSub: aDN for: anEntry [
-"Search will return the child nodes of aDN"
-	| request |
-	session connected ifFalse: [ ^ self ].
-	
-	request := LDAPSearchRequest new
-		          base: aDN;
-		          scope: LDAPSingleLevelScope new.
-
-	queue sendRequest: request
-		onSuccessDo: [ :command | self onSearchResult: command for: anEntry ]
-		onFailureDo: [ :command :error | 
-			self reportException: error.
 			self reportError: command. ].
 
 ]

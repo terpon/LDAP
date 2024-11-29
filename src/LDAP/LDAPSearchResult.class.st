@@ -2,7 +2,7 @@
 Search result code
 "
 Class {
-	#name : 'LDAPSearchResultCode',
+	#name : 'LDAPSearchResult',
 	#superclass : 'LDAPResult',
 	#category : 'LDAP-Search',
 	#package : 'LDAP',
@@ -10,12 +10,18 @@ Class {
 }
 
 { #category : 'accessing' }
-LDAPSearchResultCode class >> tagValue [
+LDAPSearchResult class >> tagValue [
 	^ 16r65
 ]
 
 { #category : 'testing' }
-LDAPSearchResultCode >> success [
+LDAPSearchResult >> found [
+	"32 (noSuchObject) means the only failure is to find the DN"
+	^ self resultCode = 0
+]
+
+{ #category : 'testing' }
+LDAPSearchResult >> success [
 	| code |
 	code := self resultCode.	
 	^ #( 0 32 ) includes: code

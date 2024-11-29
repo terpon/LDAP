@@ -8,8 +8,7 @@ Class {
 	#classTraits : 'SpTActivable classTrait',
 	#instVars : [
 		'table',
-		'name',
-		'toolBar'
+		'name'
 	],
 	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
@@ -96,17 +95,8 @@ LDAPEntryPresenter >> connectPresenters [
 { #category : 'layout' }
 LDAPEntryPresenter >> defaultLayout [ 
 	^ SpBoxLayout newTopToBottom
-		add: #name expand: false;
-		add: #table;
-		yourself
-]
-
-{ #category : 'layout' }
-LDAPEntryPresenter >> editorLayout [ 
-	^ SpBoxLayout newTopToBottom
-		add: #name expand: false;
-		add: #toolBar expand: false;
-		add: #table;
+		add: name expand: false;
+		add: table;
 		yourself
 ]
 
@@ -114,39 +104,23 @@ LDAPEntryPresenter >> editorLayout [
 LDAPEntryPresenter >> initializePresenters [ 
 
 	name := self newTextInput beNotEditable.
-	
+
 	table := self newTable
 		isResizable: true;
 		alternateRowsColor;
 		addColumn: (SpCompositeTableColumn new
 			title: 'Attribute';
 			addColumn: (SpImageTableColumn new
-				width: 20;
-				evaluated: [ :i | i icon: self application ];
-				yourself);
-			addColumn: (SpStringTableColumn new
-				evaluated: [ :i | i description ];
-				yourself));
-		addColumn: (SpStringTableColumn title: 'Value' evaluated: [ :each | each value ]);
-		yourself.
-	
-		toolBar := self newToolbar
-					beIcons;
-		          addItem: (SpToolbarButtonPresenter new
-				            label: 'New DN';
-				            icon: (self iconNamed: #smallAdd);
-				            help: 'Add a new sub entry to current DN';
-				            action: [ self addAction ];
-				            yourself);
-		           addItem: (SpToolbarButtonPresenter new
-				            label: 'Delete';
-				            icon: (self iconNamed: #smallCancel);
-				            help: 'Delete current DN entry';
-				            action: [ self deleteAction ];
-				            yourself);
-		           yourself.
-
-
+			width: 20;
+			evaluated: [ :i | i icon: self application ];
+			yourself);
+		addColumn: (SpStringTableColumn new
+			evaluated: [ :i | i description ];
+			yourself));
+	addColumn: (SpStringTableColumn new
+		title: 'Value'; 
+		evaluated: [ :each | each value ]);
+	yourself.
 ]
 
 { #category : 'initialization' }
