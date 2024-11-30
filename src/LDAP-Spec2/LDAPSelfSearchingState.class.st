@@ -1,3 +1,6 @@
+"
+I am the state when the entry sub entries are still valid but the entry attributes need to be reloaded.
+"
 Class {
 	#name : 'LDAPSelfSearchingState',
 	#superclass : 'LDAPAsyncEntryState',
@@ -6,21 +9,19 @@ Class {
 	#tag : 'Models'
 }
 
-{ #category : 'callbacks' }
-LDAPSelfSearchingState >> done: aCommand [
+{ #category : 'private - changes' }
+LDAPSelfSearchingState >> process: aCommand [
 
 	| response |
 	(aCommand responses size = 1) ifTrue: [ 
 		"No result: DN does not exist, why would this entry be created"
-		nextClass := LDAPNotFoundEntryState.
-		^ super done: aCommand
+		^ LDAPNotFoundEntryState.
 	].
 	response := aCommand responses first.
 	
 	entry populateFromPartialAttributeList: response attributes.	
 
-	nextClass := LDAPLoadedEntryState.
-	super done: aCommand
+	^ LDAPLoadedEntryState.
 ]
 
 { #category : 'running' }

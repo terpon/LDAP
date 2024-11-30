@@ -15,13 +15,18 @@ Class {
 
 { #category : 'instance creation' }
 LDAPEntryState class >> from: aState [
-
-	^ self new application: aState application; entry: aState entry; yourself
+"Give full ownership of the entry to the new state"
+"TODO: check if we need a mutex here, or have a method in aState with the mutex there"
+	| anEntry anApplication|
+	anEntry := aState entry.
+	aState entry: nil.
+	anApplication := aState application.
+	^ self new application: anApplication; entry: anEntry; yourself
 ]
 
 { #category : 'instance creation' }
 LDAPEntryState class >> on: anApplication for: anEntry [
-
+	"New state always start invalidated"
 	^ LDAPInvalidatedEntryState new application: anApplication; entry: anEntry; yourself
 ]
 

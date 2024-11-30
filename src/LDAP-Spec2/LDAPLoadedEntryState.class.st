@@ -1,3 +1,7 @@
+"
+I am the state where the entry is fully loaded.
+
+"
 Class {
 	#name : 'LDAPLoadedEntryState',
 	#superclass : 'LDAPEntryState',

@@ -37,7 +37,11 @@ LDAPCachedEntry >> update [
 	
 	[ 
 		[ state atEnd ] whileFalse: [
+			| entry |
+			entry := state entry.
+			entry ifNil: [ self error: '1' ].
 			state := state next.
+			state entry ifNil: [ self error: '2' ].
 			Processor yield
 		]
 	] forkAt: Processor userBackgroundPriority named: 'LDAP update ', self entry name

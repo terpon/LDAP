@@ -1,3 +1,6 @@
+"
+I am the state when the entry is first added to the cache. I’ll load first ths sub entries before switching to the state to load my entry attributes.
+"
 Class {
 	#name : 'LDAPSubSearchingState',
 	#superclass : 'LDAPAsyncEntryState',
@@ -21,6 +24,27 @@ LDAPSubSearchingState >> done: aCommand [
 	
 	nextClass := LDAPSelfSearchingState.
 	super done: aCommand
+]
+
+{ #category : 'private - changes' }
+LDAPSubSearchingState >> onSuccessClass [
+
+	^ LDAPSelfSearchingState
+]
+
+{ #category : 'private - changes' }
+LDAPSubSearchingState >> process: aCommand [
+
+	| result responses |
+	result := aCommand responses last.
+	result found ifFalse: [  
+		"No result: DN does not exist, why would this entry be created"
+		^ LDAPNotFoundEntryState.
+	].
+	responses := aCommand responses allButLast.
+	entry populateFromResults: responses.
+	
+	^ self onSuccessClass
 ]
 
 { #category : 'running' }

@@ -21,7 +21,13 @@ LDAPAsyncEntryState >> atEnd [
 
 { #category : 'callbacks' }
 LDAPAsyncEntryState >> done: aCommand [
-"super done should be called at the end of subclasses implementations"
+"subclasses implementations should override the process and reture the next class on sucess"
+
+	"We lost ownership during the request"
+	entry ifNil: [ ^ self ].
+	
+	nextClass := (self process: aCommand) ifNil: [ LDAPInvalidatedEntryState ].
+	
 	done := true.
 	
 ]
@@ -44,6 +50,8 @@ LDAPAsyncEntryState >> isDone [
 { #category : 'changing state' }
 LDAPAsyncEntryState >> next [
 
+	entry ifNil: [ self error: 'next cannot be called with nil entry'. ^ LDAPInvalidatedEntryState from: self ].
+
 	application connected ifFalse: [ ^ self invalidate ].
 	
 	done ifNil: [
@@ -56,6 +64,13 @@ LDAPAsyncEntryState >> next [
 	nextClass ifNil: [ self error: 'subclass should have set a next class'. nextClass := LDAPInvalidatedEntryState ].
 
 	^ nextClass from: self
+]
+
+{ #category : 'private - changes' }
+LDAPAsyncEntryState >> process: aCommand [
+
+	self subclassResponsibility.
+	^ false
 ]
 
 { #category : 'running' }
