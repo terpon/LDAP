@@ -42,7 +42,7 @@ LDAPBrowser >> clearCache [
 { #category : 'circuit setup' }
 LDAPBrowser >> connectTo: aServerInfo [
 
-	session connected ifTrue: [
+	self isConnected ifTrue: [
 		(aServerInfo = session server) ifTrue: [ ^ self ].
 		self disconnect.
 	].
@@ -63,7 +63,7 @@ LDAPBrowser >> connected [
 { #category : 'accessing' }
 LDAPBrowser >> connectedServer [
 
-	session connected ifFalse: [ ^ nil ].
+	self isConnected ifFalse: [ ^ nil ].
 	^ session server hostname
 ]
 
@@ -94,8 +94,8 @@ LDAPBrowser >> disconnect [
 LDAPBrowser >> entryFor: aDN [
 "Gets entry from the cache or search it"
 	| aCachedEntry |
-	aCachedEntry := cache at: aDN ifAbsentPut: [ LDAPCachedEntry on: self for: aDN ].
-	aCachedEntry update.
+	aCachedEntry := cache at: aDN ifAbsentPut: [ LDAPCachedEntry for: aDN ].
+	self isConnected ifTrue: [ aCachedEntry update: self ].
 	^ aCachedEntry entry
 
 ]
@@ -137,6 +137,12 @@ LDAPBrowser >> initializeMainPresenter [
 		          model: session.
 
 
+]
+
+{ #category : 'testing' }
+LDAPBrowser >> isConnected [
+
+	^ 	session connected
 ]
 
 { #category : 'accessing' }
@@ -225,7 +231,7 @@ LDAPBrowser >> reset [
 LDAPBrowser >> searchNamingContexts [
 "Search advertized root DNs"
 	| request |
-	session connected ifFalse: [ ^ self ].
+	self isConnected ifFalse: [ ^ self ].
 	
 	request := LDAPSearchRequest new
 		          base: '';
@@ -234,8 +240,7 @@ LDAPBrowser >> searchNamingContexts [
 		
 	queue sendRequest: request
 		onSuccessDo: [ :command | self onNamingContexts: command ]
-		onFailureDo: [ :command :error | 
-			self reportException: error.
+		onFailureDo: [ :command | 
 			session roots: #().
 			self reportError: command. ].
 

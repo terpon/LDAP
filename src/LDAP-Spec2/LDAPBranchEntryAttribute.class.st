@@ -7,9 +7,9 @@ Class {
 	#instVars : [
 		'name'
 	],
-	#category : 'LDAP-Spec2-Models',
+	#category : 'LDAP-Spec2-Tasks',
 	#package : 'LDAP-Spec2',
-	#tag : 'Models'
+	#tag : 'Tasks'
 }
 
 { #category : 'accessing' }

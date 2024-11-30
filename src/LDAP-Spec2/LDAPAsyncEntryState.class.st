@@ -6,11 +6,12 @@ Class {
 	#superclass : 'LDAPEntryState',
 	#instVars : [
 		'done',
-		'nextClass'
+		'nextClass',
+		'command'
 	],
-	#category : 'LDAP-Spec2-Models',
+	#category : 'LDAP-Spec2-Tasks',
 	#package : 'LDAP-Spec2',
-	#tag : 'Models'
+	#tag : 'Tasks'
 }
 
 { #category : 'testing' }
@@ -21,68 +22,53 @@ LDAPAsyncEntryState >> atEnd [
 
 { #category : 'callbacks' }
 LDAPAsyncEntryState >> done: aCommand [
-"subclasses implementations should override the process and reture the next class on sucess"
-
-	"We lost ownership during the request"
-	entry ifNil: [ ^ self ].
+"subclasses implementations should override the process and reture the next class on success"
 	
-	nextClass := (self process: aCommand) ifNil: [ LDAPInvalidatedEntryState ].
-	
-	done := true.
+	command := aCommand.
+	done signal
 	
 ]
 
 { #category : 'callbacks' }
-LDAPAsyncEntryState >> fail: aCommand with: anError [
+LDAPAsyncEntryState >> fail: aCommand [ 
 
-	application reportException: anError.
-	application reportError: aCommand.
+	command := aCommand.
 	nextClass := LDAPNotFoundEntryState.
-	done := true
-]
-
-{ #category : 'testing' }
-LDAPAsyncEntryState >> isDone [
-
-	^ done
+	done signal
 ]
 
 { #category : 'changing state' }
-LDAPAsyncEntryState >> next [
+LDAPAsyncEntryState >> nextFor: anEntry on: anApplication [
 
-	entry ifNil: [ self error: 'next cannot be called with nil entry'. ^ LDAPInvalidatedEntryState from: self ].
-
-	application connected ifFalse: [ ^ self invalidate ].
+	anApplication isConnected ifFalse: [ ^ self invalidate ].
 	
 	done ifNil: [
-		done := false.
-		self run.
+		done := Semaphore new.
+		self runFor: anEntry on: anApplication.
 	].
-
-	self isDone ifFalse: [ ^ self ].
-
-	nextClass ifNil: [ self error: 'subclass should have set a next class'. nextClass := LDAPInvalidatedEntryState ].
-
-	^ nextClass from: self
-]
-
-{ #category : 'private - changes' }
-LDAPAsyncEntryState >> process: aCommand [
-
-	self subclassResponsibility.
-	^ false
+	done isSignaled ifFalse: [ ^ self ].
+	
+	nextClass := (self update: anEntry) ifNil: [ LDAPInvalidatedEntryState ].
+	^ nextClass new
 ]
 
 { #category : 'running' }
-LDAPAsyncEntryState >> run [
+LDAPAsyncEntryState >> runFor: anEntry on: anApplication [
 
 	^ self subclassResponsibility
 ]
 
-{ #category : 'running' }
-LDAPAsyncEntryState >> sendRequest: aRequest [
+{ #category : 'private - dispatching' }
+LDAPAsyncEntryState >> sendRequest: aRequest on: anApplication [
 
-	application queue sendRequest: aRequest
-		onSuccessDo: [ :command | self done: command ]
-		onFailureDo: [ :command :error | self fail: command with: error ]
+	anApplication queue sendRequest: aRequest
+		onSuccessDo: [ :aCommand | self done: aCommand ]
+		onFailureDo: [ :aCommand | self fail: aCommand ]
+]
+
+{ #category : 'private - updating' }
+LDAPAsyncEntryState >> update: anEntry [
+
+	self subclassResponsibility.
+	^ nil
 ]

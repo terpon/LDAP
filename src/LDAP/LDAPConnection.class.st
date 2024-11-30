@@ -154,7 +154,7 @@ LDAPConnection >> postCopy [
 { #category : 'command execution' }
 LDAPConnection >> request: aRequest [
 	| command message |
-	self isConnected ifFalse: [ LDAPNoConnectionException signal. ^ nil ].
+	self isConnected ifFalse: [ ^ nil ].
 	
 	message := LDAPMessage new operation: aRequest.
 	command := LDAPCommand new initializeWith: message.

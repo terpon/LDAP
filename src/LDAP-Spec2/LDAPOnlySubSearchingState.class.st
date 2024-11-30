@@ -4,9 +4,9 @@ I am the state when the entry self attributes are still valid but the sub entrie
 Class {
 	#name : 'LDAPOnlySubSearchingState',
 	#superclass : 'LDAPSubSearchingState',
-	#category : 'LDAP-Spec2-Models',
+	#category : 'LDAP-Spec2-Tasks',
 	#package : 'LDAP-Spec2',
-	#tag : 'Models'
+	#tag : 'Tasks'
 }
 
 { #category : 'private - changes' }

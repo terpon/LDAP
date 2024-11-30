@@ -1,48 +1,49 @@
+"
+I wrap an entry model to managed loading of attributes.
+"
 Class {
 	#name : 'LDAPCachedEntry',
 	#superclass : 'Object',
 	#instVars : [
+		'entry',
 		'state'
 	],
-	#category : 'LDAP-Spec2-Models',
+	#category : 'LDAP-Spec2-Tasks',
 	#package : 'LDAP-Spec2',
-	#tag : 'Models'
+	#tag : 'Tasks'
 }
 
 { #category : 'instance creation' }
-LDAPCachedEntry class >> on: anApplication for: aDN [
+LDAPCachedEntry class >> for: aDN [
 
 	| anEntry |
 	anEntry := LDAPEntryModel new name: aDN.
-	^ self new startOn: anApplication for: anEntry
+	^ self new entry: anEntry
 	
 ]
 
 { #category : 'accessing' }
 LDAPCachedEntry >> entry [
 
-	^ state entry
+	^ entry
 ]
 
-{ #category : 'initialization' }
-LDAPCachedEntry >> startOn: anApplication for: anEntry [
+{ #category : 'accessing' }
+LDAPCachedEntry >> entry: anEntry [
 
-	state := LDAPEntryState on: anApplication for: anEntry
+	entry := anEntry.
+	state := LDAPInvalidatedEntryState new.
 ]
 
 { #category : 'updating' }
-LDAPCachedEntry >> update [
+LDAPCachedEntry >> update: anApplication [
 
 	state atEnd ifTrue: [ ^ self ].
 	
 	[ 
 		[ state atEnd ] whileFalse: [
-			| entry |
-			entry := state entry.
-			entry ifNil: [ self error: '1' ].
-			state := state next.
-			state entry ifNil: [ self error: '2' ].
+			state := state nextFor: entry on: anApplication.
 			Processor yield
 		]
-	] forkAt: Processor userBackgroundPriority named: 'LDAP update ', self entry name
+	] forkAt: Processor userBackgroundPriority named: 'LDAP update ', entry name
 ]

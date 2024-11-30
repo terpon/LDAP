@@ -7,21 +7,12 @@ Class {
 	#instVars : [
 		'announcer',
 		'connection',
-		'process',
-		'requests',
-		'running'
+		'requests'
 	],
 	#category : 'LDAP-Spec2-Tasks',
 	#package : 'LDAP-Spec2',
 	#tag : 'Tasks'
 }
-
-{ #category : 'executing' }
-LDAPRequestQueue >> activateResponse: aTask [
-	"Process command in a fork to avoid blocking the request queue"
-
-	[ aTask activate ] fork
-]
 
 { #category : 'announcer' }
 LDAPRequestQueue >> announceDisconnected [
@@ -56,7 +47,7 @@ LDAPRequestQueue >> disconnect [
 
 	self announceDisconnected.
 	connection ifNotNil: [ connection disconnect ].
-	self stop; flush.
+	self flush.
 ]
 
 { #category : 'flushing' }
@@ -65,20 +56,24 @@ LDAPRequestQueue >> flush [
 	requests flush.
 ]
 
+{ #category : 'private - dispatching' }
+LDAPRequestQueue >> flushFinishedTasks [
+
+	requests flushAllSuchThat: [ :queued | queued isTerminated ]
+]
+
 { #category : 'initialization' }
 LDAPRequestQueue >> initialize [
 	super initialize.
 	
 	requests := SharedQueue new.
-	running := false.
 
 ]
 
 { #category : 'private - dispatching' }
-LDAPRequestQueue >> nextPut: aTask [
+LDAPRequestQueue >> launch: aTask [
 
-	requests nextPut: aTask.
-	running ifFalse: [ self start ]
+	^ [ self start: aTask ] forkAt: Processor userBackgroundPriority named: 'LDAP task for ', aTask request className
 
 ]
 
@@ -92,52 +87,23 @@ LDAPRequestQueue >> reportErrorFrom: aCommand [
 LDAPRequestQueue >> sendRequest: aRequest onSuccessDo: aBlock onFailureDo: aFailBlock [
 
 	| task |
+	self flushFinishedTasks.
+	
 	task := LDAPRequestTask new 
 		request: aRequest; 
 		onSuccessDo: aBlock;
 		onFailureDo: aFailBlock.
 
-	self nextPut: task
+	requests nextPut: (self launch: task).
 ]
 
-{ #category : 'private - running' }
-LDAPRequestQueue >> sendRequestFor: aTask [ 
-
-	| command |
-	aTask ifNil: [ running := false. ^ nil ].
-	command := connection request: aTask request.
-	command ifNil: [ running := false. ^ nil ].
-	
-	aTask command: command.
-	^ aTask
-]
-
-{ #category : 'private - running' }
-LDAPRequestQueue >> start [
-	running := true.
-	process := [
-		[ [ running ] whileTrue: [
-			| aTask aCommand |
-			aTask := requests peek.
-			[ 
-				aCommand := connection request: aTask request.
-				aTask waitFor: aCommand.
-				requests next. "pop the peeked task"
-			] on: Exception do: [ 
-				connection isConnected ifFalse: [ self announceDisconnected ].
-				running := false 
-			].
-			self activateResponse: aTask.
-			requests isEmpty ifTrue: [ running := false ]
-		] ] ensure: [ 	running := false ]
-	] fork.
-
-]
-
-{ #category : 'private - running' }
-LDAPRequestQueue >> stop [
-	"The process will stop when the next request it done"
-	running := false.
+{ #category : 'private - dispatching' }
+LDAPRequestQueue >> start: aTask [
+"This is run in a forked process"
+	| aCommand |
+	aCommand := [ connection request: aTask request ] on: Exception do: [ :ex | ex pass. nil ].
+	aCommand ifNil: [ ^ nil ].
+	aTask waitFor: aCommand.
 ]
 
 { #category : 'announcer' }

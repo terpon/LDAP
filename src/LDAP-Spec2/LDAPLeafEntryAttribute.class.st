@@ -6,9 +6,9 @@ If the entry has multiple values for a given attribute type, multiple instances 
 Class {
 	#name : 'LDAPLeafEntryAttribute',
 	#superclass : 'LDAPEntryAttribute',
-	#category : 'LDAP-Spec2-Models',
+	#category : 'LDAP-Spec2-Tasks',
 	#package : 'LDAP-Spec2',
-	#tag : 'Models'
+	#tag : 'Tasks'
 }
 
 { #category : 'testing' }

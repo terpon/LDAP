@@ -4,27 +4,10 @@ I am the state when the entry is first added to the cache. I’ll load first ths
 Class {
 	#name : 'LDAPSubSearchingState',
 	#superclass : 'LDAPAsyncEntryState',
-	#category : 'LDAP-Spec2-Models',
+	#category : 'LDAP-Spec2-Tasks',
 	#package : 'LDAP-Spec2',
-	#tag : 'Models'
+	#tag : 'Tasks'
 }
-
-{ #category : 'callbacks' }
-LDAPSubSearchingState >> done: aCommand [
-
-	| result responses |
-	result := aCommand responses last.
-	result found ifFalse: [  
-		"No result: DN does not exist, why would this entry be created"
-		nextClass := LDAPNotFoundEntryState.
-		^ super done: aCommand
-	].
-	responses := aCommand responses allButLast.
-	entry populateFromResults: responses.
-	
-	nextClass := LDAPSelfSearchingState.
-	super done: aCommand
-]
 
 { #category : 'private - changes' }
 LDAPSubSearchingState >> onSuccessClass [
@@ -32,29 +15,32 @@ LDAPSubSearchingState >> onSuccessClass [
 	^ LDAPSelfSearchingState
 ]
 
-{ #category : 'private - changes' }
-LDAPSubSearchingState >> process: aCommand [
-
-	| result responses |
-	result := aCommand responses last.
-	result found ifFalse: [  
-		"No result: DN does not exist, why would this entry be created"
-		^ LDAPNotFoundEntryState.
-	].
-	responses := aCommand responses allButLast.
-	entry populateFromResults: responses.
-	
-	^ self onSuccessClass
-]
-
 { #category : 'running' }
-LDAPSubSearchingState >> run [
+LDAPSubSearchingState >> runFor: anEntry on: anApplication [
 "Search will return the child nodes of aDN"
 	| aRequest aDN |
-	aDN := entry name.
+	aDN := anEntry name.
 	aRequest := LDAPSearchRequest new
 		          base: aDN;
 		          scope: LDAPSingleLevelScope new.
 
-	self sendRequest: aRequest
+	self sendRequest: aRequest on: anApplication
+]
+
+{ #category : 'private - updating' }
+LDAPSubSearchingState >> update: anEntry [
+
+	| result responses |
+	"Do not call LDAPCommand>>responses in case a timeout occurred, it calls wait an will trigger another one"
+	command isDone ifFalse: [ ^ LDAPNotFoundEntryState ].
+	result := command responses last.
+	result found ifFalse: [  
+		"No result: DN does not exist, why would this entry be created"
+		^ LDAPNotFoundEntryState.
+	].
+	responses := command responses allButLast.
+	
+	anEntry populateFromResults: responses.
+	
+	^ self onSuccessClass
 ]

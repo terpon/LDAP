@@ -4,15 +4,15 @@ I am the state when the entry needs to be refreshed.
 Class {
 	#name : 'LDAPInvalidatedEntryState',
 	#superclass : 'LDAPEntryState',
-	#category : 'LDAP-Spec2-Models',
+	#category : 'LDAP-Spec2-Tasks',
 	#package : 'LDAP-Spec2',
-	#tag : 'Models'
+	#tag : 'Tasks'
 }
 
 { #category : 'testing' }
 LDAPInvalidatedEntryState >> atEnd [ 
 
-	^ application connected not
+	^ false
 ]
 
 { #category : 'changing state' }
@@ -22,9 +22,9 @@ LDAPInvalidatedEntryState >> invalidate [
 ]
 
 { #category : 'changing state' }
-LDAPInvalidatedEntryState >> next [ 
+LDAPInvalidatedEntryState >> nextFor: anEntry on: anApplication [
 
-	application connected ifFalse: [ ^ self ].
+	anApplication isConnected ifFalse: [ ^ self ].
 
-	^ LDAPSubSearchingState from: self
+	^ LDAPSubSearchingState new
 ]

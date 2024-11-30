@@ -180,6 +180,8 @@ LDAPErrorPresenter >> resultFrom: aCommand [
 	
 	| responses |
 	aCommand ifNil: [ ^ LDAPResult newCode: 80 name: '' message: 'Connection returned a nil LDAPCommand' ].
+	"Do not call LDAPCommand>>responses in case error was triggered by a timeout, it would retrigger it"
+	aCommand isDone ifFalse: [ ^ LDAPResult newCode: 80 name: '' message: 'Command not answered before timeout'].
 	responses := aCommand responses ifEmpty: [ ^ LDAPResult newCode: 80 name: '' message: 'No responses in LDAPCommand'].
 	^ responses last
 ]
