@@ -113,8 +113,10 @@ LDAPWorker >> initialize [
 LDAPWorker >> initializeServerSocket [
 
 	lock critical: [
+"		sockStream := [ self class socketClass openConnectionToHostNamed: host port: port ]
+			ifCurtailed: [ sockStream := nil. ]."
 		sockStream := [ self class socketClass openConnectionToHostNamed: host port: port ]
-			ifCurtailed: [ sockStream := nil. ].
+			on: ConnectionClosed do: [ nil ].
 		sockStream ifNil: [ ^ self ].
 		sockStream 
 			binary;
@@ -157,6 +159,7 @@ LDAPWorker >> listenLoop [
 		| looping |
 		looping := true.
 		self initializeServerSocket.
+		sockStream ifNil: [ running := false. ^ self ].
 		[looping] whileTrue: [
 			sockStream isConnected 
 				ifFalse: [ looping := false ]

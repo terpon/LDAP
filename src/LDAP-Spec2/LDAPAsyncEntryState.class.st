@@ -40,13 +40,11 @@ LDAPAsyncEntryState >> fail: aCommand [
 { #category : 'changing state' }
 LDAPAsyncEntryState >> nextFor: anEntry on: anApplication [
 
-	anApplication isConnected ifFalse: [ ^ self invalidate ].
-	
 	done ifNil: [
 		done := Semaphore new.
 		self runFor: anEntry on: anApplication.
 	].
-	done isSignaled ifFalse: [ ^ self ].
+	done wait.
 	
 	nextClass := (self update: anEntry) ifNil: [ LDAPInvalidatedEntryState ].
 	^ nextClass new

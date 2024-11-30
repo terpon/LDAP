@@ -24,7 +24,5 @@ LDAPInvalidatedEntryState >> invalidate [
 { #category : 'changing state' }
 LDAPInvalidatedEntryState >> nextFor: anEntry on: anApplication [
 
-	anApplication isConnected ifFalse: [ ^ self ].
-
 	^ LDAPSubSearchingState new
 ]

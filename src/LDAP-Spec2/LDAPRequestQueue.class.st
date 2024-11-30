@@ -52,8 +52,12 @@ LDAPRequestQueue >> disconnect [
 
 { #category : 'flushing' }
 LDAPRequestQueue >> flush [
-
-	requests flush.
+	self flushFinishedTasks.
+	[ requests isEmpty ] whileFalse: [ 
+		| process |
+		process := requests next.
+		process terminate.
+	]
 ]
 
 { #category : 'private - dispatching' }
