@@ -89,10 +89,16 @@ LDAPConnectionPresenter >> initialize [
 { #category : 'initialization' }
 LDAPConnectionPresenter >> initializeDialogWindow: aDialogPresenter [
 
+	| ok |
 	aDialogPresenter 
 		withDecorations;
-		addButton: 'Cancel' do: [ :dialog | dialog close ];
-		addButton: 'OK' do: [ :dialog | self accept. dialog beOk; close ].
+		addButton: 'Cancel' do: [ :dialog | dialog close ].
+		
+	ok := aDialogPresenter addButton: 'OK' do: [ :dialog | self accept. dialog beOk; close ].
+		
+	hostname text ifNotEmpty: [ :text | aDialogPresenter whenOpenedDo: [ ok takeKeyboardFocus ] ].
+
+
 ]
 
 { #category : 'initialization' }

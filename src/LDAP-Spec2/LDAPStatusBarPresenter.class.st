@@ -44,7 +44,7 @@ LDAPStatusBarPresenter >> connected: aBoolean [
 { #category : 'layout' }
 LDAPStatusBarPresenter >> defaultLayout [ 
 	^ SpBoxLayout newLeftToRight 
-		spacing: 3;
+		spacing: 3; vAlignCenter;
 		add: #connected expand: false;
 		add: #message;
 		add: #disconnect expand: false;
@@ -72,10 +72,13 @@ LDAPStatusBarPresenter >> initializePresenters [
 		
 	message := self newTextInput beNotEditable.
 
-	disconnect := self newImage"
-		image: (self iconNamed: #smallQuit);
-		help: 'Disconnect from current server';
-		action: [ self disconnectAction ]".
+	disconnect := 	self newToolbar beIcons;
+		add: (self newToolbarButton 
+			label: 'disconnect';
+  			icon: (self iconNamed: #smallQuit);
+     		help: 'Disconnect from current server';
+       	action: [ self disconnectAction ];
+        	yourself); yourself.
 ]
 
 { #category : 'api - events' }

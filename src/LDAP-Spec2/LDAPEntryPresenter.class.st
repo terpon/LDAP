@@ -138,8 +138,6 @@ LDAPEntryPresenter >> initializeWindow: aSpWindowPresenter [
 
 	title := self model ifNil: [ self className ] ifNotNil: [ :model | model className ].
 	aSpWindowPresenter title: title.
-
-
 ]
 
 { #category : 'initialization' }
