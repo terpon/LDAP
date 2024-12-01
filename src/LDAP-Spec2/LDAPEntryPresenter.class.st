@@ -55,7 +55,6 @@ LDAPEntryPresenter class >> sampleList [
 LDAPEntryPresenter class >> show: anEntry [
 	| presenter |
 	presenter := self on: anEntry.
-	presenter inspect.
 	^ presenter open
 
 ]
@@ -103,7 +102,15 @@ LDAPEntryPresenter >> defaultLayout [
 { #category : 'initialization' }
 LDAPEntryPresenter >> initializePresenters [ 
 
-	name := self newTextInput beNotEditable.
+	name := self newTextInput beNotEditable;
+		actions: (SpActionGroup new
+			addActionWith: [ :anItem | anItem
+				name: 'Copy';
+				iconNamed: #smallCopy;
+				shortcutKey: $c ctrl;
+				description: 'Copy DN to clipboard';
+				action: [ Clipboard clipboardText: name text informing: ('DN {1} copied to clipboard' format: {name text}) ] ]);
+		yourself.
 
 	table := self newTable
 		isResizable: true;
@@ -121,6 +128,18 @@ LDAPEntryPresenter >> initializePresenters [
 		title: 'Value'; 
 		evaluated: [ :each | each value ]);
 	yourself.
+]
+
+{ #category : 'initialization' }
+LDAPEntryPresenter >> initializeWindow: aSpWindowPresenter [
+
+	| title |
+	super initializeWindow: aSpWindowPresenter.
+
+	title := self model ifNil: [ self className ] ifNotNil: [ :model | model className ].
+	aSpWindowPresenter title: title.
+
+
 ]
 
 { #category : 'initialization' }
@@ -152,10 +171,4 @@ LDAPEntryPresenter >> selectedItem [
 	"Return selected item."
 	
 	^ table selectedItem
-]
-
-{ #category : 'initialization' }
-LDAPEntryPresenter >> titleForWindow [ 
-
-	^ self model ifNil: [ self className ] ifNotNil: [ :model | model name ]
 ]
