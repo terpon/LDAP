@@ -2,24 +2,24 @@
 I am announced when the connection is halted for whatever reason.
 "
 Class {
-	#name : 'LDAPDisconnectionAnnouncement',
+	#name : 'LDAPIsDisconnected',
 	#superclass : 'Announcement',
 	#instVars : [
 		'cause'
 	],
-	#category : 'LDAP-Spec2-Announcements',
-	#package : 'LDAP-Spec2',
+	#category : 'LDAP-Announcements',
+	#package : 'LDAP',
 	#tag : 'Announcements'
 }
 
 { #category : 'accessing' }
-LDAPDisconnectionAnnouncement >> cause [
+LDAPIsDisconnected >> cause [
 
 	^ cause
 ]
 
 { #category : 'accessing' }
-LDAPDisconnectionAnnouncement >> cause: anObject [
+LDAPIsDisconnected >> cause: anObject [
 
 	cause := anObject
 ]

@@ -12,11 +12,12 @@ Class {
 		'lock',
 		'targets',
 		'running',
-		'connectBlock'
+		'connectBlock',
+		'disconnectBlock'
 	],
-	#category : 'LDAP-Core',
+	#category : 'LDAP-Internal',
 	#package : 'LDAP',
-	#tag : 'Core'
+	#tag : 'Internal'
 }
 
 { #category : 'instance creation' }
@@ -73,6 +74,12 @@ LDAPWorker >> connectTo: aHostname port: aPort [
 
 ]
 
+{ #category : 'accessing' }
+LDAPWorker >> disconnectBlock: aBlock [
+
+	disconnectBlock := aBlock.
+]
+
 { #category : 'private - dispatching' }
 LDAPWorker >> dispatchMessage: aMessage [
 	| command id |
@@ -126,7 +133,7 @@ LDAPWorker >> initializeServerSocket [
 		self postConnect.
 	].
 
-	connectBlock ifNotNil: [ :block | block cull: self ].
+	connectBlock ifNotNil: [ :block | block fork ].
 ]
 
 { #category : 'dispatching' }
@@ -222,7 +229,9 @@ LDAPWorker >> releaseServerSocket [
 	lock critical: [
 		sockStream close.
 		sockStream := nil.
-	]
+	].
+
+	disconnectBlock ifNotNil: [ :block | block fork ].
 ]
 
 { #category : 'private - dispatching' }

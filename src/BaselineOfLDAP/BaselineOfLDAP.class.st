@@ -27,7 +27,7 @@ BaselineOfLDAP >> groups: spec [
 	spec
 		group: 'Core' with: #('LDAP' );
 		group: 'UI' with: #('Core' 'LDAP-Spec2');
-		group: 'AD' with: #('Core' 'LDAP-SSL' 'LDAP-ActiveDirectory');
+		group: 'AD' with: #('Core' 'LDAP-ActiveDirectory');
 		group: 'Tests' with: #('Core' 'LDAP-Tests');
 		group: 'All' with: #('Core' 'Tests' 'AD' 'UI' ) 
 ]
@@ -39,7 +39,6 @@ BaselineOfLDAP >> packages: spec [
 		package: 'LDAP';
 		package: 'LDAP-Spec2' with: [ spec requires: #('LDAP') ];
 		package: 'LDAP-Tests' with: [ spec requires: #('LDAP') ];
-		package: 'LDAP-SSL' with: [ spec requires: #('LDAP') ];
-		package: 'LDAP-ActiveDirectory' with: [ spec requires: #('LDAP' 'LDAP-SSL') ]
+		package: 'LDAP-ActiveDirectory' with: [ spec requires: #('LDAP') ]
 
 ]

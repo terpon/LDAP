@@ -59,7 +59,7 @@ LDAPAsyncEntryState >> runFor: anEntry on: anApplication [
 { #category : 'private - dispatching' }
 LDAPAsyncEntryState >> sendRequest: aRequest on: anApplication [
 
-	anApplication queue sendRequest: aRequest
+	^ anApplication sendRequest: aRequest
 		onSuccessDo: [ :aCommand | self done: aCommand ]
 		onFailureDo: [ :aCommand | self fail: aCommand ]
 ]

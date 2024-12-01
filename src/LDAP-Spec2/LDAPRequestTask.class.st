@@ -52,13 +52,33 @@ LDAPRequestTask >> request: anObject [
 	request := anObject
 ]
 
+{ #category : 'private - dispatching' }
+LDAPRequestTask >> sendRequestTo: aConnection [
+"This is run in a forked process"
+	| aCommand |
+	aCommand := [ aConnection request: self request ] on: Exception do: [ :ex | ex pass. nil ].
+	aCommand ifNil: [ ^ nil ].
+	self waitFor: aCommand.
+]
+
+{ #category : 'running' }
+LDAPRequestTask >> startOn: anApplication [
+
+	| aConnection |
+	anApplication isConnected ifFalse: [ ^self fail ].
+	
+	aConnection := anApplication connection.
+	^ [ self sendRequestTo: aConnection ] forkAt: Processor userBackgroundPriority named: 'LDAP task for ', self request className
+
+]
+
 { #category : 'running' }
 LDAPRequestTask >> succeed [
 
 	successAction ifNotNil: [ :action | action cull: command ]
 ]
 
-{ #category : 'running' }
+{ #category : 'private - running' }
 LDAPRequestTask >> waitFor: aCommand [
 
 	command := aCommand.

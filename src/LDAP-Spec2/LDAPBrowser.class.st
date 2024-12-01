@@ -6,7 +6,7 @@ Class {
 	#superclass : 'SpApplication',
 	#instVars : [
 		'session',
-		'queue',
+		'connection',
 		'errorHandler',
 		'errorLock',
 		'main',
@@ -42,6 +42,7 @@ LDAPBrowser >> clearCache [
 { #category : 'circuit setup' }
 LDAPBrowser >> connectTo: aServerInfo [
 
+	| bind |
 	self isConnected ifTrue: [
 		(aServerInfo = session server) ifTrue: [ ^ self ].
 		self disconnect.
@@ -50,8 +51,14 @@ LDAPBrowser >> connectTo: aServerInfo [
 	"triggers ValueChanged so order is important"
 	session server: aServerInfo.
 	
-	queue connectWith: aServerInfo.
-
+	connection := aServerInfo newConnection.
+	connection when: LDAPIsConnected send: #onConnect to: self.
+	connection when: LDAPIsDisconnected send: #onDisconnect to: self.
+	bind := aServerInfo newBindRequest.
+	
+	connection requestOnConnect: bind.
+	connection connect.
+	"Following actions in onConnect if connection and bind successful"
 ]
 
 { #category : 'testing' }
@@ -65,6 +72,11 @@ LDAPBrowser >> connectedServer [
 
 	self isConnected ifFalse: [ ^ nil ].
 	^ session server hostname
+]
+
+{ #category : 'accessing' }
+LDAPBrowser >> connection [
+	^ connection
 ]
 
 { #category : 'accessing' }
@@ -86,7 +98,7 @@ LDAPBrowser >> currentRoot: aDN [
 LDAPBrowser >> disconnect [
 
 	session connected: false.
-	queue disconnect.
+	connection ifNotNil: [ connection disconnect ].
 
 ]
 
@@ -111,12 +123,10 @@ LDAPBrowser >> initialize [
 
 	super initialize.
 	
-	queue := LDAPRequestQueue new.
 	cache := Dictionary new.
 	session := LDAPSession new.
 	errorLock := Semaphore forMutualExclusion.
 
-	self subscribeToAnnouncements.
 	self initializeMainPresenter.
 
 ]
@@ -197,11 +207,6 @@ LDAPBrowser >> openErrorWindow [
 	^ presenter open.
 ]
 
-{ #category : 'accessing' }
-LDAPBrowser >> queue [
-	^ queue
-]
-
 { #category : 'private' }
 LDAPBrowser >> reportError: aResult [
 
@@ -238,12 +243,24 @@ LDAPBrowser >> searchNamingContexts [
 		          scope: LDAPBaseObjectScope new;
 		          attributes: { 'namingContexts' }.
 		
-	queue sendRequest: request
+	^ self sendRequest: request
 		onSuccessDo: [ :command | self onNamingContexts: command ]
 		onFailureDo: [ :command | 
 			session roots: #().
 			self reportError: command. ].
 
+]
+
+{ #category : 'enumerating' }
+LDAPBrowser >> sendRequest: aRequest onSuccessDo: aBlock onFailureDo: aFailBlock [
+
+	| task |
+	task := LDAPRequestTask new 
+		request: aRequest; 
+		onSuccessDo: aBlock;
+		onFailureDo: aFailBlock.
+
+	^ task startOn: self
 ]
 
 { #category : 'running' }
@@ -252,12 +269,4 @@ LDAPBrowser >> start [
 
 	main withWindowDo: [ :w | w isOpen ifTrue:[ w activate. ^ w ] ].
 	^ main open
-]
-
-{ #category : 'initialization' }
-LDAPBrowser >> subscribeToAnnouncements [
-
-	queue when: LDAPConnectionAnnouncement send: #onConnect to: self.
-	queue when: LDAPDisconnectionAnnouncement send: #onDisconnect to: self.
-	queue when: LDAPErrorAnnouncement do: [ :e | self reportError: e command ].
 ]

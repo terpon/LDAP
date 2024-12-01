@@ -35,23 +35,6 @@ LDAPServerInfo >> = anObject [
 ]
 
 { #category : 'instance creation' }
-LDAPServerInfo >> bindRequest [ 
-
-	^ 	LDAPBindRequest new username: username; password: password.
-
-]
-
-{ #category : 'instance creation' }
-LDAPServerInfo >> connection [
-
-	| newConnection |
-	newConnection := self connectionClass new.
-	newConnection host: self hostname.
-	newConnection port: self port.
-	^ newConnection
-]
-
-{ #category : 'instance creation' }
 LDAPServerInfo >> connectionClass [ 
 
 	^  self isSSL ifTrue: [ LDAPSConnection ]  ifFalse: [ LDAPConnection ]
@@ -107,6 +90,23 @@ LDAPServerInfo >> isPortDefault [
 { #category : 'testing' }
 LDAPServerInfo >> isSSL [
 	^ ssl
+]
+
+{ #category : 'instance creation' }
+LDAPServerInfo >> newBindRequest [ 
+
+	^ 	LDAPBindRequest new username: username; password: password.
+
+]
+
+{ #category : 'instance creation' }
+LDAPServerInfo >> newConnection [
+
+	| newConnection |
+	newConnection := self connectionClass new.
+	newConnection host: self hostname.
+	newConnection port: self port.
+	^ newConnection
 ]
 
 { #category : 'accessing' }

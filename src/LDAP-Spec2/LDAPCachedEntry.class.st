@@ -44,8 +44,7 @@ LDAPCachedEntry >> update: anApplication [
 	updateProcess ifNotNil: [ :process | process isTerminated ifFalse: [ ^self] ].
 	
 	updateProcess := [ 
-		[ state atEnd ] whileFalse: [
-			anApplication isConnected ifFalse: [ ^ nil ].
+		[ anApplication isConnected and: [ state atEnd not ] ] whileTrue: [
 			state := state nextFor: entry on: anApplication.
 			Processor yield
 		]

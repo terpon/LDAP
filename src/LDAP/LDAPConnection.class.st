@@ -5,15 +5,16 @@ Class {
 	#name : 'LDAPConnection',
 	#superclass : 'Object',
 	#instVars : [
+		'announcer',
 		'host',
 		'port',
 		'worker',
 		'workerThread',
 		'connectRequest'
 	],
-	#category : 'LDAP-Core',
+	#category : 'LDAP-Connection',
 	#package : 'LDAP',
-	#tag : 'Core'
+	#tag : 'Connection'
 }
 
 { #category : 'documentation' }
@@ -67,10 +68,18 @@ LDAPConnection >> abandon: aCommand [
 
 ]
 
+{ #category : 'accessing' }
+LDAPConnection >> announcer [
+
+	^ announcer ifNil: [ announcer := Announcer new ]
+]
+
 { #category : 'running' }
 LDAPConnection >> connect [
 
-	worker := self class workerClass new connectBlock: [ self onNewSocket ].
+	worker := self class workerClass new 
+		connectBlock: [ self onNewSocket ];
+		disconnectBlock: [self onClosedSocket ].
 	workerThread := worker connectTo: host port: self port.
 ]
 
@@ -86,11 +95,9 @@ LDAPConnection >> disconnect [
 	workerThread ifNil: [ ^ self ].
 	worker isRunning ifTrue: [ self unbind ].
 
-	worker stop.
-	"workerThread terminate. should be taken care by the stop"
-	
-	worker := nil.
-	workerThread := nil.
+	"This will call releaseSocket and call onClosedSocket"
+	workerThread terminate.
+
 ]
 
 { #category : 'accessing' }
@@ -122,11 +129,31 @@ LDAPConnection >> isValid [
 ]
 
 { #category : 'callbacks' }
-LDAPConnection >> onNewSocket [
+LDAPConnection >> onClosedSocket [
 
+	workerThread isTerminating ifTrue: [ 
+		worker := nil.
+		workerThread := nil.
+	].
+	self announcer announce: LDAPIsDisconnected new.
+
+]
+
+{ #category : 'callbacks' }
+LDAPConnection >> onNewSocket [
+	
+	| command |
 	connectRequest ifNil: [ ^self ].
 	self isConnected ifFalse: [ ^self ].
-	self request: connectRequest.
+	
+	connectRequest ifNil: [ ^self announcer announce: LDAPIsConnected new ].
+	
+	command := self request: connectRequest.
+	command ifNil: [ ^self ].
+	command wait.
+	(command isDone and: [ command success ]) ifTrue: [ 
+		self announcer announce: LDAPIsConnected new.
+	]
 ]
 
 { #category : 'accessing' }
@@ -173,4 +200,9 @@ LDAPConnection >> requestOnConnect: aRequest [
 { #category : 'binding' }
 LDAPConnection >> unbind [
 	^ self request: (LDAPUnbindRequest new)
+]
+
+{ #category : 'announcer' }
+LDAPConnection >> when: anAnnouncementClass send: aSelector to: anObject [
+	^ self announcer when: anAnnouncementClass send: aSelector to: anObject
 ]

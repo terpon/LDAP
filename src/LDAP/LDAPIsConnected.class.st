@@ -2,9 +2,9 @@
 I am announced after the connection to the server and the bind succeeded.
 "
 Class {
-	#name : 'LDAPConnectionAnnouncement',
+	#name : 'LDAPIsConnected',
 	#superclass : 'Announcement',
-	#category : 'LDAP-Spec2-Announcements',
-	#package : 'LDAP-Spec2',
+	#category : 'LDAP-Announcements',
+	#package : 'LDAP',
 	#tag : 'Announcements'
 }

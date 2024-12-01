@@ -34,6 +34,10 @@ LDAPSubSearchingState >> update: anEntry [
 	"Do not call LDAPCommand>>responses in case a timeout occurred, it calls wait an will trigger another one"
 	command isDone ifFalse: [ ^ LDAPNotFoundEntryState ].
 	result := command responses last.
+	result success ifFalse: [  
+		"No result: DN does not exist, why would this entry be created"
+		^ LDAPNotFoundEntryState.
+	].
 	result found ifFalse: [  
 		"No result: DN does not exist, why would this entry be created"
 		^ LDAPNotFoundEntryState.
