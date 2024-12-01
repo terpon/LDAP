@@ -53,7 +53,7 @@ LDAPBrowser >> connectTo: aServerInfo [
 	
 	connection := aServerInfo newConnection.
 	connection when: LDAPIsConnected send: #onConnect to: self.
-	connection when: LDAPIsDisconnected send: #onDisconnect to: self.
+	connection when: LDAPIsDisconnected send: #onDisconnect: to: self.
 	bind := aServerInfo newBindRequest.
 	
 	connection requestOnConnect: bind.
@@ -171,10 +171,12 @@ LDAPBrowser >> onConnect [
 ]
 
 { #category : 'callbacks' }
-LDAPBrowser >> onDisconnect [
+LDAPBrowser >> onDisconnect: anAnnouncement [
 
+	| ex |
+	ex := anAnnouncement cause.
 	session connected: false.
-	main notify: ''.
+	main notify: (ex ifNil: [ 'disconnected' ] ifNotNil: [ ex className ] ).
 
 ]
 

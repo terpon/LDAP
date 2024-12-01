@@ -79,7 +79,7 @@ LDAPConnection >> connect [
 
 	worker := self class workerClass new 
 		connectBlock: [ self onNewSocket ];
-		disconnectBlock: [self onClosedSocket ].
+		disconnectBlock: [ :cause | self onClosedSocket: cause ].
 	workerThread := worker connectTo: host port: self port.
 ]
 
@@ -129,13 +129,13 @@ LDAPConnection >> isValid [
 ]
 
 { #category : 'callbacks' }
-LDAPConnection >> onClosedSocket [
+LDAPConnection >> onClosedSocket: anException [
 
 	workerThread isTerminating ifTrue: [ 
 		worker := nil.
 		workerThread := nil.
 	].
-	self announcer announce: LDAPIsDisconnected new.
+	self announcer announce: (LDAPIsDisconnected new cause: anException).
 
 ]
 

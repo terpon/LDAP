@@ -13,7 +13,8 @@ Class {
 		'targets',
 		'running',
 		'connectBlock',
-		'disconnectBlock'
+		'disconnectBlock',
+		'exception'
 	],
 	#category : 'LDAP-Internal',
 	#package : 'LDAP',
@@ -49,15 +50,16 @@ LDAPWorker >> addTarget: aCommand [
 LDAPWorker >> announceTargetsLost [
 "The connection is lost. If request are pending, notify them"
 
-	| result |
-	result := LDAPResult newCode: 80 name: 'Connection lost' message: 'Connection to server lost. No response from request.'.
+	| result name commands |
+	name := exception ifNotNil: [ exception className ] ifNil: [ 'Connection lost' ]. 
+	result := LDAPResult newCode: 80 name: name message: 'Connection to server lost. No response from request.'.
+	commands := #().
 	lock critical: [
-		targets keysAndValuesDo: [ :key :command |
-			command processResponse: result.
-		].
-		
+		commands := targets values.
 		targets removeAll.
-	]
+	].
+	commands do: [ :command | command processResponse: result ].
+
 ]
 
 { #category : 'accessing' }
@@ -117,13 +119,12 @@ LDAPWorker >> initialize [
 ]
 
 { #category : 'running' }
-LDAPWorker >> initializeServerSocket [
+LDAPWorker >> initializeSocket [
 
+	exception := nil.
 	lock critical: [
-"		sockStream := [ self class socketClass openConnectionToHostNamed: host port: port ]
-			ifCurtailed: [ sockStream := nil. ]."
 		sockStream := [ self class socketClass openConnectionToHostNamed: host port: port ]
-			on: ConnectionClosed do: [ nil ].
+			on: NetworkError do: [ :ex | exception := ex. nil ].
 		sockStream ifNil: [ ^ self ].
 		sockStream 
 			binary;
@@ -165,7 +166,7 @@ LDAPWorker >> listenLoop [
 	[ [running] whileTrue: [
 		| looping |
 		looping := true.
-		self initializeServerSocket.
+		self initializeSocket.
 		sockStream ifNil: [ running := false. ^ self ].
 		[looping] whileTrue: [
 			sockStream isConnected 
@@ -173,9 +174,9 @@ LDAPWorker >> listenLoop [
 				ifTrue: [ self readMessage ].
 			running ifFalse: [ looping := false ].
 		].
-		self releaseServerSocket
+		self releaseSocket
 	] 
-	] ensure: [ self releaseServerSocket ].
+	] ensure: [ self releaseSocket ].
 
 ]
 
@@ -204,34 +205,30 @@ LDAPWorker >> readMessage [
 				"wait for another loop"
 				^ self.
 		].
-	] on: ConnectionClosed do:[ :ex| 
-				Transcript cr; show: ex description; cr.
-				"reconnect"
+	] on: NetworkError do:[ :ex| 
+				"Transcript cr; show: ex description; cr."
+				"send disconnect announcement"
 				^ self.
 		].
 	] on: Exception do: [ :ex |
-			"Cannot recover"
+			"Probably cannot recover"
 			Transcript cr; show: ex description; cr.
 			running := false.
 			ex pass.
-		].
-
-
+	].
 ]
 
 { #category : 'private - running' }
-LDAPWorker >> releaseServerSocket [
+LDAPWorker >> releaseSocket [
 
 	self announceTargetsLost.
 
-	sockStream ifNil: [ ^ self ].
-	
 	lock critical: [
-		sockStream close.
+		sockStream ifNotNil: [ :s | s close ].
 		sockStream := nil.
 	].
 
-	disconnectBlock ifNotNil: [ :block | block fork ].
+	disconnectBlock ifNotNil: [ :block | [ block cull: exception ] fork ].
 ]
 
 { #category : 'private - dispatching' }
@@ -272,7 +269,7 @@ LDAPWorker >> start [
 { #category : 'private - running' }
 LDAPWorker >> stop [
 	running := false.
-	self releaseServerSocket.
+	self releaseSocket.
 ]
 
 { #category : 'private - running' }
