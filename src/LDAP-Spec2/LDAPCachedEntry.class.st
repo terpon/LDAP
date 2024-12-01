@@ -6,7 +6,8 @@ Class {
 	#superclass : 'Object',
 	#instVars : [
 		'entry',
-		'state'
+		'state',
+		'updateProcess'
 	],
 	#category : 'LDAP-Spec2-Tasks',
 	#package : 'LDAP-Spec2',
@@ -39,9 +40,12 @@ LDAPCachedEntry >> entry: anEntry [
 LDAPCachedEntry >> update: anApplication [
 
 	state atEnd ifTrue: [ ^ self ].
+	"Check if update already runnin"
+	updateProcess ifNotNil: [ :process | process isTerminated ifFalse: [ ^self] ].
 	
-	[ 
+	updateProcess := [ 
 		[ state atEnd ] whileFalse: [
+			anApplication isConnected ifFalse: [ ^ nil ].
 			state := state nextFor: entry on: anApplication.
 			Processor yield
 		]
