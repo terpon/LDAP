@@ -13,15 +13,21 @@ Class {
 		'branches',
 		'leaves'
 	],
-	#category : 'LDAP-Spec2-Tasks',
+	#category : 'LDAP-Spec2-Models',
 	#package : 'LDAP-Spec2',
-	#tag : 'Tasks'
+	#tag : 'Models'
 }
 
 { #category : 'accessing' }
 LDAPEntryModel >> attributes [
 
 	^ branches, leaves
+]
+
+{ #category : 'accessing' }
+LDAPEntryModel >> branches [
+
+	^ branches
 ]
 
 { #category : 'accessing' }
@@ -40,6 +46,12 @@ LDAPEntryModel >> initialize [
 	
 	branches := OrderedCollection new.
 	leaves := OrderedCollection new.
+]
+
+{ #category : 'accessing' }
+LDAPEntryModel >> leaves [
+
+	^ leaves
 ]
 
 { #category : 'accessing' }

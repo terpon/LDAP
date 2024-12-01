@@ -7,13 +7,13 @@ Class {
 	#instVars : [
 		'name'
 	],
-	#category : 'LDAP-Spec2-Tasks',
+	#category : 'LDAP-Spec2-Models',
 	#package : 'LDAP-Spec2',
-	#tag : 'Tasks'
+	#tag : 'Models'
 }
 
 { #category : 'accessing' }
-LDAPBranchEntryAttribute >> icon: anIconProvider [
+LDAPBranchEntryAttribute >> iconFrom: anIconProvider [
 
 	^ anIconProvider iconNamed: #smallOpen
 ]

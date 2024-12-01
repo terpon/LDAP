@@ -119,7 +119,7 @@ LDAPEntryPresenter >> initializePresenters [
 			title: 'Attribute';
 			addColumn: (SpImageTableColumn new
 			width: 20;
-			evaluated: [ :i | i icon: self application ];
+			evaluated: [ :i | i iconFrom: self application ];
 			yourself);
 		addColumn: (SpStringTableColumn new
 			evaluated: [ :i | i description ];

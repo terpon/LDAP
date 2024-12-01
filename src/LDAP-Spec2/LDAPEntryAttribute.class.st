@@ -12,9 +12,9 @@ Class {
 		'description',
 		'value'
 	],
-	#category : 'LDAP-Spec2-Tasks',
+	#category : 'LDAP-Spec2-Models',
 	#package : 'LDAP-Spec2',
-	#tag : 'Tasks'
+	#tag : 'Models'
 }
 
 { #category : 'accessing' }
@@ -30,9 +30,9 @@ LDAPEntryAttribute >> description: anObject [
 ]
 
 { #category : 'accessing' }
-LDAPEntryAttribute >> icon: anIconProvider [
+LDAPEntryAttribute >> iconFrom: anIconProvider [
 
-	^ anIconProvider iconNamed: #empty
+	^ anIconProvider iconNamed: #blank
 ]
 
 { #category : 'testing' }
