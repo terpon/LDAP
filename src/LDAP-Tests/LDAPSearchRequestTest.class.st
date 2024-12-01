@@ -70,6 +70,31 @@ LDAPSearchRequestTest >> testBasicSearch [
 ]
 
 { #category : 'tests' }
+LDAPSearchRequestTest >> testFailure [
+
+	| responses search |
+	self connect.
+	self addSomeTestEntries.
+
+	search := LDAPSearchRequest new
+		          base: self baseDN;
+		          scope: LDAPWholeSubtreeScope new;
+		          filter: (LDAPFilter with: 'cn' equalTo: 'should_not_be_there_567329').
+	responses := self requestAndAssertSuccess: search.
+	self assert: responses size equals: 1.
+
+	search := LDAPSearchRequest new
+		          base: (self cn: 'should_not_be_there_937461');
+		          scope: LDAPWholeSubtreeScope new.
+	responses := self request: search.
+	self assert: responses size equals: 1.
+	self deny: responses first success.
+	self assert: responses first resultCode equals: 32.
+	 
+
+]
+
+{ #category : 'tests' }
 LDAPSearchRequestTest >> testFilters [
 
 	| responses search |

@@ -38,10 +38,6 @@ LDAPSubSearchingState >> update: anEntry [
 		"No result: DN does not exist, why would this entry be created"
 		^ LDAPNotFoundEntryState.
 	].
-	result found ifFalse: [  
-		"No result: DN does not exist, why would this entry be created"
-		^ LDAPNotFoundEntryState.
-	].
 	responses := command responses allButLast.
 	
 	anEntry populateFromResults: responses.
