@@ -33,7 +33,11 @@ LDAPAsyncEntryState >> done: aCommand [
 LDAPAsyncEntryState >> fail: aCommand [ 
 
 	command := aCommand.
-	nextClass := LDAPNotFoundEntryState.
+
+	nextClass := LDAPInvalidatedEntryState.
+	(command isNotNil and: [ command isDone ]) ifTrue: [
+		nextClass := LDAPNotFoundEntryState.
+	]. 
 	done signal
 ]
 
@@ -46,7 +50,10 @@ LDAPAsyncEntryState >> nextFor: anEntry on: anApplication [
 	].
 	done wait.
 	
-	nextClass := (self update: anEntry) ifNil: [ LDAPInvalidatedEntryState ].
+	"nextClass is set on failure, update is not called"
+	nextClass ifNil: [
+		nextClass := (self update: anEntry) ifNil: [ LDAPInvalidatedEntryState ]
+	].
 	^ nextClass new
 ]
 

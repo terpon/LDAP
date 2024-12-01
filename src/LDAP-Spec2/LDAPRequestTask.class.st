@@ -55,10 +55,11 @@ LDAPRequestTask >> request: anObject [
 { #category : 'private - dispatching' }
 LDAPRequestTask >> sendRequestTo: aConnection [
 "This is run in a forked process"
-	| aCommand |
-	aCommand := [ aConnection request: self request ] on: Exception do: [ :ex | ex pass. nil ].
-	aCommand ifNil: [ ^ nil ].
-	self waitFor: aCommand.
+
+	command := [ aConnection request: self request ] 
+		on: Exception do: [ :ex | error := ex. ex pass. nil ].
+		
+	self waitForCompletion
 ]
 
 { #category : 'running' }
@@ -79,11 +80,24 @@ LDAPRequestTask >> succeed [
 ]
 
 { #category : 'private - running' }
-LDAPRequestTask >> waitFor: aCommand [
+LDAPRequestTask >> waitForCompletion [
 
-	command := aCommand.
-	[ command wait ] on: LDAPTimeOut do: [ :ex | error := ex. ^ self fail ].
+	command ifNil: [ 
+		error ifNil: [ error := LDAPNoConnectionException new ].
+		^self fail 
+	].
 
+	[ command wait ] on: LDAPTimeOut do: [ :ex | 
+		error := ex. 
+		^self fail 
+	].
+
+	"Should be catched by LDAPTimeOut"
+	command isDone ifFalse: [ 
+		error := LDAPException new. 
+		^self fail 
+	].
+	
 	command success ifTrue: [ ^ self succeed ].
 
 	self fail.

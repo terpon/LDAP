@@ -25,14 +25,8 @@ LDAPSelfSearchingState >> runFor: anEntry on: anApplication [
 LDAPSelfSearchingState >> update: anEntry [
 
 	| response |
-	"Do not call LDAPCommand>>responses in case a timeout occurred, it calls wait an will trigger another one"
-	command isDone ifFalse: [ ^ LDAPNotFoundEntryState ].
-	(command responses size = 1) ifTrue: [ 
-		"No result: DN does not exist, why would this entry be created"
-		^ LDAPNotFoundEntryState.
-	].
 	response := command responses first.
-	
+
 	anEntry populateFromPartialAttributeList: response attributes.	
 
 	^ LDAPLoadedEntryState.

@@ -131,7 +131,7 @@ LDAPConnection >> isValid [
 { #category : 'callbacks' }
 LDAPConnection >> onClosedSocket: anException [
 
-	workerThread isTerminating ifTrue: [ 
+	(workerThread isNotNil and: [workerThread isTerminating]) ifTrue: [ 
 		worker := nil.
 		workerThread := nil.
 	].

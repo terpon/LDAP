@@ -164,8 +164,8 @@ LDAPBrowser >> mainPresenter [
 { #category : 'callbacks' }
 LDAPBrowser >> onConnect [
 
-	session connected: true.
 	main notify: ''.
+	session connected: true.
 
 	self searchNamingContexts.
 ]
