@@ -99,6 +99,12 @@ LDAPEntryPresenter >> defaultLayout [
 		yourself
 ]
 
+{ #category : 'defaults' }
+LDAPEntryPresenter >> iconFor: anAttribute [
+
+	^ self iconNamed: (anAttribute isLeaf ifTrue: [ #blank ] ifFalse: [ #smallOpen ])
+]
+
 { #category : 'initialization' }
 LDAPEntryPresenter >> initializePresenters [ 
 
@@ -119,7 +125,7 @@ LDAPEntryPresenter >> initializePresenters [
 			title: 'Attribute';
 			addColumn: (SpImageTableColumn new
 			width: 20;
-			evaluated: [ :i | i iconFrom: self application ];
+			evaluated: [ :i | self iconFor: i ];
 			yourself);
 		addColumn: (SpStringTableColumn new
 			evaluated: [ :i | i description ];

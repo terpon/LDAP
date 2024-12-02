@@ -12,12 +12,6 @@ Class {
 	#tag : 'Models'
 }
 
-{ #category : 'accessing' }
-LDAPBranchEntryAttribute >> iconFrom: anIconProvider [
-
-	^ anIconProvider iconNamed: #smallOpen
-]
-
 { #category : 'testing' }
 LDAPBranchEntryAttribute >> isLeaf [ 
 

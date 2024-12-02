@@ -29,12 +29,6 @@ LDAPEntryAttribute >> description: anObject [
 	description := anObject
 ]
 
-{ #category : 'accessing' }
-LDAPEntryAttribute >> iconFrom: anIconProvider [
-
-	^ anIconProvider iconNamed: #blank
-]
-
 { #category : 'testing' }
 LDAPEntryAttribute >> isLeaf [
 
