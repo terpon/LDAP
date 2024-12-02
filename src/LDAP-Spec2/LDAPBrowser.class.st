@@ -32,13 +32,6 @@ LDAPBrowser class >> start [
 	^ self new start
 ]
 
-{ #category : 'clearing' }
-LDAPBrowser >> clearCache [
-"Empty cache when a new root is selected"
-
-	cache removeAll.
-]
-
 { #category : 'circuit setup' }
 LDAPBrowser >> connectTo: aServerInfo [
 
@@ -90,7 +83,7 @@ LDAPBrowser >> currentRoot: aDN [
 
 	(session currentRoot = aDN) ifTrue: [ ^ self ].
 	
-	self clearCache.
+	cache root: aDN.
 	session currentRoot: aDN.
 ]
 
@@ -105,10 +98,7 @@ LDAPBrowser >> disconnect [
 { #category : 'accessing' }
 LDAPBrowser >> entryFor: aDN [
 "Gets entry from the cache or search it"
-	| aCachedEntry |
-	aCachedEntry := cache at: aDN ifAbsentPut: [ LDAPCachedEntry for: aDN ].
-	self isConnected ifTrue: [ aCachedEntry update: self ].
-	^ aCachedEntry entry
+	^ cache at: aDN for: self
 
 ]
 
@@ -123,7 +113,7 @@ LDAPBrowser >> initialize [
 
 	super initialize.
 	
-	cache := Dictionary new.
+	cache := LDAPCache new.
 	session := LDAPSession new.
 	errorLock := Semaphore forMutualExclusion.
 
@@ -254,6 +244,20 @@ LDAPBrowser >> searchNamingContexts [
 ]
 
 { #category : 'enumerating' }
+LDAPBrowser >> sendAndWaitFor: aRequest onSuccessDo: aBlock onFailureDo: aFailBlock [
+
+	| task |
+	task := LDAPRequestTask new 
+		request: aRequest; 
+		onSuccessDo: aBlock;
+		onFailureDo: aFailBlock.
+
+	self isConnected ifFalse: [ ^ task fail ].
+
+	^ task waitOn: self connection
+]
+
+{ #category : 'enumerating' }
 LDAPBrowser >> sendRequest: aRequest onSuccessDo: aBlock onFailureDo: aFailBlock [
 
 	| task |
@@ -262,7 +266,9 @@ LDAPBrowser >> sendRequest: aRequest onSuccessDo: aBlock onFailureDo: aFailBlock
 		onSuccessDo: aBlock;
 		onFailureDo: aFailBlock.
 
-	^ task startOn: self
+	self isConnected ifFalse: [ ^ task fail ].
+
+	^ task startOn: self connection
 ]
 
 { #category : 'running' }

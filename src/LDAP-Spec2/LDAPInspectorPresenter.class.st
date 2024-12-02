@@ -245,7 +245,7 @@ LDAPInspectorPresenter >> updateMiller [
 	
 	model := pages first model.
 	root := application currentRoot.
-	(root = model name) ifTrue: [
+	(root isNotEmpty and: [root = model name]) ifTrue: [
 			"Force cache reload"
 			pages do: [ :p | application entryFor: p model name ].
 			^ self 

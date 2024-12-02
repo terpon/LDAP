@@ -160,7 +160,7 @@ LDAPEntryPresenter >> outputActivationPort [
 LDAPEntryPresenter >> reset [
 
 	table items: #().
-	name label: ''.
+	name text: ''; help: ''.
 
 ]
 

@@ -255,6 +255,7 @@ LDAPWorker >> send: aCommand [
 LDAPWorker >> start [
 	| process |
 	process := [self listenLoop] newProcess.
+	process name: ('LDAP listener on: {1}:{2}' format: { host . port }).
 	process priority: Processor highIOPriority.
 
 	running := true.

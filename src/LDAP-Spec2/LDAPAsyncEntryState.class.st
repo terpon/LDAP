@@ -5,7 +5,6 @@ Class {
 	#name : 'LDAPAsyncEntryState',
 	#superclass : 'LDAPEntryState',
 	#instVars : [
-		'done',
 		'nextClass',
 		'command'
 	],
@@ -25,8 +24,6 @@ LDAPAsyncEntryState >> done: aCommand [
 "subclasses implementations should override the process and reture the next class on success"
 	
 	command := aCommand.
-	done signal
-	
 ]
 
 { #category : 'callbacks' }
@@ -37,18 +34,13 @@ LDAPAsyncEntryState >> fail: aCommand [
 	nextClass := LDAPInvalidatedEntryState.
 	(command isNotNil and: [ command isDone ]) ifTrue: [
 		nextClass := LDAPNotFoundEntryState.
-	]. 
-	done signal
+	].
 ]
 
 { #category : 'changing state' }
 LDAPAsyncEntryState >> nextFor: anEntry on: anApplication [
 
-	done ifNil: [
-		done := Semaphore new.
-		self runFor: anEntry on: anApplication.
-	].
-	done wait.
+	self runFor: anEntry on: anApplication.
 	
 	"nextClass is set on failure, update is not called"
 	nextClass ifNil: [
@@ -66,7 +58,7 @@ LDAPAsyncEntryState >> runFor: anEntry on: anApplication [
 { #category : 'private - dispatching' }
 LDAPAsyncEntryState >> sendRequest: aRequest on: anApplication [
 
-	^ anApplication sendRequest: aRequest
+	anApplication sendAndWaitFor: aRequest
 		onSuccessDo: [ :aCommand | self done: aCommand ]
 		onFailureDo: [ :aCommand | self fail: aCommand ]
 ]
