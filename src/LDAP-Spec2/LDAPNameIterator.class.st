@@ -45,5 +45,5 @@ LDAPNameIterator >> next [
 	| aPathSegment |
 	path ifEmpty: [ ^self ].
 	aPathSegment := path removeLast.
-	base := aPathSegment, ',', base.
+	^ base := aPathSegment, ',', base.
 ]

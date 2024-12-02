@@ -24,6 +24,18 @@ LDAPCachedEntry class >> for: aDN [
 	
 ]
 
+{ #category : 'comparing' }
+LDAPCachedEntry >> = anObject [
+
+	^ self name = anObject asString
+]
+
+{ #category : 'converting' }
+LDAPCachedEntry >> asString [
+
+	^ self name
+]
+
 { #category : 'accessing' }
 LDAPCachedEntry >> entry [
 
@@ -35,6 +47,12 @@ LDAPCachedEntry >> entry: anEntry [
 
 	entry := anEntry.
 	state := LDAPInvalidatedEntryState new.
+]
+
+{ #category : 'comparing' }
+LDAPCachedEntry >> hash [
+
+	^ self name hash
 ]
 
 { #category : 'changing state' }
@@ -49,15 +67,32 @@ LDAPCachedEntry >> invalidate [
 ]
 
 { #category : 'accessing' }
+LDAPCachedEntry >> name [
+
+	^ entry ifNotNil: [ entry name ] ifNil: [ '' ]
+]
+
+{ #category : 'printing' }
+LDAPCachedEntry >> printOn: stream [
+	super printOn: stream.
+	self name ifNotEmpty: [ :name | stream
+		space;
+		nextPut: $';
+		nextPutAll: name;
+		nextPut: $'
+	]
+]
+
+{ #category : 'accessing' }
 LDAPCachedEntry >> search: aDN [
 "Create or update the entry"
-	| nextChild |
+	| nextBase nextChild |
 	(aDN base = entry name) ifFalse: [ ^ nil ].
 	aDN isLeaf ifTrue: [ ^ self ].
 	
-	children ifNil: [ children := Dictionary new ].
-	aDN next.
-	nextChild := children at: aDN base ifAbsentPut: [ self class for: aDN base ].
+	children ifNil: [ children := Set new ].
+	nextBase := aDN next.
+	nextChild := children like: nextBase ifAbsent: [ children add: (self class for: nextBase) ].
 	^ nextChild search: aDN
 ]
 
