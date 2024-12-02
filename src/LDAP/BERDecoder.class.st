@@ -11,9 +11,9 @@ Class {
 	#classVars : [
 		'UniversalTags'
 	],
-	#category : 'LDAP-BER',
+	#category : 'LDAP-Internal',
 	#package : 'LDAP',
-	#tag : 'BER'
+	#tag : 'Internal'
 }
 
 { #category : 'instance creation' }
