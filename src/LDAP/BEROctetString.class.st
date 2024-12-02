@@ -28,7 +28,7 @@ BEROctetString >> inspectionString [
 
 { #category : 'accessing' }
 BEROctetString >> length [ 
-	^ self value size
+	^ value ifNil: [ 0 ] ifNotNil: [ :s | s size ]
 ]
 
 { #category : 'accessing' }
@@ -44,6 +44,6 @@ BEROctetString >> value: anObject [
 
 { #category : 'writing' }
 BEROctetString >> writeBodyOn: aStream [
-	aStream nextPutAll: self value asString.
+	value ifNotNil: [ :s | s do: [ :c | aStream nextPut: c asCharacter ] ]
 
 ]

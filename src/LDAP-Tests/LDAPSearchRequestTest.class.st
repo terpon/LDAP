@@ -10,24 +10,11 @@ Class {
 LDAPSearchRequestTest >> inspectBasicSearch [
 <script: 'self new setUp; inspectBasicSearch; tearDown' >
 
-	| search responses  add attrs name dn |
+	| search responses |
 	self connect.
-"	name := 'deep'.
-	dn := 'cn=deep,ou=foofoo,o=foo,o=oo,cn=foo1,dc=example,dc=com'.
-		attrs := Dictionary new
-			         at: 'objectClass' put: { 'person' };
-			         at: 'cn' put: { name };
-			         at: 'sn' put: { name };
-			         yourself.
-
-		add := LDAPAddRequest new name: dn; attributes: attrs.
-		self requestAndAssertSuccess: add."
-		
 	search := LDAPSearchRequest new
-		          "base: 'cn=bar55,dc=example,dc=com'self baseDN;"
-		          base: self baseDN;
-		          "scope: LDAPWholeSubtreeScope new."
-		          scope: LDAPSingleLevelScope new.
+		          base: 'ou=people,dc=example,dc=com';
+		          scope: LDAPWholeSubtreeScope new.
 	responses := self requestAndAssertSuccess: search.
 	responses inspect.
 
@@ -43,6 +30,21 @@ LDAPSearchRequestTest >> inspectBasicSearch2 [
 	search := LDAPSearchRequest new
 		          base: 'cn=bar55,dc=example,dc=com';
 		          scope: LDAPBaseObjectScope new.
+	responses := self requestAndAssertSuccess: search.
+	responses inspect.
+
+
+]
+
+{ #category : 'tests' }
+LDAPSearchRequestTest >> inspectBasicSearch3 [
+<script: 'self new setUp; inspectBasicSearch3; tearDown' >
+
+	| search responses |
+	self connect.
+	search := LDAPSearchRequest new
+		          base: 'cn=bar55,dc=example,dc=com';
+		          scope: LDAPSingleLevelScope new.
 	responses := self requestAndAssertSuccess: search.
 	responses inspect.
 

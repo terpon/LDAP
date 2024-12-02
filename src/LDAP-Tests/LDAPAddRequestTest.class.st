@@ -103,3 +103,20 @@ LDAPAddRequestTest >> testStringValues [
 				        attributes: attrs)
 	].
 ]
+
+{ #category : 'tests' }
+LDAPAddRequestTest >> testUnicode [
+
+	| attrs dn |
+	self connect.
+	dn := 'cn=Éric,ou=people,dc=example,dc=com'.
+	attrs := Dictionary new
+		        at: 'objectClass' put: 'person';
+		        at: 'cn' put: 'Éric';
+		        at: 'sn' put: 'Λαдоғទ្ឋឃោテクđešić';
+		        yourself.
+
+	self requestAndAssertSuccess: (LDAPAddRequest new name: dn; attributes: attrs).
+	self requestAndAssertSuccess: (LDAPDeleteRequest new name: dn).
+
+]
