@@ -14,3 +14,9 @@ LDAPEditor class >> mainPresenterClass [
 
 	^ LDAPEditorPresenter
 ]
+
+{ #category : 'accessing' }
+LDAPEditor >> subSchema [
+
+	^ session subSchema
+]

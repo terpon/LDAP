@@ -21,9 +21,9 @@ LDAPAsyncEntryState >> atEnd [
 
 { #category : 'callbacks' }
 LDAPAsyncEntryState >> done: aCommand [
-"subclasses implementations should override the process and reture the next class on success"
 	
 	command := aCommand.
+	nextClass := nil.
 ]
 
 { #category : 'callbacks' }
@@ -45,6 +45,9 @@ LDAPAsyncEntryState >> nextFor: anEntry on: anApplication [
 	"nextClass is set on failure, update is not called"
 	nextClass ifNil: [
 		nextClass := (self update: anEntry) ifNil: [ LDAPInvalidatedEntryState ]
+	] ifNotNil: [
+		"report error"
+		anApplication reportError: command.
 	].
 	^ nextClass new
 ]

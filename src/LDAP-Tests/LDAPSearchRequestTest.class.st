@@ -175,8 +175,6 @@ LDAPSearchRequestTest >> testNamingContexts [
 
 	| responses search attrs |
 	self connect.
-	self addSomeTestEntries.
-
 	search := LDAPSearchRequest new
 		          base: '';
 		          scope: LDAPBaseObjectScope new;
@@ -186,8 +184,8 @@ LDAPSearchRequestTest >> testNamingContexts [
 	self assert: responses size equals: 2.
 	self assert: responses second resultCode equals: 0.
 	attrs := responses first asDictionary.
-	self assert: (attrs includesKey: 'namingContexts').
-	self assert: ((attrs at: 'namingContexts') includes: self baseDN).
+	self assert: (attrs includesKey: 'namingcontexts').
+	self assert: ((attrs at: 'namingcontexts') includes: self baseDN).
 
 ]
 
@@ -196,35 +194,38 @@ LDAPSearchRequestTest >> testRootDse [
 
 	| responses search result |
 	self connect.
-	self addSomeTestEntries.
-
 	search := LDAPSearchRequest new
 		          base: '';
 		          scope: LDAPBaseObjectScope new;
 		          attributes: { '+' }.
 	responses := self requestAndAssertSuccess: search.
-	responses inspect.
+	"responses inspect."
 	result := responses first asDictionary.
-	self assert: (result includesKey: 'supportedLDAPVersion').
-	self assert: (result includesKey: 'namingContexts').
-	self assert: (result includesKey: 'subschemaSubentry').
-
+	self assert: (result includesKey: 'supportedldapversion').
+	self assert: (result includesKey: 'namingcontexts').
+	self assert: (result includesKey: 'subschemasubentry').
 ]
 
 { #category : 'tests' }
 LDAPSearchRequestTest >> testRootSubSchema [
 
-	| responses search |
+	| responses search result dn |
 	self connect.
-	self addSomeTestEntries.
+	search := LDAPSearchRequest new
+		          base: '';
+		          scope: LDAPBaseObjectScope new;
+		          attributes: { '+' }.
+	responses := self requestAndAssertSuccess: search.
+	result := responses first asDictionary.
+	self assert: (result includesKey: 'subschemasubentry').
+	dn := (result at: 'subschemasubentry') first.
 
 	search := LDAPSearchRequest new
-		          base: 'cn=subschema';
+		          base: dn;
 		          scope: LDAPBaseObjectScope new;
 		          attributes: { '*' . '+' }.
 	responses := self requestAndAssertSuccess: search.
 	"responses inspect."
-
 ]
 
 { #category : 'tests' }

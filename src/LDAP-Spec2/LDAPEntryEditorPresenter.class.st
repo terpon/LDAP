@@ -6,7 +6,10 @@ Class {
 	#superclass : 'LDAPEntryPresenter',
 	#instVars : [
 		'toolBar',
-		'deleteButton'
+		'deleteButton',
+		'onAdd',
+		'onDelete',
+		'onEdit'
 	],
 	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
@@ -22,15 +25,12 @@ LDAPEntryEditorPresenter class >> example [
 { #category : 'actions' }
 LDAPEntryEditorPresenter >> addAction [
 
-		UIManager inform: 'Add action'
-]
-
-{ #category : 'initialization' }
-LDAPEntryEditorPresenter >> connectPresenters [ 
-
-	super connectPresenters.
+	| model |
+	model := self model ifNil: [ ^self ].
+	application connected ifFalse: [ ^ self ].
 	
-	table whenSelectionChangedDo: [ :selection | self updateSelection: selection ].
+	onAdd ifNotNil: [ :action | action cull: model ].
+	UIManager inform: 'Add action'.
 
 ]
 
@@ -47,15 +47,20 @@ LDAPEntryEditorPresenter >> defaultLayout [
 LDAPEntryEditorPresenter >> deleteAction [
 
 	| model item |
-	model := self model ifNil: [ ^self ].
 	deleteButton isEnabled ifFalse: [ ^self ].
-	item := table selectedItem.
-	UIManager inform: 'Delete action on ', item name
+	model := self model ifNil: [ ^self ].
+	application connected ifFalse: [ ^ self ].
+
+	onDelete ifNotNil: [ :action | action cull: model ].
+	UIManager inform: 'Delete action on ', model name
 ]
 
 { #category : 'actions' }
 LDAPEntryEditorPresenter >> editAction [
 
+	| model |
+	model := self model ifNil: [ ^self ].
+	onEdit ifNotNil: [ :action | action cull: model ].
 	UIManager inform: 'Edit action'
 ]
 
@@ -75,7 +80,7 @@ LDAPEntryEditorPresenter >> initializeToolbar [
 		         help: 'Delete current DN entry';
 		         action: [ self deleteAction ];
 		         yourself.
-		
+
 	toolBar := self newToolbar
 			beIcons;
           addItemLeft: (self newToolbarButton 
@@ -94,15 +99,49 @@ LDAPEntryEditorPresenter >> initializeToolbar [
            yourself.
 ]
 
-{ #category : 'events' }
-LDAPEntryEditorPresenter >> updateSelection: aSelection [
+{ #category : 'initialization' }
+LDAPEntryEditorPresenter >> modelChanged [ 
 
-	| model indices |
+	| model |
 	deleteButton disable.
+	super modelChanged.
+	
 	model := self model ifNil: [ ^self ].
-	
-	indices := aSelection selectedIndexes.
-	((indices size ~= 1) or: [ indices first > model branches size  ]) ifTrue: [ ^self ].
-	
-	deleteButton enable.
+	deleteButton enabled: model branches isEmpty.
+]
+
+{ #category : 'accessing' }
+LDAPEntryEditorPresenter >> onAdd [
+
+	^ onAdd
+]
+
+{ #category : 'accessing' }
+LDAPEntryEditorPresenter >> onAdd: aBlock [
+
+	onAdd := aBlock
+]
+
+{ #category : 'accessing' }
+LDAPEntryEditorPresenter >> onDelete [
+
+	^ onDelete
+]
+
+{ #category : 'accessing' }
+LDAPEntryEditorPresenter >> onDelete: aBlock [
+
+	onDelete := aBlock
+]
+
+{ #category : 'accessing' }
+LDAPEntryEditorPresenter >> onEdit [
+
+	^ onEdit
+]
+
+{ #category : 'accessing' }
+LDAPEntryEditorPresenter >> onEdit: aBlock [
+
+	onEdit := aBlock
 ]
