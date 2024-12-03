@@ -182,10 +182,10 @@ LDAPBrowser >> onNamingContexts: aCommand [
 	| roots subSchema searchResult |
 	searchResult := aCommand responses first asDictionary.
 	
-	subSchema := searchResult at: 'subschemaSubentry' ifPresent: [ :c | c first ] ifAbsent: [ nil ].
+	subSchema := searchResult at: 'subschemasubentry' ifPresent: [ :c | c first ] ifAbsent: [ nil ].
 	session subSchema: subSchema.
 	
-	roots := searchResult at: 'namingContexts' ifAbsent: [ #() ].
+	roots := searchResult at: 'namingcontexts' ifAbsent: [ #() ].
 	session roots: roots.
 ]
 

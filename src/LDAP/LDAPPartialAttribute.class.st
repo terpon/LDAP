@@ -25,7 +25,7 @@ LDAPPartialAttribute >> addValue: aString [
 { #category : 'converting' }
 LDAPPartialAttribute >> asAssociation [
 
-	^	self description -> self values
+	^	self description asLowercase -> self values
 
 ]
 
