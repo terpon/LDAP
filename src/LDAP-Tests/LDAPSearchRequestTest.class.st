@@ -192,6 +192,42 @@ LDAPSearchRequestTest >> testNamingContexts [
 ]
 
 { #category : 'tests' }
+LDAPSearchRequestTest >> testRootDse [
+
+	| responses search result |
+	self connect.
+	self addSomeTestEntries.
+
+	search := LDAPSearchRequest new
+		          base: '';
+		          scope: LDAPBaseObjectScope new;
+		          attributes: { '*' . '+' }.
+	responses := self requestAndAssertSuccess: search.
+	"responses inspect."
+	result := responses first asDictionary.
+	self assert: (result includesKey: 'supportedLDAPVersion').
+	self assert: (result includesKey: 'namingContexts').
+	self assert: (result includesKey: 'subschemaSubentry').
+
+]
+
+{ #category : 'tests' }
+LDAPSearchRequestTest >> testRootSubSchema [
+
+	| responses search |
+	self connect.
+	self addSomeTestEntries.
+
+	search := LDAPSearchRequest new
+		          base: 'cn=subschema';
+		          scope: LDAPBaseObjectScope new;
+		          attributes: { '*' . '+' }.
+	responses := self requestAndAssertSuccess: search.
+	"responses inspect."
+
+]
+
+{ #category : 'tests' }
 LDAPSearchRequestTest >> testSearchWithNext [
 
 	| conn command list r search |

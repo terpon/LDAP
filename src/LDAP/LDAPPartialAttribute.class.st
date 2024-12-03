@@ -51,8 +51,17 @@ LDAPPartialAttribute >> initialize [
 	super initialize.
 	
 	self addElement: (LDAPString new). "type"
-	self addElement: (BERSet new). "vals"
+	self addElement: (LDAPAttributeValueSet new). "vals"
 
+]
+
+{ #category : 'instance creation' }
+LDAPPartialAttribute >> newElementFrom: aTagValue [
+	
+	"First element is the attribute description"
+	elements ifEmpty: [ ^ LDAPString new ].
+
+	^ LDAPAttributeValueSet new
 ]
 
 { #category : 'accessing' }
