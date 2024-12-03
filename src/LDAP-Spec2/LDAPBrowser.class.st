@@ -17,6 +17,12 @@ Class {
 	#tag : 'Applications'
 }
 
+{ #category : 'instance creation' }
+LDAPBrowser class >> mainPresenterClass [
+
+	^ LDAPInspectorPresenter
+]
+
 { #category : 'ui - dialogs' }
 LDAPBrowser class >> openConnectionDialog [
 <example>
@@ -132,7 +138,7 @@ LDAPBrowser >> initializeErrorPresenter [
 { #category : 'initialization' }
 LDAPBrowser >> initializeMainPresenter [
 
-	main := LDAPInspectorPresenter
+	main := self class mainPresenterClass
 		          newApplication: self
 		          model: session.
 

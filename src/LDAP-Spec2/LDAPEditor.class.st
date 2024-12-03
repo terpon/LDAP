@@ -8,3 +8,9 @@ Class {
 	#package : 'LDAP-Spec2',
 	#tag : 'Applications'
 }
+
+{ #category : 'instance creation' }
+LDAPEditor class >> mainPresenterClass [
+
+	^ LDAPEditorPresenter
+]
