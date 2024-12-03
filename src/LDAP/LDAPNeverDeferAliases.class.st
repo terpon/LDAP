@@ -12,7 +12,7 @@ Class {
 { #category : 'initialization' }
 LDAPNeverDeferAliases >> initialize [ 
 	super initialize.
-	value := 0. "never"
+	integer := 0. "never"
 ]
 
 { #category : 'accessing' }

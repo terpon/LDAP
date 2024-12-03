@@ -21,11 +21,11 @@ LDAPSearchResultReference >> isReference [
 
 { #category : 'accessing' }
 LDAPSearchResultReference >> url [
-	^ elements first value
+	^ elements first asString
 ]
 
 { #category : 'accessing' }
 LDAPSearchResultReference >> urls [
-	^ elements collect: #value
+	^ elements collect: #asString
 
 ]

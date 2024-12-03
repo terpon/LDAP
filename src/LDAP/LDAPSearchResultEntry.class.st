@@ -40,14 +40,14 @@ LDAPSearchResultEntry >> isReference [
 
 { #category : 'accessing' }
 LDAPSearchResultEntry >> name [
-	^ elements first value
+	^ elements first asString
 ]
 
 { #category : 'instance creation' }
 LDAPSearchResultEntry >> newElementFrom: aTagValue [
 	
 	"First element is the matched DN"
-	elements ifEmpty: [ ^ BEROctetString new ].
+	elements ifEmpty: [ ^ LDAPString new ].
 
 	"Next are partial attributes"
 	^ LDAPPartialAttributeList new

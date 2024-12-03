@@ -18,8 +18,8 @@ LDAPBindRequest class >> tagValue [
 LDAPBindRequest >> initialize [ 
 	super initialize.
 	
-	self addElement: (BERInteger new value: 3). "version"
-	self addElement: (BEROctetString new). "name"
+	self addElement: (BERInteger new content: 3). "version"
+	self addElement: (LDAPString new). "name"
 	self addElement: (LDAPSimpleAuthString new). "simple"
 
 ]
@@ -27,27 +27,27 @@ LDAPBindRequest >> initialize [
 { #category : 'accessing' }
 LDAPBindRequest >> password [
 
-	^ elements third value
+	^ elements third content
 ]
 
 { #category : 'accessing' }
 LDAPBindRequest >> password: aString [
-	elements third value: aString
+	elements third content: aString
 ]
 
 { #category : 'accessing' }
 LDAPBindRequest >> username [
 
-	^ elements second value
+	^ elements second content
 ]
 
 { #category : 'accessing' }
 LDAPBindRequest >> username: aString [
-	elements second value: aString
+	elements second content: aString
 ]
 
 { #category : 'versions' }
 LDAPBindRequest >> version [
 
-	^ elements first value
+	^ elements first asInteger
 ]

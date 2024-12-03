@@ -10,8 +10,8 @@ Class {
 BERSequenceTest >> testEncoded [
 	|ber0 ber1 ber2 result expected |
 	ber0 := BERSequence new.
-	ber1 := BERInteger new value: 17.
-	ber2 := BERInteger new value: 170.
+	ber1 := BERInteger new content: 17.
+	ber2 := BERInteger new content: 170.
 	
 	ber0 addElement: ber1.
 	ber0 addElement: ber2.

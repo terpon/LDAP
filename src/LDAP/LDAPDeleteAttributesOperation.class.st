@@ -12,7 +12,7 @@ Class {
 { #category : 'initialization' }
 LDAPDeleteAttributesOperation >> initialize [ 
 	super initialize.
-	value := 1. "Delete"
+	integer := 1. "Delete"
 ]
 
 { #category : 'accessing' }

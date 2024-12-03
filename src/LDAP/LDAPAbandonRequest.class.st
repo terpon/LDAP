@@ -11,7 +11,7 @@ Class {
 
 { #category : 'instance creation' }
 LDAPAbandonRequest class >> newId: anId [
-	^ self new value: anId; yourself
+	^ self new content: anId; yourself
 ]
 
 { #category : 'accessing' }

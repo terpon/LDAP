@@ -3,7 +3,7 @@ A present filter
 "
 Class {
 	#name : 'LDAPFilterPresent',
-	#superclass : 'BEROctetString',
+	#superclass : 'LDAPString',
 	#traits : 'TLDAPComposeFilter',
 	#classTraits : 'TLDAPComposeFilter classTrait',
 	#category : 'LDAP-Filters',
@@ -13,7 +13,7 @@ Class {
 
 { #category : 'instance creation' }
 LDAPFilterPresent class >> having: anAttrType [
-	^ self new value: anAttrType
+	^ self new content: anAttrType
 
 ]
 

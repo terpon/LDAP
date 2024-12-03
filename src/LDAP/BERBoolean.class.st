@@ -4,6 +4,9 @@ BERBoolean is a boolean encoded in BER.
 Class {
 	#name : 'BERBoolean',
 	#superclass : 'BERPrimitive',
+	#instVars : [
+		'boolean'
+	],
 	#category : 'LDAP-BER',
 	#package : 'LDAP',
 	#tag : 'BER'
@@ -14,9 +17,42 @@ BERBoolean class >> tagValue [
 	^ 1
 ]
 
+{ #category : 'converting' }
+BERBoolean >> asBoolean [
+	^ boolean ifNil: [ false ]
+]
+
+{ #category : 'accessing' }
+BERBoolean >> beFalse [
+
+	boolean := false
+]
+
+{ #category : 'accessing' }
+BERBoolean >> beTrue [
+
+	boolean := true
+]
+
+{ #category : 'accessing' }
+BERBoolean >> content [ 
+	^ self asBoolean
+]
+
+{ #category : 'accessing' }
+BERBoolean >> content: anObject [
+"Convert object to a boolean"
+	anObject == true ifTrue: [ boolean := true. ^ self ].
+	anObject == false ifTrue: [ boolean := false. ^ self ].
+	boolean := anObject isNumber
+		ifTrue: [ anObject isZero not ]
+		ifFalse: [ false ].
+
+]
+
 { #category : 'encoding' }
 BERBoolean >> decode: aStream length: anInteger with: aDecoder [
-	self value: aStream next.
+	self content: aStream next.
 
 ]
 
@@ -25,26 +61,18 @@ BERBoolean >> length [
 	^ 1
 ]
 
-{ #category : 'accessing' }
-BERBoolean >> value [ 
-	^ value ifNil: [ false ]
-]
+{ #category : 'storing' }
+BERBoolean >> storeOn: aStream [
 
-{ #category : 'accessing' }
-BERBoolean >> value: anObject [
-"Convert object to a boolean"
-	anObject == true ifTrue: [ value := true. ^ self ].
-	anObject == false ifTrue: [ value := false. ^ self ].
-	value := anObject isNumber
-		ifTrue: [ anObject isZero not ]
-		ifFalse: [ false ].
-
+ 	aStream
+ 		nextPut: $(;
+ 		nextPutAll: self className;
+		nextPutAll: (self asBoolean 
+			ifTrue: [ ' new beTrue)' ]
+			ifFalse: [ ' new beFalse)' ])
 ]
 
 { #category : 'writing' }
 BERBoolean >> writeBodyOn: aStream [
-	self value
-		ifFalse: [aStream nextPut: (0 asCharacter)]
-		ifTrue: [aStream nextPut: (255 asCharacter)].
-
+	aStream nextPut: (self asBoolean ifFalse: [ 0 ] ifTrue: [ 255 ]) asCharacter
 ]

@@ -10,7 +10,7 @@ Class {
 LDAPNameTest >> testStripBase [
 
 	| name |
-	name := LDAPName new value: 'o=a'.
+	name := LDAPString new content: 'o=a'.
 	self assert: (name stripBase: 'o=c,o=b,o=a') equals: 'o=c,o=b'.
 	self assert: (name stripBase: 'o=b,o=a') equals: 'o=b'.
 	self assert: (name stripBase: 'o=a') equals: ''.

@@ -14,7 +14,7 @@ Class {
 { #category : 'initialization' }
 LDAPBaseObjectScope >> initialize [ 
 	super initialize.
-	value := 0. "base object"
+	integer := 0. "base object"
 ]
 
 { #category : 'accessing' }

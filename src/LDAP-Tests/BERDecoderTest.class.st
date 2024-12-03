@@ -6,20 +6,6 @@ Class {
 	#tag : 'Tests'
 }
 
-{ #category : 'test data' }
-BERDecoderTest >> booleanTestSet [
-
-	^ #(
-		  ( 0     '010100' )
-		  ( 1     '0101FF' )
-		  ( 255  '0101FF' )
-		  ( 1000 '0101FF' )
-		  ( false '010100' )
-		  ( true  '0101FF' )
-		)
-
-]
-
 { #category : 'tools' }
 BERDecoderTest >> debugHex: aString [
 	
@@ -41,25 +27,6 @@ BERDecoderTest >> formatWithHex: aString [
 				stream nextPut: lo.
 			]  
 		]
-]
-
-{ #category : 'test data' }
-BERDecoderTest >> integerTestSet [
-	^  #(
-			( 27066 '020269BA') 
-			( -27066 '02029646')
-			( 72 '020148' )
-			( 127 '02017F')
-			( -128 '020180')
-			( 128 '02020080')
-			( 0'020100' )
-			( 256 '02020100')
-			( 4294967290 '020500FFFFFFFA')
-			( 1 '020101')
-			( -1'0201FF')
-			( -129 '0202FF7F')
-		)
-
 ]
 
 { #category : 'tests' }

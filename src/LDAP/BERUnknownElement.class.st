@@ -25,9 +25,3 @@ BERUnknownElement >> tag: anInteger [
 BERUnknownElement >> tagValue [
 	^ tag
 ]
-
-{ #category : 'accessing' }
-BERUnknownElement >> value [ 
-	"Do not UTF-8 decode me"
-	^ value ifNil: [ #[] ]
-]

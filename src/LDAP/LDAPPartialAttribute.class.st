@@ -19,7 +19,7 @@ Class {
 
 { #category : 'adding' }
 LDAPPartialAttribute >> addValue: aString [
-	elements second addElement: (BEROctetString new value: aString).
+	elements second addElement: (LDAPString new content: aString).
 ]
 
 { #category : 'converting' }
@@ -31,26 +31,26 @@ LDAPPartialAttribute >> asAssociation [
 
 { #category : 'accessing' }
 LDAPPartialAttribute >> description [
-	^ elements first value
+	^ elements first asString
 ]
 
 { #category : 'accessing' }
 LDAPPartialAttribute >> description: aString [ 
-	elements first value: aString
+	elements first content: aString
 ]
 
 { #category : 'enumerating' }
 LDAPPartialAttribute >> flattenOn: aStream [
 	| name |
 	name := self description.
-	elements second do: [ :each |  aStream nextPut: { name. each value }  ]
+	elements second do: [ :each |  aStream nextPut: { name. each asString }  ]
 ]
 
 { #category : 'initialization' }
 LDAPPartialAttribute >> initialize [ 
 	super initialize.
 	
-	self addElement: (BEROctetString new). "type"
+	self addElement: (LDAPString new). "type"
 	self addElement: (BERSet new). "vals"
 
 ]
@@ -58,7 +58,7 @@ LDAPPartialAttribute >> initialize [
 { #category : 'accessing' }
 LDAPPartialAttribute >> values [
 
-	^ elements second collect: #value
+	^ elements second collect: #asString
 
 ]
 

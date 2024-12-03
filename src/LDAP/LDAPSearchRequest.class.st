@@ -18,7 +18,7 @@ LDAPSearchRequest class >> tagValue [
 LDAPSearchRequest >> attributes: someAttrs [
 	| ber |
 	ber := BERSequence new.
-	someAttrs do: [ :each | ber addElement: (BEROctetString new value: each) ].
+	someAttrs do: [ :each | ber addElement: (LDAPString new content: each) ].
 	elements at: 8 put: ber.
 ]
 
@@ -53,11 +53,11 @@ LDAPSearchRequest >> initialize [
 	super initialize.
 	
 	self
-		addElement: (BEROctetString new); "dn"
+		addElement: (LDAPString new); "dn"
 		addElement: (LDAPBaseObjectScope new); "scope"
 		addElement: (LDAPNeverDeferAliases new); "derefAliases"
-		addElement: (BERInteger new value: 0); "sizelimit"
-		addElement: (BERInteger new value: 0); "timelimit"
+		addElement: (BERInteger new content: 0); "sizelimit"
+		addElement: (BERInteger new content: 0); "timelimit"
 		addElement: (BERBoolean new); "typesOnly"
 		addElement: (LDAPFilterAnd new); "filter. Absolute true filter (&)"
 		addElement: (BERSequence new). "attrs"
@@ -66,12 +66,12 @@ LDAPSearchRequest >> initialize [
 
 { #category : 'accessing' }
 LDAPSearchRequest >> name [
-	^ elements first value
+	^ elements first asString
 ]
 
 { #category : 'accessing' }
 LDAPSearchRequest >> name: aDn [
-	elements first value: aDn
+	elements first content: aDn
 ]
 
 { #category : 'accessing' }
@@ -81,15 +81,15 @@ LDAPSearchRequest >> scope: aScope [
 
 { #category : 'accessing' }
 LDAPSearchRequest >> sizeLimit: anInteger [
-	elements fourth value: anInteger
+	elements fourth content: anInteger
 ]
 
 { #category : 'accessing' }
 LDAPSearchRequest >> timeLimit: anInteger [
-	elements fifth value: anInteger
+	elements fifth content: anInteger
 ]
 
 { #category : 'accessing' }
 LDAPSearchRequest >> wantTypesOnly: aBoolean [
-	elements sixth value: aBoolean
+	elements sixth content: aBoolean
 ]

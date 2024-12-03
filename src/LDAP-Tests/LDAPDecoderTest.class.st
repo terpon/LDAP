@@ -21,13 +21,13 @@ Class {
 LDAPDecoderTest >> testReadFrom [
 	| message id cn dn code result seq encoded |
 	seq := BERSequence new.
-	id := BERInteger new value: 2.
+	id := BERInteger new content: 2.
 	seq addElement: id.
 	result := LDAPBindResult new.
-	code := BEREnumerated new value: 0.
+	code := BEREnumerated new content: 0.
 	result addElement: code.
 	cn := 'cn=root,cn=wheel,dc=example,dc=com'.
-	dn := BEROctetString new value: cn.
+	dn := BEROctetString new from: cn.
 	result addElement: dn.
 	seq addElement: result.
 	encoded := ByteString streamContents: [ :s | seq writeOn: s ].

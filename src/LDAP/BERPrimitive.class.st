@@ -4,17 +4,25 @@ A BERPrimitive holds a single value. It is used to represent non constructed typ
 Class {
 	#name : 'BERPrimitive',
 	#superclass : 'BERElement',
-	#instVars : [
-		'value'
-	],
 	#category : 'LDAP-BER',
 	#package : 'LDAP',
 	#tag : 'BER'
 }
 
+{ #category : 'accessing' }
+BERPrimitive >> content [
+	^ self subclassResponsibility
+]
+
+{ #category : 'accessing' }
+BERPrimitive >> content: anObject [
+
+	self subclassResponsibility
+]
+
 { #category : 'printing' }
 BERPrimitive >> printOn: aStream [
-	self value printOn: aStream.
+	self content printOn: aStream.
 ]
 
 { #category : 'storing' }
@@ -23,20 +31,9 @@ BERPrimitive >> storeOn: aStream [
  	aStream
  		nextPut: $(;
  		nextPutAll: self className;
- 		nextPutAll: ' new value: '.
-	self value storeOn: aStream.
+ 		nextPutAll: ' new content: '.
+	self content storeOn: aStream.
 	aStream
 		nextPut: $)
 
-]
-
-{ #category : 'accessing' }
-BERPrimitive >> value [
-	^ self subclassResponsibility
-]
-
-{ #category : 'accessing' }
-BERPrimitive >> value: anObject [
-
-	self subclassResponsibility
 ]

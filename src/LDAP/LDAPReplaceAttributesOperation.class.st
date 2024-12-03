@@ -12,7 +12,7 @@ Class {
 { #category : 'initialization' }
 LDAPReplaceAttributesOperation >> initialize [ 
 	super initialize.
-	value := 2. "Replace"
+	integer := 2. "Replace"
 ]
 
 { #category : 'accessing' }

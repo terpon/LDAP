@@ -23,12 +23,12 @@ LDAPCompareRequest >> comparing: aFilter [
 LDAPCompareRequest >> initialize [ 
 	super initialize.
 	
-	self addElement: (BEROctetString new). "entry"
+	self addElement: (LDAPString new). "entry"
 	self addElement: (LDAPFilterEquality new). "AttributeValueAssertion"
 
 ]
 
 { #category : 'accessing' }
 LDAPCompareRequest >> name: aString [
-	elements first value: aString
+	elements first content: aString
 ]

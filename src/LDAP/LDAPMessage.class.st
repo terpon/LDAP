@@ -40,12 +40,12 @@ LDAPMessage >> controls: aCollection [
 
 { #category : 'accessing' }
 LDAPMessage >> id [
-	^ elements first value
+	^ elements first content
 ]
 
 { #category : 'accessing' }
 LDAPMessage >> id: anInteger [
-	elements first value: anInteger 
+	elements first content: anInteger 
 ]
 
 { #category : 'initialization' }

@@ -27,16 +27,16 @@ LDAPResult >> diagnosticElement [
 
 { #category : 'accessing' }
 LDAPResult >> diagnosticMessage [
-	^ self diagnosticElement value
+	^ self diagnosticElement asString
 ]
 
 { #category : 'instance creation' }
 LDAPResult >> fromCode: aNumber name: aString message: aMessage [
 
 	self removeAll;
-		addElement: (LDAPResultCode new value: aNumber);
-		addElement: (BEROctetString new value: aString);
-		addElement: (BEROctetString new value: aMessage).
+		addElement: (LDAPResultCode new content: aNumber);
+		addElement: (LDAPString new content: aString);
+		addElement: (LDAPString new content: aMessage).
 ]
 
 { #category : 'testing' }
@@ -52,7 +52,7 @@ LDAPResult >> matchedElement [
 { #category : 'accessing' }
 LDAPResult >> name [
 "In RFC, the element is either called 'name', 'objectName' or 'matchedDN'"
-	^ self matchedElement value
+	^ self matchedElement asString
 ]
 
 { #category : 'instance creation' }
@@ -63,7 +63,7 @@ LDAPResult >> newElementFrom: aTagValue [
 	"First element is always a result code"
 	elements ifEmpty: [ ^ LDAPResultCode new ].
 
-	^ super newElementFrom: aTagValue
+	^ LDAPString new
 ]
 
 { #category : 'accessing' }
@@ -74,7 +74,7 @@ LDAPResult >> referralElement [
 
 { #category : 'accessing' }
 LDAPResult >> resultCode [
-	^ self resultElement value
+	^ self resultElement asInteger
 ]
 
 { #category : 'accessing' }

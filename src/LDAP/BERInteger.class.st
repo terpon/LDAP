@@ -4,6 +4,9 @@ BERInteger is a integer encoded in BER.
 Class {
 	#name : 'BERInteger',
 	#superclass : 'BERPrimitive',
+	#instVars : [
+		'integer'
+	],
 	#category : 'LDAP-BER',
 	#package : 'LDAP',
 	#tag : 'BER'
@@ -14,6 +17,21 @@ BERInteger class >> tagValue [
 	^ 2 
 ]
 
+{ #category : 'converting' }
+BERInteger >> asInteger [
+	^ integer ifNil: [ 0 ]
+]
+
+{ #category : 'accessing' }
+BERInteger >> content [ 
+	^ self asInteger
+]
+
+{ #category : 'accessing' }
+BERInteger >> content: anObject [
+	integer := anObject isInteger ifTrue: [ anObject ] ifFalse: [ 0 ] 
+]
+
 { #category : 'encoding' }
 BERInteger >> decode: aStream length: aLength with: aDecoder [
 	| highBit negative powerOfTwo |
@@ -21,27 +39,27 @@ BERInteger >> decode: aStream length: aLength with: aDecoder [
 	highBit := aStream peek asInteger bitAnd: 16r80.
 	negative := highBit isZero not.
 
-	value := 0.
-	1 to: aLength do: [ :i | value := (value bitShift: 8) + aStream next asInteger ].
+	integer := 0.
+	1 to: aLength do: [ :i | integer := (integer bitShift: 8) + aStream next asInteger ].
 
 	negative ifFalse: [ ^ self ]. 
 
 	powerOfTwo := 1 bitShift: (aLength * 8).
-	value := value - powerOfTwo.
+	integer := integer - powerOfTwo.
 
 ]
 
 { #category : 'inspecting' }
 BERInteger >> inspectIntegerIn: aBuilder [
 	<inspectorPresentationOrder: 30 title: 'Integer'> 
-	^ self value asInteger inspectIntegerIn: aBuilder
+	^ self asInteger inspectIntegerIn: aBuilder
 ]
 
 { #category : 'accessing' }
 BERInteger >> length [
 "Compute the minimum size for the integer"
 	| integerValue |
-	integerValue := self value.
+	integerValue := self asInteger.
 	^ integerValue positive
 		ifTrue: [ 
 			| length msb |
@@ -57,24 +75,14 @@ BERInteger >> length [
 		]
 ]
 
-{ #category : 'accessing' }
-BERInteger >> value [ 
-	^ value ifNil: [ 0 ]
-]
-
-{ #category : 'accessing' }
-BERInteger >> value: anObject [
-	value := anObject isInteger ifTrue: [ anObject ] ifFalse: [ 0 ] 
-]
-
 { #category : 'writing' }
 BERInteger >> writeBodyOn: aStream [
 	| integerValue length octets remainderValue |
 	length := self length.
 	octets := ByteArray new: length.
 	
-	"put value into octet array, convert negatives as appropiate"
-	integerValue := self value.
+	"put value into octet array, convert negatives as appropriate"
+	integerValue := self asInteger.
 	integerValue positive
 		ifTrue: [
 			remainderValue := integerValue.

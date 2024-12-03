@@ -1,9 +1,12 @@
 "
-BEROctetString is a string encoded in BER.
+BEROctetString is an array of bytes. It is often used to store strings.
 "
 Class {
 	#name : 'BEROctetString',
 	#superclass : 'BERPrimitive',
+	#instVars : [
+		'data'
+	],
 	#category : 'LDAP-BER',
 	#package : 'LDAP',
 	#tag : 'BER'
@@ -14,36 +17,48 @@ BEROctetString class >> tagValue [
 	^ 4 
 ]
 
+{ #category : 'converting' }
+BEROctetString >> asString [ 
+	^ data ifNil: [ '' ] ifNotNil: [ :s | s utf8Decoded ]
+]
+
+{ #category : 'accessing' }
+BEROctetString >> content [
+	"Do not UTF-8 decode me by default. Use asString for that"
+	^ data ifNil: [ #[] ]
+]
+
+{ #category : 'accessing' }
+BEROctetString >> content: anObject [
+"To store a String, use from: message"
+	data := anObject asByteArray
+]
+
 { #category : 'encoding' }
 BEROctetString >> decode: aStream length: aLength with: aDecoder [
-	value := (aStream next: aLength) asByteArray
+	data := (aStream next: aLength) asByteArray
+]
+
+{ #category : 'converting' }
+BEROctetString >> from: aString [
+	"Value is stored as an UTF-8 encoded byte array"
+	data := aString asString utf8Encoded
 ]
 
 { #category : 'inspecting' }
 BEROctetString >> inspectionString [
 	<inspectorPresentationOrder: -10 title: 'Octet String'>
 	
-	^ self value asString inspectionString 
+	^ self asString inspectionString 
 ]
 
 { #category : 'accessing' }
 BEROctetString >> length [ 
-	^ value ifNil: [ 0 ] ifNotNil: [ :s | s size ]
-]
-
-{ #category : 'accessing' }
-BEROctetString >> value [ 
-	^ value ifNil: [ '' ] ifNotNil: [ :s | s utf8Decoded ]
-]
-
-{ #category : 'accessing' }
-BEROctetString >> value: anObject [
-	"Value is stored as an UTF-8 encoded byte array"
-	value := anObject asString utf8Encoded
+	^ data ifNil: [ 0 ] ifNotNil: [ :s | s size ]
 ]
 
 { #category : 'writing' }
 BEROctetString >> writeBodyOn: aStream [
-	value ifNotNil: [ :s | s do: [ :c | aStream nextPut: c asCharacter ] ]
+	data ifNotNil: [ :s | s do: [ :c | aStream nextPut: c asCharacter ] ]
 
 ]

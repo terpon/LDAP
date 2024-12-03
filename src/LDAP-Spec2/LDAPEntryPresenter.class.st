@@ -31,7 +31,7 @@ LDAPEntryPresenter class >> sampleElement [
 "Sample search result"
 	| entry list |
 	entry := LDAPSearchResultEntry new.
-	entry addElement: (BEROctetString new value: 'cn=test4,dc=example,dc=com').
+	entry addElement: (LDAPString new content: 'cn=test4,dc=example,dc=com').
 	list := LDAPPartialAttributeList new addAll: { 
 				LDAPPartialAttribute new description: 'objectClass'; values: 'person'; yourself.
 				LDAPPartialAttribute new description: 'cn'; values: 'Haddock'; yourself.
@@ -45,9 +45,9 @@ LDAPEntryPresenter class >> sampleElement [
 { #category : 'examples' }
 LDAPEntryPresenter class >> sampleList [
 ^ {
-	  LDAPSearchResultEntry new addAll: { (BEROctetString new value: 'cn=qux1,cn=bar55,dc=example,dc=com'). (LDAPPartialAttributeList new addAll: { (LDAPPartialAttribute new addAll: { (BEROctetString new value: 'objectClass'). (BERSet new addElement: (BEROctetString new value: 'person')) }; yourself). (LDAPPartialAttribute new addAll: { (BEROctetString new value: 'cn'). (BERSet new addElement: (BEROctetString new value: 'qux1')) }; yourself). }; yourself) }; yourself.
-	LDAPSearchResultEntry new addAll: { (BEROctetString new value: 'cn=qux2,cn=bar55,dc=example,dc=com'). (LDAPPartialAttributeList new addAll: { (LDAPPartialAttribute new addAll: { (BEROctetString new value: 'objectClass'). (BERSet new addElement: (BEROctetString new value: 'person')) }; yourself). (LDAPPartialAttribute new addAll: { (BEROctetString new value: 'cn'). (BERSet new addElement: (BEROctetString new value: 'qux2')) }; yourself). }; yourself) }; yourself.
-	LDAPSearchResultEntry new addAll: { (BEROctetString new value: 'cn=qux3,cn=bar56,dc=example,dc=com'). (LDAPPartialAttributeList new addAll: { (LDAPPartialAttribute new addAll: { (BEROctetString new value: 'objectClass'). (BERSet new addElement: (BEROctetString new value: 'person')) }; yourself). (LDAPPartialAttribute new addAll: { (BEROctetString new value: 'cn'). (BERSet new addElement: (BEROctetString new value: 'qux3')) }; yourself). }; yourself) }; yourself
+	  LDAPSearchResultEntry new addAll: { (LDAPString new content: 'cn=qux1,cn=bar55,dc=example,dc=com'). (LDAPPartialAttributeList new addAll: { (LDAPPartialAttribute new addAll: { (LDAPString new content: 'objectClass'). (BERSet new addElement: (LDAPString new content: 'person')) }; yourself). (LDAPPartialAttribute new addAll: { (LDAPString new content: 'cn'). (BERSet new addElement: (LDAPString new content: 'qux1')) }; yourself). }; yourself) }; yourself.
+	LDAPSearchResultEntry new addAll: { (LDAPString new content: 'cn=qux2,cn=bar55,dc=example,dc=com'). (LDAPPartialAttributeList new addAll: { (LDAPPartialAttribute new addAll: { (LDAPString new content: 'objectClass'). (BERSet new addElement: (LDAPString new content: 'person')) }; yourself). (LDAPPartialAttribute new addAll: { (LDAPString new content: 'cn'). (BERSet new addElement: (LDAPString new content: 'qux2')) }; yourself). }; yourself) }; yourself.
+	LDAPSearchResultEntry new addAll: { (LDAPString new content: 'cn=qux3,cn=bar56,dc=example,dc=com'). (LDAPPartialAttributeList new addAll: { (LDAPPartialAttribute new addAll: { (LDAPString new content: 'objectClass'). (BERSet new addElement: (LDAPString new content: 'person')) }; yourself). (LDAPPartialAttribute new addAll: { (LDAPString new content: 'cn'). (BERSet new addElement: (LDAPString new content: 'qux3')) }; yourself). }; yourself) }; yourself
 	}
 ]
 

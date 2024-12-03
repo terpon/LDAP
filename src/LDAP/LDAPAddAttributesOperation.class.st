@@ -12,7 +12,7 @@ Class {
 { #category : 'initialization' }
 LDAPAddAttributesOperation >> initialize [ 
 	super initialize.
-	value := 0. "Add"
+	integer := 0. "Add"
 ]
 
 { #category : 'accessing' }

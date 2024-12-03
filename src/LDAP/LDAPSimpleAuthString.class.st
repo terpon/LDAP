@@ -3,7 +3,7 @@ I am a password string.
 "
 Class {
 	#name : 'LDAPSimpleAuthString',
-	#superclass : 'BEROctetString',
+	#superclass : 'LDAPString',
 	#category : 'LDAP-Elements',
 	#package : 'LDAP',
 	#tag : 'Elements'

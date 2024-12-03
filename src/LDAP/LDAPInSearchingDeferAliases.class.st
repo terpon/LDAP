@@ -12,7 +12,7 @@ Class {
 { #category : 'initialization' }
 LDAPInSearchingDeferAliases >> initialize [ 
 	super initialize.
-	value := 1. "in searching"
+	integer := 1. "in searching"
 ]
 
 { #category : 'accessing' }

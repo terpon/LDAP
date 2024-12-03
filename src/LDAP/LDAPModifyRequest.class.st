@@ -49,14 +49,14 @@ LDAPModifyRequest >> description: anAttribute delete: aCollection [
 LDAPModifyRequest >> initialize [ 
 	super initialize.
 	
-	self addElement: (BEROctetString new).
+	self addElement: (LDAPString new).
 	self addElement: (BERSequence new).
 
 ]
 
 { #category : 'accessing' }
 LDAPModifyRequest >> name: aDn [
-	elements first value: aDn
+	elements first content: aDn
 ]
 
 { #category : 'accessing' }

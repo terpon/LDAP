@@ -14,7 +14,7 @@ Class {
 { #category : 'initialization' }
 LDAPSingleLevelScope >> initialize [ 
 	super initialize.
-	value := 1. "single level"
+	integer := 1. "single level"
 ]
 
 { #category : 'accessing' }

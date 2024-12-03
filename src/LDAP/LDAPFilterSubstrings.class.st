@@ -13,19 +13,19 @@ Class {
 
 { #category : 'instance creation' }
 LDAPFilterSubstrings class >> containing: aSubstring atAnywhereOf: anAttrType [
-	^ self new type: anAttrType; addSubstring: (LDAPAnySubstring new value: aSubstring); yourself
+	^ self new type: anAttrType; addSubstring: (LDAPAnySubstring new content: aSubstring); yourself
 
 ]
 
 { #category : 'instance creation' }
 LDAPFilterSubstrings class >> containing: aSubstring atEndOf: anAttrType [
-	^ self new type: anAttrType; addSubstring: (LDAPFinalSubstring new value: aSubstring); yourself
+	^ self new type: anAttrType; addSubstring: (LDAPFinalSubstring new content: aSubstring); yourself
 
 ]
 
 { #category : 'instance creation' }
 LDAPFilterSubstrings class >> containing: aSubstring atStartOf: anAttrType [
-	^ self new type: anAttrType; addSubstring: (LDAPInitialSubstring new value: aSubstring); yourself
+	^ self new type: anAttrType; addSubstring: (LDAPInitialSubstring new content: aSubstring); yourself
 
 ]
 
@@ -43,12 +43,12 @@ LDAPFilterSubstrings >> addSubstring: aSubString [
 LDAPFilterSubstrings >> initialize [ 
 	super initialize.
 
-	self addElement: (BEROctetString new).
+	self addElement: (LDAPString new).
 	self addElement: (BERSequence new).
 
 ]
 
 { #category : 'accessing' }
 LDAPFilterSubstrings >> type: aString [
-	elements first value: aString.
+	elements first content: aString.
 ]

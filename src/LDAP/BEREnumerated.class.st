@@ -25,7 +25,7 @@ BEREnumerated >> printOn: aStream [
 	name := self name ifNil: [ ^ super printOn: aStream ].
 	aStream nextPutAll: name.
 	aStream nextPutAll: ' ('.
-	self value printOn: aStream.
+	self content printOn: aStream.
 	aStream nextPutAll: ')'.
 
 ]

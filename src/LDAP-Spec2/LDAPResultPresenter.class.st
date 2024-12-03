@@ -40,9 +40,9 @@ LDAPResultPresenter class >> sampleElement [
 "Sample error result"
 
 	^ LDAPBindResult new addAll: { 
-		LDAPResultCode new value: 34. 
-		BEROctetString new value: 'cn=foo,cn=bar'.
-		BEROctetString new value: 'invalid DN'
+		LDAPResultCode new content: 34. 
+		LDAPString new content: 'cn=foo,cn=bar'.
+		LDAPString new content: 'invalid DN'
 	 }; yourself
 ]
 

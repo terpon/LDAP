@@ -49,6 +49,11 @@ BERElement class >> writeLength: aLength on: aStream [
 	aStream nextPutAll: octets asString.
 ]
 
+{ #category : 'accessing' }
+BERElement >> content [
+	^ nil
+]
+
 { #category : 'encoding' }
 BERElement >> decode: aStream length: anInteger with: aDecoder [
 	self subclassResponsibility
@@ -90,11 +95,6 @@ BERElement >> totalLength [
 	bodyLength := self length.
 	lengthLength := self class lengthLength: bodyLength.
 	^ tagLength + lengthLength + bodyLength
-]
-
-{ #category : 'accessing' }
-BERElement >> value [
-	^ nil
 ]
 
 { #category : 'writing' }

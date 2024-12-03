@@ -12,7 +12,7 @@ Class {
 { #category : 'initialization' }
 LDAPAlwaysDeferAliases >> initialize [ 
 	super initialize.
-	value := 3. "always"
+	integer := 3. "always"
 ]
 
 { #category : 'accessing' }

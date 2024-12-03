@@ -13,22 +13,22 @@ Class {
 
 { #category : 'accessing' }
 LDAPFilterWithValueAssertion >> assertionValue [ 
-	^ elements second value
+	^ elements second content
 ]
 
 { #category : 'accessing' }
 LDAPFilterWithValueAssertion >> assertionValue: aString [
-	elements second value: aString
+	elements second content: aString
 ]
 
 { #category : 'accessing' }
 LDAPFilterWithValueAssertion >> description [ 
-	^ elements first value
+	^ elements first content
 ]
 
 { #category : 'accessing' }
 LDAPFilterWithValueAssertion >> description: aString [
-	elements first value: aString
+	elements first content: aString
 ]
 
 { #category : 'conversion' }
@@ -36,7 +36,7 @@ LDAPFilterWithValueAssertion >> initialize [
 	super initialize.
 
 	self
-		addElement: (BEROctetString new);
-		addElement: (BEROctetString new).
+		addElement: (LDAPString new);
+		addElement: (LDAPString new).
 
 ]

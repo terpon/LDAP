@@ -5,7 +5,7 @@ The different context tag values differentiate the kind of substring search.
 "
 Class {
 	#name : 'LDAPSubstring',
-	#superclass : 'BEROctetString',
+	#superclass : 'LDAPString',
 	#category : 'LDAP-Search',
 	#package : 'LDAP',
 	#tag : 'Search'

@@ -41,19 +41,19 @@ LDAPAddRequest >> attributes: aDictionary [
 LDAPAddRequest >> initialize [ 
 	super initialize.
 	
-	self addElement: (BEROctetString new).
+	self addElement: (LDAPString new).
 	self addElement: (LDAPPartialAttributeList new).
 
 ]
 
 { #category : 'accessing' }
 LDAPAddRequest >> name [
-	^ elements first value
+	^ elements first asString
 ]
 
 { #category : 'accessing' }
 LDAPAddRequest >> name: aDn [
-	elements first value: aDn
+	elements first content: aDn
 ]
 
 { #category : 'removing' }

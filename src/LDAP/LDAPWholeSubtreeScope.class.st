@@ -12,7 +12,7 @@ Class {
 { #category : 'initialization' }
 LDAPWholeSubtreeScope >> initialize [ 
 	super initialize.
-	value := 2. "whole subtree"
+	integer := 2. "whole subtree"
 ]
 
 { #category : 'accessing' }

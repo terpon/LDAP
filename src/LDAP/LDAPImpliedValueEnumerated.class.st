@@ -10,6 +10,11 @@ Class {
 }
 
 { #category : 'accessing' }
+LDAPImpliedValueEnumerated >> content: anInteger [
+	^ self shouldNotImplement 
+]
+
+{ #category : 'accessing' }
 LDAPImpliedValueEnumerated >> name [
 	^ self subclassResponsibility
 ]
@@ -21,9 +26,4 @@ LDAPImpliedValueEnumerated >> storeOn: aStream [
  		nextPut: $(;
  		nextPutAll: self className;
  		nextPutAll: ' new)'
-]
-
-{ #category : 'accessing' }
-LDAPImpliedValueEnumerated >> value: anInteger [
-	^ self shouldNotImplement 
 ]

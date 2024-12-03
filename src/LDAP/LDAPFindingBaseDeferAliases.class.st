@@ -12,7 +12,7 @@ Class {
 { #category : 'initialization' }
 LDAPFindingBaseDeferAliases >> initialize [ 
 	super initialize.
-	value := 2. "finding base object"
+	integer := 2. "finding base object"
 ]
 
 { #category : 'accessing' }

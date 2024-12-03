@@ -70,16 +70,15 @@ LDAPResultCode class >> initialize [
 
 { #category : 'accessing' }
 LDAPResultCode >> name [
-	^ CodeNames at: self value ifAbsent: [ 'unknown' ]
+	^ CodeNames at: self asInteger ifAbsent: [ 'unknown' ]
 ]
 
 { #category : 'printing' }
 LDAPResultCode >> printOn: aStream [
-	| code |
-	code := self value.
+
 	aStream 
 		nextPutAll: self name;
 		nextPutAll: ' ('.
-	code printOn: aStream.
+	self asInteger printOn: aStream.
 	aStream	nextPutAll: ')'.
 ]

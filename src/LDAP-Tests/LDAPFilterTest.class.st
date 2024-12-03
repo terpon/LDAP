@@ -108,7 +108,7 @@ LDAPFilterTest >> testWith [
 	filter := LDAPFilter with: 'sn'.
 	
 	self assert: filter class equals: LDAPFilterPresent.
-	self assert: filter value equals: 'sn'.
+	self assert: filter asString equals: 'sn'.
 
 ]
 
