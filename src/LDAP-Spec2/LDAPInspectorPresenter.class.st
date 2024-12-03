@@ -189,13 +189,6 @@ LDAPInspectorPresenter >> presenterFor: anAttribute [
 	^ presenter
 ]
 
-{ #category : 'initialization' }
-LDAPInspectorPresenter >> reset [
-
-	miller millerListPresenter setRootModel: LDAPPartialAttributeList new.
-
-]
-
 { #category : 'updating' }
 LDAPInspectorPresenter >> rootChanged [
 
@@ -240,8 +233,7 @@ LDAPInspectorPresenter >> titleForWindow [
 LDAPInspectorPresenter >> updateMiller [
 
 	| pages model root entry |
-	pages := miller millerListPresenter presenters.
-	pages ifEmpty: [ ^ self ].
+	pages := miller pages ifEmpty: [ ^ self ].
 	
 	model := pages first model.
 	root := application currentRoot.
@@ -252,7 +244,8 @@ LDAPInspectorPresenter >> updateMiller [
 		].
 	
 	entry := application entryFor: root.
-	miller millerListPresenter setRootModel: entry
+	miller millerListPresenter setRootModel: entry.
+	miller updatePaginator: 1.
 ]
 
 { #category : 'updating' }
