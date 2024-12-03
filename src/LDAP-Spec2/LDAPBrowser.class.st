@@ -179,8 +179,12 @@ LDAPBrowser >> onDisconnect: anAnnouncement [
 { #category : 'callbacks' }
 LDAPBrowser >> onNamingContexts: aCommand [
 
-	| roots searchResult |
+	| roots subSchema searchResult |
 	searchResult := aCommand responses first asDictionary.
+	
+	subSchema := searchResult at: 'subschemaSubentry' ifPresent: [ :c | c first ] ifAbsent: [ nil ].
+	session subSchema: subSchema.
+	
 	roots := searchResult at: 'namingContexts' ifAbsent: [ #() ].
 	session roots: roots.
 ]
@@ -239,7 +243,7 @@ LDAPBrowser >> searchNamingContexts [
 	request := LDAPSearchRequest new
 		          base: '';
 		          scope: LDAPBaseObjectScope new;
-		          attributes: { 'namingContexts' }.
+		          attributes: { '*' . '+' }.
 		
 	^ self sendRequest: request
 		onSuccessDo: [ :command | self onNamingContexts: command ]

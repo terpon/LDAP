@@ -8,7 +8,8 @@ Class {
 		'server',
 		'connected',
 		'roots',
-		'currentRoot'
+		'currentRoot',
+		'subSchema'
 	],
 	#category : 'LDAP-Spec2-Models',
 	#package : 'LDAP-Spec2',
@@ -65,6 +66,7 @@ LDAPSession >> reset [
 	connected := false.
 	roots := #().
 	currentRoot := ''.
+	subSchema := nil.
 
 ]
 
@@ -93,4 +95,16 @@ LDAPSession >> server: anObject [
 
 	server := anObject copy.
 	self valueChanged
+]
+
+{ #category : 'accessing' }
+LDAPSession >> subSchema [
+
+	^ subSchema
+]
+
+{ #category : 'accessing' }
+LDAPSession >> subSchema: anObject [
+
+	subSchema := anObject
 ]
