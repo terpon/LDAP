@@ -5,10 +5,14 @@ Class {
 	#name : 'LDAPAttributePresenter',
 	#superclass : 'SpPresenter',
 	#instVars : [
+		'parent',
+		'rdn',
 		'table',
 		'checks',
 		'text',
-		'attributes'
+		'attributes',
+		'help',
+		'parentLabel'
 	],
 	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
@@ -19,8 +23,7 @@ Class {
 LDAPAttributePresenter class >> example [
 	| aModel |
 	aModel := self sampleElement.
-	"result inspect."
-	^ (self on: aModel) inspect; open 
+	^ (self on: aModel) openDialog
 
 ]
 
@@ -40,36 +43,94 @@ LDAPAttributePresenter class >> sampleElement [
 
 ]
 
+{ #category : 'accessing - model' }
+LDAPAttributePresenter >> attributes: aCollectionOfPairs [
+	
+	| extraLine |
+	extraLine := aCollectionOfPairs copyWith: #( '' '' ).
+	attributes := extraLine withIndexCollect: [ :each :index | | element |
+		element := LDAPAttributeElement new index: index;
+			description: each first;
+			content: each second.
+		element state: (self stateFor: element)
+	]
+
+]
+
+{ #category : 'testing' }
+LDAPAttributePresenter >> checkOkTrigger [
+"At least one attribute must be checked and to two identical descriptions"
+	| bag |
+	"Ignore attributes with no content"	
+	bag := attributes reject: [ :element | element content isEmpty ].
+	bag detect: [ :element | element description isEmpty ]
+		ifFound: [ :element | self inform: 'Attribute value ''', element content, ''' has no name'. ^ false ].
+		
+	bag := bag select: #state.
+	bag ifEmpty: [ self inform: 'No attribute selected for Relative Distinguished Name'. ^ false ].
+	
+	bag := bag collect: [ :element | element description ].
+	bag asBag associationsDo: [ :a | a value > 1 
+		ifTrue: [ self inform: 'Multiple attributes with type ''', a key, ''' used for RDN'. ^false ] ].
+	^ true
+]
+
 { #category : 'layout' }
 LDAPAttributePresenter >> defaultLayout [ 
 
-	table removeColumn: checks.
-	
-	^ SpBoxLayout newTopToBottom
-		add: text expand: false;
+	^ SpBoxLayout newTopToBottom spacing: 5;
+		add: (SpBoxLayout newLeftToRight vAlignCenter;
+			add: parentLabel expand: false; 
+			add: parent; 
+			yourself) expand: false;
 		add: table;
+		add: help expand: false;
 		yourself
+]
+
+{ #category : 'initialization' }
+LDAPAttributePresenter >> initializeDialogWindow: aDialogWindowPresenter [
+	 "Override OK button to add check"
+	
+	aDialogWindowPresenter
+		addButton: 'Cancel' do: [ :presenter | 
+			presenter triggerCancelAction.
+			presenter close ];
+		addDefaultButton: 'Ok' do: [ :presenter |
+			self checkOkTrigger ifTrue: [ 
+				presenter triggerOkAction.
+				presenter close ] ]
 ]
 
 { #category : 'initialization' }
 LDAPAttributePresenter >> initializePresenters [ 
 
-	text := self newText beNotEditable; beWrapWord.
+	parentLabel := self newLabel label: 'Parent DN'.
+	parent := self newTextInput beNotEditable.
+	help := self newText beNotEditable; beWrapWord; withoutScrollBars;
+		text: 'Check the attributes to be used as relative distinguished name'.
 	checks := SpCheckBoxTableColumn new
 			beNotExpandable; width: 20;
-			evaluated: [ :each | self statusFor: each ].
+			onActivation: [ :each | each state: true. table refresh ];
+			onDeactivation: [ :each | each state: false. table refresh ];
+			evaluated: [ :each | each state ].
 	table := self newTable
 		isResizable: true;
 		addColumn: checks;
 		addColumn: (SpStringTableColumn new
 			title: 'Attribute';
 			beEditable;
-			evaluated: [ :each | each first ];
+			displayBold: [ :each | each state ];
+			evaluated: [ :each | each description ];
+			onTextChanged: [ :each :value | each description: value ];
 			yourself);
 		addColumn: (SpStringTableColumn new
 			title: 'Value'; 
 			beEditable;
-			evaluated: [ :each | each second ]);
+			displayBold: [ :each | each state ];
+			evaluated: [ :each | each content ];
+			onTextChanged: [ :each :value | each content: value ];
+			yourself);
 	yourself.
 ]
 
@@ -77,43 +138,28 @@ LDAPAttributePresenter >> initializePresenters [
 LDAPAttributePresenter >> initializeWindow: aSpWindowPresenter [
 
 	super initializeWindow: aSpWindowPresenter.
-	aSpWindowPresenter title: self className.
-]
-
-{ #category : 'layout' }
-LDAPAttributePresenter >> newEntryLayout [ 
-
-	text text: 'Check the attribute to use as relative distinguished name'.
-	(table columns first == checks) ifFalse: [
-		| columns |
-		columns := table columns copy.
-		table columns: { checks }.
-		table addColumns: columns.
-	]. 
-
-	^ SpBoxLayout newTopToBottom spacing: 5;
-		add: text expand: false;
-		add: table;
-		yourself
+	aSpWindowPresenter title: 'Attributes for a new entry'.
 ]
 
 { #category : 'accessing - model' }
 LDAPAttributePresenter >> setModel: aCollectionOfPairs [
 
-	attributes := aCollectionOfPairs.
+	self attributes: aCollectionOfPairs.
 	self updatePresenter
 ]
 
 { #category : 'accessing - model' }
 LDAPAttributePresenter >> setModelBeforeInitialization: aCollectionOfPairs [
 
-	attributes := aCollectionOfPairs.
+	self attributes: aCollectionOfPairs.
+
 ]
 
-{ #category : 'api - actions' }
-LDAPAttributePresenter >> statusFor: anEntry [
+{ #category : 'testing' }
+LDAPAttributePresenter >> stateFor: anElement [
 
-	^ false
+	rdn ifNil: [ ^false ].
+	^ rdn includes: anElement name
 ]
 
 { #category : 'initialization' }
