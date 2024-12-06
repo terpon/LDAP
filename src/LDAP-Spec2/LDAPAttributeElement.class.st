@@ -1,3 +1,6 @@
+"
+I represent an attribute pair in an entry
+"
 Class {
 	#name : 'LDAPAttributeElement',
 	#superclass : 'Object',
@@ -46,6 +49,17 @@ LDAPAttributeElement >> index [
 LDAPAttributeElement >> index: anObject [
 
 	index := anObject
+]
+
+{ #category : 'initialization' }
+LDAPAttributeElement >> initialize [ 
+
+	super initialize.
+	
+	index := 0.
+	description := ''.
+	content := ''.
+	state := false.
 ]
 
 { #category : 'accessing' }
