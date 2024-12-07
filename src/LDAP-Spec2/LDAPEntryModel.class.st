@@ -74,7 +74,7 @@ LDAPEntryModel >> populateFromPartialAttributeList: anObject [
 	leaves := anObject flattened collect: [ :pair |
 		LDAPLeafEntryAttribute new 
 			description: pair first; 
-			value: pair second; yourself 
+			content: pair second; yourself 
 		].
 	self valueChanged
 ]
@@ -89,7 +89,7 @@ LDAPEntryModel >> populateFromResults: aCollection [
 		pair := self firstPairFrom: dn.
 		LDAPBranchEntryAttribute new 
 			description: pair first; 
-			value: pair second; 
+			content: pair second; 
 			name: dn; yourself 
 	].
 	self valueChanged

@@ -14,13 +14,11 @@ Class {
 }
 
 { #category : 'accessing' }
-LDAPCache >> at: aDN for: anApplication [
+LDAPCache >> at: aDN [
 "Create or update the entry"
-	| aCachedEntry |
-	aDN isEmptyOrNil ifTrue: [ ^ rootEntry entry ].
-	aCachedEntry := self search: aDN.
-	anApplication isConnected ifTrue: [ aCachedEntry update: anApplication ].
-	^ aCachedEntry entry
+
+	aDN isEmptyOrNil ifTrue: [ ^ rootEntry ].
+	^ self search: aDN.
 
 
 ]

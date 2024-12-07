@@ -9,6 +9,14 @@ Class {
 	#tag : 'Elements'
 }
 
+{ #category : 'helper' }
+LDAPString class >> parentOf: aDN [
+	
+	| firstEqual |
+	firstEqual := aDN indexOf: $, startingAt: 1 ifAbsent: [ ^ '' ].
+	^ aDN copyFrom: firstEqual+1 to: aDN size 
+]
+
 { #category : 'accessing' }
 LDAPString >> content [
 "Override BER version to always return a string"

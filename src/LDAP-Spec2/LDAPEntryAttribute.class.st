@@ -10,12 +10,24 @@ Class {
 	#superclass : 'Object',
 	#instVars : [
 		'description',
-		'value'
+		'content'
 	],
 	#category : 'LDAP-Spec2-Models',
 	#package : 'LDAP-Spec2',
 	#tag : 'Models'
 }
+
+{ #category : 'accessing' }
+LDAPEntryAttribute >> content [
+
+	^ content
+]
+
+{ #category : 'accessing' }
+LDAPEntryAttribute >> content: anObject [
+
+	content := anObject
+]
 
 { #category : 'accessing' }
 LDAPEntryAttribute >> description [
@@ -38,16 +50,5 @@ LDAPEntryAttribute >> isLeaf [
 { #category : 'printing' }
 LDAPEntryAttribute >> printOn: aStream [
 	super printOn: aStream.
-	aStream space; nextPutAll: self description; nextPut: $= ; nextPutAll: self value.
-]
-
-{ #category : 'accessing' }
-LDAPEntryAttribute >> value [
-	^ value
-]
-
-{ #category : 'accessing' }
-LDAPEntryAttribute >> value: anObject [
-
-	value := anObject
+	aStream space; nextPutAll: self description; nextPut: $= ; nextPutAll: self content.
 ]

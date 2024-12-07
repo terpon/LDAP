@@ -143,7 +143,7 @@ LDAPEntryPresenter >> initializePresenters [
 			yourself));
 	addColumn: (SpStringTableColumn new
 		title: 'Value'; 
-		evaluated: [ :each | each value ]);
+		evaluated: [ :each | each content ]);
 	yourself.
 ]
 

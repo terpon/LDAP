@@ -49,7 +49,7 @@ LDAPRequestTask >> request [
 { #category : 'accessing' }
 LDAPRequestTask >> request: anObject [
 
-	request := anObject
+	request := anObject.
 ]
 
 { #category : 'private - dispatching' }

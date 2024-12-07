@@ -38,7 +38,7 @@ LDAPBrowser class >> start [
 	^ self new start
 ]
 
-{ #category : 'circuit setup' }
+{ #category : 'connecting' }
 LDAPBrowser >> connectTo: aServerInfo [
 
 	| bind |
@@ -101,10 +101,14 @@ LDAPBrowser >> disconnect [
 
 ]
 
-{ #category : 'accessing' }
+{ #category : 'searching' }
 LDAPBrowser >> entryFor: aDN [
 "Gets entry from the cache or search it"
-	^ cache at: aDN for: self
+	| aCachedEntry |
+	aCachedEntry := cache at: aDN.
+	aDN isEmptyOrNil ifTrue: [ ^ aCachedEntry entry ].
+	self isConnected ifTrue: [ aCachedEntry update: self ].
+	^ aCachedEntry entry
 
 ]
 

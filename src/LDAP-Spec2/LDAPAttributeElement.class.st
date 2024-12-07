@@ -62,6 +62,18 @@ LDAPAttributeElement >> initialize [
 	state := false.
 ]
 
+{ #category : 'testing' }
+LDAPAttributeElement >> isEmpty [
+
+	^ description isEmpty and: [ content isEmpty ]
+]
+
+{ #category : 'testing' }
+LDAPAttributeElement >> isValid [
+
+	^ description isNotEmpty and: [ content isNotEmpty ]
+]
+
 { #category : 'accessing' }
 LDAPAttributeElement >> name [
 	^ self description, '=', self content

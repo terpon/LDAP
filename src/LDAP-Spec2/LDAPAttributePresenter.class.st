@@ -27,6 +27,7 @@ LDAPAttributePresenter class >> example [
 		LDAPAttributeElement new description: 'sn'; content: 'nox'; yourself.
 	}.
 	aPresenter := self on: aModel.
+	aPresenter parent: 'dc=example,dc=com'.
 	aDialog := aPresenter openDialog 
 		okAction: [ :dialog | dialog presenter addRequest inspect ];
 		cancelAction: [ :dialog | dialog inform: 'Cancelled' ];
@@ -38,16 +39,17 @@ LDAPAttributePresenter class >> example [
 { #category : 'adding' }
 LDAPAttributePresenter >> addNewElement [
 
-	attributes := attributes copyWith: LDAPAttributeElement new.
+	attributes := self attributes copyWith: LDAPAttributeElement new.
 	self updatePresenter.
 ]
 
 { #category : 'accessing - model' }
 LDAPAttributePresenter >> addRequest [
 
-	| name attrs |
+	| name lines attrs |
 	attrs := Dictionary new.
-	attributes do: [ :element | | value |
+	lines := self attributes select: [ :element | element isValid ].
+	lines do: [ :element | | value |
 		value := element content.
 		attrs at: element description 
 			update: [ :values | values add: value; yourself ] 
@@ -62,13 +64,14 @@ LDAPAttributePresenter >> addRequest [
 { #category : 'accessing - model' }
 LDAPAttributePresenter >> attributes [
 	
-	^ attributes ifNil: [ attributes := { LDAPAttributeElement new } ]
+	^ attributes ifNil: [ attributes := #() ]
 ]
 
 { #category : 'accessing - model' }
 LDAPAttributePresenter >> attributes: aCollection [
 	
-	attributes := aCollection
+	attributes := aCollection.
+	self updatePresenter
 ]
 
 { #category : 'testing' }
@@ -76,7 +79,7 @@ LDAPAttributePresenter >> checkOkTrigger [
 "At least one attribute must be checked and to two identical descriptions"
 	| bag |
 	table refresh.
-	bag := attributes reject: [ :element | element description isEmpty and: [ element content isEmpty ] ].
+	bag := self attributes reject: [ :element | element isEmpty ].
 
 	bag detect: [ :element | element state and: [ element content isEmpty] ]
 		ifFound: [ :element | self inform: 'Attribute ''', element description, ''' for RDN has no value'. ^ false ].
@@ -104,7 +107,7 @@ LDAPAttributePresenter >> colorFor: anAttribute [
 	
 	anAttribute content isEmpty ifTrue: [ ^ self errorColor ].
 
-	((attributes count: [ :a | a state and: [a description = anAttribute description] ]) > 1) ifTrue: [ ^ self errorColor ].
+	((self attributes count: [ :a | a state and: [a description = anAttribute description] ]) > 1) ifTrue: [ ^ self errorColor ].
 	
 	^ self emphasisColor
 ]
@@ -192,6 +195,12 @@ LDAPAttributePresenter >> errorColor [
 		ifNotEmpty: [ :a | a first color ]
 ]
 
+{ #category : 'accessing - model' }
+LDAPAttributePresenter >> filledAttributes [
+	
+	^ self attributes select: [ :element | element isValid ]
+]
+
 { #category : 'initialization' }
 LDAPAttributePresenter >> initializeDialogWindow: aDialogWindowPresenter [
 	 "Override OK button to add check"
@@ -233,7 +242,7 @@ LDAPAttributePresenter >> initializeWindow: aWindowPresenter [
 	| height |
 	super initializeWindow: aWindowPresenter.
 	
-	height := attributes ifNil: [ 8 ] ifNotNil: [ attributes size min: 20 max: 8 ].
+	height := self attributes size min: 20 max: 8.
 	height := StandardFonts defaultFont lineGrid * (height + 7) * 1.5.
 	
 	aWindowPresenter 
@@ -245,10 +254,11 @@ LDAPAttributePresenter >> initializeWindow: aWindowPresenter [
 LDAPAttributePresenter >> name [
 
 	^ String streamContents: [ :out |
-		(attributes select: [ :element | element state ])
+		(self attributes select: [ :element | element isValid and: [ element state ] ])
 			do: [ :element | out nextPutAll: element description; nextPut: $=; nextPutAll: element content ] 
-			separatedBy: [ out nextPut: $+ ] 
-		]
+			separatedBy: [ out nextPut: $+ ].
+		parent text ifNotEmpty: [ :string | out nextPut: $,; nextPutAll: string ]
+	]
 ]
 
 { #category : 'accessing' }
@@ -261,13 +271,12 @@ LDAPAttributePresenter >> parent: aString [
 LDAPAttributePresenter >> setModel: aCollectionOfPairs [
 
 	self attributes: aCollectionOfPairs.
-	self updatePresenter
 ]
 
 { #category : 'accessing - model' }
 LDAPAttributePresenter >> setModelBeforeInitialization: aCollectionOfPairs [
 
-	self attributes: aCollectionOfPairs.
+	attributes := aCollectionOfPairs.
 
 ]
 
@@ -292,5 +301,5 @@ LDAPAttributePresenter >> stateColumn [
 { #category : 'initialization' }
 LDAPAttributePresenter >> updatePresenter [
  
-	table items: attributes
+	table items: self attributes
 ]
