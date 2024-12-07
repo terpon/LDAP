@@ -9,7 +9,33 @@ Class {
 	#tag : 'Presenters'
 }
 
+{ #category : 'operations' }
+LDAPEditorPresenter >> addEntry: aModel [
+
+	self inform: 'Add entry in ', aModel name
+]
+
+{ #category : 'operations' }
+LDAPEditorPresenter >> deleteEntry: aModel [
+
+	self inform: 'Delete entry ', aModel name
+]
+
+{ #category : 'operations' }
+LDAPEditorPresenter >> editEntry: aModel [
+
+	self inform: 'Edit entry ', aModel name
+]
+
 { #category : 'factory' }
-LDAPEditorPresenter class >> entryClass [
-	^ LDAPEntryEditorPresenter
+LDAPEditorPresenter >> newEntryPresenterOn: anEntry [
+
+	| presenter |
+	presenter := LDAPEntryEditorPresenter newApplication: application model: anEntry.
+	presenter 
+		onAdd: [ :model | self addEntry: model ];
+		onDelete: [ :model | self deleteEntry: model ];
+		onEdit: [ :model | self editEntry: model ].
+	^ presenter
+	
 ]

@@ -19,14 +19,19 @@ Class {
 
 { #category : 'examples' }
 LDAPAttributePresenter class >> example [
-	| aModel |
+	| aModel aPresenter aDialog |
 	aModel := {
 		LDAPAttributeElement new description: 'objectClass'; content: 'person'; yourself.
 		LDAPAttributeElement new description: 'cn'; content: 'foo'; state: true; yourself.
 		LDAPAttributeElement new description: 'sn'; content: 'bar'; yourself.
 		LDAPAttributeElement new description: 'sn'; content: 'nox'; yourself.
 	}.
-	^ (self on: aModel) openDialog
+	aPresenter := self on: aModel.
+	aDialog := aPresenter openDialog 
+		okAction: [ :dialog | dialog presenter addRequest inspect ];
+		cancelAction: [ :dialog | dialog inform: 'Cancelled' ];
+		yourself.
+	^ aPresenter
 
 ]
 
@@ -35,6 +40,23 @@ LDAPAttributePresenter >> addNewElement [
 
 	attributes := attributes copyWith: LDAPAttributeElement new.
 	self updatePresenter.
+]
+
+{ #category : 'accessing - model' }
+LDAPAttributePresenter >> addRequest [
+
+	| name attrs |
+	attrs := Dictionary new.
+	attributes do: [ :element | | value |
+		value := element content.
+		attrs at: element description 
+			update: [ :values | values add: value; yourself ] 
+			initial: [ OrderedCollection new add: value; yourself ]
+	].
+			
+	name := self name.
+	
+	^ LDAPAddRequest new name: name; attributes: attrs
 ]
 
 { #category : 'accessing - model' }
@@ -90,7 +112,7 @@ LDAPAttributePresenter >> colorFor: anAttribute [
 { #category : 'initialization' }
 LDAPAttributePresenter >> connectPresenters [ 
 
-	table whenSelectionChangedDo: [ :s | self inform: s printString ].
+	"table whenSelectionChangedDo: [ :s | self inform: s printString ]."
 ]
 
 { #category : 'private - accessing' }
@@ -110,7 +132,7 @@ LDAPAttributePresenter >> contentColumn [
 			displayColor: [ :each | self colorFor: each ];
 			evaluated: [ :each | each content ];
 			onTextChanged: [ :each :value | self content: value for: each ];
-			onAcceptEdition: [ table refresh ]
+			onAcceptEdition: [ table refresh ];
 			yourself
 ]
 
@@ -187,7 +209,7 @@ LDAPAttributePresenter >> initializeDialogWindow: aDialogWindowPresenter [
 { #category : 'initialization' }
 LDAPAttributePresenter >> initializePresenters [ 
 
-	parentLabel := self newLabel label: 'Parent DN '.
+	parentLabel := self newLabel label: 'Parent DN: '.
 	parent := self newTextInput beNotEditable.
 	help := self newText beNotEditable; beWrapWord; withoutScrollBars;
 		text: 'Check the attributes to be used as relative distinguished name'.
@@ -206,10 +228,27 @@ LDAPAttributePresenter >> initializePresenters [
 ]
 
 { #category : 'initialization' }
-LDAPAttributePresenter >> initializeWindow: aSpWindowPresenter [
+LDAPAttributePresenter >> initializeWindow: aWindowPresenter [
+	
+	| height |
+	super initializeWindow: aWindowPresenter.
+	
+	height := attributes ifNil: [ 8 ] ifNotNil: [ attributes size min: 20 max: 8 ].
+	height := StandardFonts defaultFont lineGrid * (height + 7) * 1.5.
+	
+	aWindowPresenter 
+		title: 'Attributes for a new entry';
+		initialExtent: 400 @ height
+]
 
-	super initializeWindow: aSpWindowPresenter.
-	aSpWindowPresenter title: 'Attributes for a new entry'.
+{ #category : 'accessing - model' }
+LDAPAttributePresenter >> name [
+
+	^ String streamContents: [ :out |
+		(attributes select: [ :element | element state ])
+			do: [ :element | out nextPutAll: element description; nextPut: $=; nextPutAll: element content ] 
+			separatedBy: [ out nextPut: $+ ] 
+		]
 ]
 
 { #category : 'accessing' }

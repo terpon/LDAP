@@ -30,7 +30,6 @@ LDAPEntryEditorPresenter >> addAction [
 	application connected ifFalse: [ ^ self ].
 	
 	onAdd ifNotNil: [ :action | action cull: model ].
-	UIManager inform: 'Add action'.
 
 ]
 
@@ -46,13 +45,13 @@ LDAPEntryEditorPresenter >> defaultLayout [
 { #category : 'actions' }
 LDAPEntryEditorPresenter >> deleteAction [
 
-	| model item |
+	| model |
 	deleteButton isEnabled ifFalse: [ ^self ].
 	model := self model ifNil: [ ^self ].
 	application connected ifFalse: [ ^ self ].
 
 	onDelete ifNotNil: [ :action | action cull: model ].
-	UIManager inform: 'Delete action on ', model name
+
 ]
 
 { #category : 'actions' }
@@ -61,7 +60,7 @@ LDAPEntryEditorPresenter >> editAction [
 	| model |
 	model := self model ifNil: [ ^self ].
 	onEdit ifNotNil: [ :action | action cull: model ].
-	UIManager inform: 'Edit action'
+
 ]
 
 { #category : 'initialization' }
