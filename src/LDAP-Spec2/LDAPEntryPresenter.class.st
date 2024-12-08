@@ -71,14 +71,18 @@ LDAPEntryPresenter class >> show: anEntry [
 ]
 
 { #category : 'activation' }
-LDAPEntryPresenter >> activate: anItem [
+LDAPEntryPresenter >> activate [
 	"Perform here the activation."
-	
+	| dn anItem |
 	self activationAction ifNil: [ ^ self ].
+	
+	anItem := self selectedItem.
 	anItem isLeaf ifTrue: [ ^ self ].
 	
-	self activationAction cull: (SpActivatedSelection newValue: anItem)
-
+	dn := String streamContents: [ :out |
+		out nextPutAll: anItem name; nextPut:  $,; nextPutAll: self model name
+	].
+	self activationAction cull: (SpActivatedSelection newValue: dn)
 ]
 
 { #category : 'api' }
@@ -98,8 +102,7 @@ LDAPEntryPresenter >> connectPresenters [
 
 	super connectPresenters.
 	
-	table whenActivatedDo: [ :selection | self activate: selection selectedItem ].
-
+	table outputActivationPort transmitDo: [ self activate ].
 ]
 
 { #category : 'layout' }
@@ -166,11 +169,6 @@ LDAPEntryPresenter >> modelChanged [
 	table items: model attributes.
 	name text: model name; help: model name.
 
-]
-
-{ #category : 'ports' }
-LDAPEntryPresenter >> outputActivationPort [ 
-	^ table outputActivationPort
 ]
 
 { #category : 'initialization' }

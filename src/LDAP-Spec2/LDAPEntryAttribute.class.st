@@ -20,7 +20,7 @@ Class {
 { #category : 'accessing' }
 LDAPEntryAttribute >> content [
 
-	^ content
+	^ content ifNil: [ '' ]
 ]
 
 { #category : 'accessing' }
@@ -32,7 +32,7 @@ LDAPEntryAttribute >> content: anObject [
 { #category : 'accessing' }
 LDAPEntryAttribute >> description [
 
-	^ description
+	^ description ifNil: [ '' ]
 ]
 
 { #category : 'accessing' }
@@ -42,13 +42,32 @@ LDAPEntryAttribute >> description: anObject [
 ]
 
 { #category : 'testing' }
+LDAPEntryAttribute >> isEmpty [
+
+	^ self description isEmpty and: [ self content isEmpty ]
+]
+
+{ #category : 'testing' }
 LDAPEntryAttribute >> isLeaf [
 
 	^ self subclassResponsibility 
 ]
 
+{ #category : 'testing' }
+LDAPEntryAttribute >> isValid [
+
+	^ self description isNotEmpty and: [ self content isNotEmpty ]
+]
+
+{ #category : 'accessing' }
+LDAPEntryAttribute >> name [
+	^ String streamContents: [ :out |
+		out nextPutAll: self description; nextPut: $=; nextPutAll: self content
+	]
+]
+
 { #category : 'printing' }
 LDAPEntryAttribute >> printOn: aStream [
 	super printOn: aStream.
-	aStream space; nextPutAll: self description; nextPut: $= ; nextPutAll: self content.
+	aStream space; nextPut: $'; nextPutAll: self name; nextPut: $'
 ]

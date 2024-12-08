@@ -16,7 +16,7 @@ Class {
 LDAPEditorPresenter >> addEntry: aModel [
 
 	| aPresenter aDialog elements aDN |
-	elements := self lastAddedAttributes copyWith: LDAPAttributeElement new.
+	elements := self lastAddedAttributes copyWith: LDAPLeafEntryAttribute new.
 	aPresenter := LDAPAttributePresenter newApplication: application model: elements.
 
 	aDN := aModel name.
@@ -54,7 +54,7 @@ LDAPEditorPresenter >> editEntry: aModel [
 LDAPEditorPresenter >> lastAddedAttributes [
 
 	^ lastAddedAttributes ifNil: [ 
-			lastAddedAttributes := { LDAPAttributeElement new description: 'objectClass' } 
+			lastAddedAttributes := { LDAPLeafEntryAttribute new description: 'objectClass' } 
 		]
 ]
 

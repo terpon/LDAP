@@ -108,7 +108,7 @@ BERElementTreePresenter >> outputActivationPort [
 BERElementTreePresenter >> printClassFor: anObject [ 
 
 	^ String streamContents: [ :s | 
-				s << anObject class name.
+				s << anObject className.
 				(anObject isConstruct and: [ anObject isNotEmpty ])
 					 ifTrue: [ s << ' (' << anObject size asString << ')' ] ]
 ]

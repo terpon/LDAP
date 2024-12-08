@@ -115,8 +115,8 @@ LDAPInspectorPresenter >> initializePresenters [
 	miller := self instantiate: SpMillerPaginatorPresenter.
 	miller millerListPresenter 
 		spacing: 5;
-		presenterBlock: [ :aModel | self presenterFor: aModel value ];
-		setRootModel: LDAPEntryModel new.
+		presenterBlock: [ :aSelection | self presenterFor: aSelection value ];
+		setRootModel: ''.
 		 		
 	statusBar := self instantiate: LDAPStatusBarPresenter.
 
@@ -180,10 +180,10 @@ LDAPInspectorPresenter >> openCustomRootDialog [
 ]
 
 { #category : 'ui' }
-LDAPInspectorPresenter >> presenterFor: anAttribute [
+LDAPInspectorPresenter >> presenterFor: aString [
 
 	| entry presenter |
-	entry := application entryFor: anAttribute name.
+	entry := application entryFor: aString.
 	presenter := self newEntryPresenterOn: entry.
 	presenter activateOnSingleClick.
 	^ presenter
@@ -244,7 +244,7 @@ LDAPInspectorPresenter >> updateMiller [
 		].
 	
 	entry := application entryFor: root.
-	miller millerListPresenter setRootModel: entry.
+	miller millerListPresenter setRootModel: entry name.
 	miller updatePaginator: 1.
 ]
 

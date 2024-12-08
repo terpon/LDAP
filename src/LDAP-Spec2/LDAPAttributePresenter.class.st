@@ -21,10 +21,10 @@ Class {
 LDAPAttributePresenter class >> example [
 	| aModel aPresenter aDialog |
 	aModel := {
-		LDAPAttributeElement new description: 'objectClass'; content: 'person'; yourself.
-		LDAPAttributeElement new description: 'cn'; content: 'foo'; state: true; yourself.
-		LDAPAttributeElement new description: 'sn'; content: 'bar'; yourself.
-		LDAPAttributeElement new description: 'sn'; content: 'nox'; yourself.
+		LDAPLeafEntryAttribute new description: 'objectClass'; content: 'person'; yourself.
+		LDAPLeafEntryAttribute new description: 'cn'; content: 'foo'; state: true; yourself.
+		LDAPLeafEntryAttribute new description: 'sn'; content: 'bar'; yourself.
+		LDAPLeafEntryAttribute new description: 'sn'; content: 'nox'; yourself.
 	}.
 	aPresenter := self on: aModel.
 	aPresenter parent: 'dc=example,dc=com'.
@@ -39,7 +39,7 @@ LDAPAttributePresenter class >> example [
 { #category : 'adding' }
 LDAPAttributePresenter >> addNewElement [
 
-	attributes := self attributes copyWith: LDAPAttributeElement new.
+	attributes := self attributes copyWith: LDAPLeafEntryAttribute new.
 	self updatePresenter.
 ]
 

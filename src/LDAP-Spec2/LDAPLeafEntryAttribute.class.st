@@ -6,6 +6,9 @@ If the entry has multiple values for a given attribute type, multiple instances 
 Class {
 	#name : 'LDAPLeafEntryAttribute',
 	#superclass : 'LDAPEntryAttribute',
+	#instVars : [
+		'state'
+	],
 	#category : 'LDAP-Spec2-Models',
 	#package : 'LDAP-Spec2',
 	#tag : 'Models'
@@ -15,4 +18,24 @@ Class {
 LDAPLeafEntryAttribute >> isLeaf [ 
 
 	^ true
+]
+
+{ #category : 'printing' }
+LDAPLeafEntryAttribute >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream space;
+		nextPut: $(; nextPutAll: self state asString; nextPut: $)
+]
+
+{ #category : 'accessing' }
+LDAPLeafEntryAttribute >> state [
+
+	^ state ifNil: [ false ]
+]
+
+{ #category : 'accessing' }
+LDAPLeafEntryAttribute >> state: anObject [
+
+	state := anObject
 ]

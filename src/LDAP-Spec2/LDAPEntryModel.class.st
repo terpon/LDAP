@@ -90,7 +90,7 @@ LDAPEntryModel >> populateFromResults: aCollection [
 		LDAPBranchEntryAttribute new 
 			description: pair first; 
 			content: pair second; 
-			name: dn; yourself 
+			yourself 
 	].
 	self valueChanged
 ]
