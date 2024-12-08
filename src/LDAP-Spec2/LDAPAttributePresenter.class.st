@@ -21,10 +21,10 @@ Class {
 LDAPAttributePresenter class >> example [
 	| aModel aPresenter aDialog |
 	aModel := {
-		LDAPLeafEntryAttribute new description: 'objectClass'; content: 'person'; yourself.
+		LDAPLeafEntryAttribute newFromPair: #( 'objectClass' 'person' ).
 		LDAPLeafEntryAttribute new description: 'cn'; content: 'foo'; state: true; yourself.
-		LDAPLeafEntryAttribute new description: 'sn'; content: 'bar'; yourself.
-		LDAPLeafEntryAttribute new description: 'sn'; content: 'nox'; yourself.
+		LDAPLeafEntryAttribute newFromPair: #( 'sn' 'bar' ).
+		LDAPLeafEntryAttribute newFromPair: #( 'sn' 'nox' ).
 	}.
 	aPresenter := self on: aModel.
 	aPresenter parent: 'dc=example,dc=com'.
@@ -44,24 +44,6 @@ LDAPAttributePresenter >> addNewElement [
 ]
 
 { #category : 'accessing - model' }
-LDAPAttributePresenter >> addRequest [
-
-	| name lines attrs |
-	attrs := Dictionary new.
-	lines := self attributes select: [ :element | element isValid ].
-	lines do: [ :element | | value |
-		value := element content.
-		attrs at: element description 
-			update: [ :values | values add: value; yourself ] 
-			initial: [ OrderedCollection new add: value; yourself ]
-	].
-			
-	name := self name.
-	
-	^ LDAPAddRequest new name: name; attributes: attrs
-]
-
-{ #category : 'accessing - model' }
 LDAPAttributePresenter >> attributes [
 	
 	^ attributes ifNil: [ attributes := #() ]
@@ -76,40 +58,16 @@ LDAPAttributePresenter >> attributes: aCollection [
 
 { #category : 'testing' }
 LDAPAttributePresenter >> checkOkTrigger [
-"At least one attribute must be checked and to two identical descriptions"
-	| bag |
-	table refresh.
-	bag := self attributes reject: [ :element | element isEmpty ].
 
-	bag detect: [ :element | element state and: [ element content isEmpty] ]
-		ifFound: [ :element | self inform: 'Attribute ''', element description, ''' for RDN has no value'. ^ false ].
-	
-	"Ignore attributes with no content"	
-	bag := bag reject: [ :element | element content isEmpty ].
-	bag detect: [ :element | element description isEmpty ]
-		ifFound: [ :element | self inform: 'Attribute value ''', element content, ''' has no name'. ^ false ].
-		
-	bag := bag select: [ :element | element state ].
-	bag ifEmpty: [ self inform: 'No attribute selected for Relative Distinguished Name'. ^ false ].
-	
-	bag := bag asBag collect: [ :element | element description ].
-	bag associationsDo: [ :a | a value > 1 
-		ifTrue: [ self inform: 'Multiple attributes with type ''', a key, ''' used for RDN'. ^ false ] ].
+	self subclassResponsibility.
 	^ true
 ]
 
 { #category : 'private' }
 LDAPAttributePresenter >> colorFor: anAttribute [
 
-	(anAttribute description isEmpty and: [ anAttribute content isNotEmpty ]) ifTrue: [ ^ self errorColor ].
-	
-	anAttribute state ifFalse: [ ^ self defaultColor ].
-	
-	anAttribute content isEmpty ifTrue: [ ^ self errorColor ].
-
-	((self attributes count: [ :a | a state and: [a description = anAttribute description] ]) > 1) ifTrue: [ ^ self errorColor ].
-	
-	^ self emphasisColor
+	self subclassResponsibility.	
+	^ self defaultColor 
 ]
 
 { #category : 'initialization' }
@@ -130,7 +88,6 @@ LDAPAttributePresenter >> contentColumn [
 
 	^ SpStringTableColumn new
 			title: 'Value'; 
-			beEditable;
 			displayBold: [ :each | each state ];
 			displayColor: [ :each | self colorFor: each ];
 			evaluated: [ :each | each content ];
@@ -146,20 +103,6 @@ LDAPAttributePresenter >> defaultColor [
 		ifNotEmpty: [ :a | a first color ]
 ]
 
-{ #category : 'layout' }
-LDAPAttributePresenter >> defaultLayout [ 
-
-	^ SpBoxLayout newTopToBottom spacing: 5;
-		add: (SpBoxLayout newLeftToRight vAlignCenter;
-			add: parentLabel expand: false; 
-			add: parent; 
-			yourself) expand: false;
-		add: table;
-		add: toolbar expand: false;
-		add: help expand: false;
-		yourself
-]
-
 { #category : 'private - accessing' }
 LDAPAttributePresenter >> description: aString for: anAttribute [
 
@@ -172,7 +115,6 @@ LDAPAttributePresenter >> descriptionColumn [
 	
 	^ SpStringTableColumn new
 			title: 'Attribute';
-			beEditable;
 			displayBold: [ :each | each state ];
 			displayColor: [ :each | self colorFor: each ];
 			evaluated: [ :each | each description ];
@@ -231,52 +173,27 @@ LDAPAttributePresenter >> initializePresenters [
 	table := self newTable
 		isResizable: true;
 		addColumn: self stateColumn;
-		addColumn: self descriptionColumn;
-		addColumn: self contentColumn;
+		addColumn: self descriptionColumn beEditable;
+		addColumn: self contentColumn beEditable;
 		yourself.
 ]
 
-{ #category : 'initialization' }
-LDAPAttributePresenter >> initializeWindow: aWindowPresenter [
-	
-	| height |
-	super initializeWindow: aWindowPresenter.
-	
-	height := self attributes size min: 20 max: 8.
-	height := StandardFonts defaultFont lineGrid * (height + 7) * 1.5.
-	
-	aWindowPresenter 
-		title: 'Attributes for a new entry';
-		initialExtent: 400 @ height
-]
-
-{ #category : 'accessing - model' }
+{ #category : 'accessing' }
 LDAPAttributePresenter >> name [
 
-	^ String streamContents: [ :out |
-		(self attributes select: [ :element | element isValid and: [ element state ] ])
-			do: [ :element | out nextPutAll: element description; nextPut: $=; nextPutAll: element content ] 
-			separatedBy: [ out nextPut: $+ ].
-		parent text ifNotEmpty: [ :string | out nextPut: $,; nextPutAll: string ]
-	]
-]
-
-{ #category : 'accessing' }
-LDAPAttributePresenter >> parent: aString [
-
-	parent text: aString 
+	^ self subclassResponsibility
 ]
 
 { #category : 'accessing - model' }
-LDAPAttributePresenter >> setModel: aCollectionOfPairs [
+LDAPAttributePresenter >> setModel: aCollection [
 
-	self attributes: aCollectionOfPairs.
+	self attributes: aCollection
 ]
 
 { #category : 'accessing - model' }
-LDAPAttributePresenter >> setModelBeforeInitialization: aCollectionOfPairs [
+LDAPAttributePresenter >> setModelBeforeInitialization: aCollection [
 
-	attributes := aCollectionOfPairs.
+	attributes := aCollection
 
 ]
 

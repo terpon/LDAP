@@ -55,6 +55,11 @@ LDAPModifyRequest >> initialize [
 ]
 
 { #category : 'accessing' }
+LDAPModifyRequest >> name [
+	^ elements first asString
+]
+
+{ #category : 'accessing' }
 LDAPModifyRequest >> name: aDn [
 	elements first content: aDn
 ]

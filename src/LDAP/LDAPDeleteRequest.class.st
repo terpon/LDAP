@@ -3,7 +3,7 @@ LDAPDelRequest is the process to delete an entry in the LDAP directory.
 "
 Class {
 	#name : 'LDAPDeleteRequest',
-	#superclass : 'LDAPString',
+	#superclass : 'LDAPName',
 	#category : 'LDAP-Modify',
 	#package : 'LDAP',
 	#tag : 'Modify'

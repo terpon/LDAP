@@ -7,6 +7,8 @@ Class {
 	#name : 'LDAPLeafEntryAttribute',
 	#superclass : 'LDAPEntryAttribute',
 	#instVars : [
+		'description',
+		'content',
 		'state'
 	],
 	#category : 'LDAP-Spec2-Models',
@@ -14,10 +16,50 @@ Class {
 	#tag : 'Models'
 }
 
+{ #category : 'instance creation' }
+LDAPLeafEntryAttribute class >> newFromPair: aPair [
+
+	^ self new 
+			description: aPair first; 
+			content: aPair second; 
+			yourself 
+]
+
+{ #category : 'accessing' }
+LDAPLeafEntryAttribute >> content [
+
+	^ content ifNil: [ '' ]
+]
+
+{ #category : 'accessing' }
+LDAPLeafEntryAttribute >> content: anObject [
+
+	content := anObject
+]
+
+{ #category : 'accessing' }
+LDAPLeafEntryAttribute >> description [
+
+	^ description ifNil: [ '' ]
+]
+
+{ #category : 'accessing' }
+LDAPLeafEntryAttribute >> description: anObject [
+
+	description := anObject
+]
+
 { #category : 'testing' }
 LDAPLeafEntryAttribute >> isLeaf [ 
 
 	^ true
+]
+
+{ #category : 'accessing' }
+LDAPLeafEntryAttribute >> name [
+	^ String streamContents: [ :out |
+		out nextPutAll: self description; nextPut: $=; nextPutAll: self content
+	]
 ]
 
 { #category : 'printing' }

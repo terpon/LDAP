@@ -17,7 +17,7 @@ LDAPEditorPresenter >> addEntry: aModel [
 
 	| aPresenter aDialog elements aDN |
 	elements := self lastAddedAttributes copyWith: LDAPLeafEntryAttribute new.
-	aPresenter := LDAPAttributePresenter newApplication: application model: elements.
+	aPresenter := LDAPNewEntryPresenter newApplication: application model: elements.
 
 	aDN := aModel name.
 	aPresenter parent: aDN.
@@ -47,7 +47,17 @@ LDAPEditorPresenter >> deleteEntry: aModel [
 { #category : 'operations' }
 LDAPEditorPresenter >> editEntry: aModel [
 
-	self inform: 'Edit entry ', aModel name
+	| aPresenter aDialog elements aDN |
+	elements := aModel leaves collect: #copy.
+	aPresenter := LDAPEditEntryPresenter newApplication: application model: elements.
+
+	aDN := aModel name.
+	aPresenter name: aDN.
+	aDialog := aPresenter openDialog
+		okAction: [ :dialog | self sendModifyRequest: dialog presenter ];
+		cancelAction: [ :dialog | dialog inform: 'Cancelled edit entry for ' , aDN ];
+		yourself.
+	^ aPresenter
 ]
 
 { #category : 'accessing' }
@@ -88,6 +98,12 @@ LDAPEditorPresenter >> onDeletedEntry: aDN [
 	miller removeAllFrom: page.
 ]
 
+{ #category : 'callbacks' }
+LDAPEditorPresenter >> onModifiedEntry: aDN [
+
+	application invalidateName: aDN.
+]
+
 { #category : 'dispatching' }
 LDAPEditorPresenter >> sendAddEntryRequest: aPresenter [
 
@@ -108,5 +124,15 @@ LDAPEditorPresenter >> sendDeleteEntryRequest: aDN [
 
 	application sendRequest: aRequest 
 		onSuccessDo: [ :command | self onDeletedEntry: aDN ] 
+		onFailureDo: [ :command | application reportError: command ]
+]
+
+{ #category : 'dispatching' }
+LDAPEditorPresenter >> sendModifyRequest: aPresenter [
+
+	| aRequest |
+	aRequest := aPresenter modifyRequest.
+	application sendRequest: aRequest 
+		onSuccessDo: [ :command | self onModifiedEntry: aRequest name ] 
 		onFailureDo: [ :command | application reportError: command ]
 ]

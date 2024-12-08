@@ -72,10 +72,8 @@ LDAPEntryModel >> populateFromPartialAttributeList: anObject [
 "only leaves"
 
 	leaves := anObject flattened collect: [ :pair |
-		LDAPLeafEntryAttribute new 
-			description: pair first; 
-			content: pair second; yourself 
-		].
+		LDAPLeafEntryAttribute newFromPair: pair 
+	].
 	self valueChanged
 ]
 
@@ -86,11 +84,7 @@ LDAPEntryModel >> populateFromResults: aCollection [
 	elements := aCollection reject: [ :each | each isReference ].
 	branches := elements collect: [ :each | | dn pair |
 		dn := each name.
-		pair := self firstPairFrom: dn.
-		LDAPBranchEntryAttribute new 
-			description: pair first; 
-			content: pair second; 
-			yourself 
+		LDAPBranchEntryAttribute new name: dn
 	].
 	self valueChanged
 ]

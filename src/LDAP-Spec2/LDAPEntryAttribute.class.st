@@ -8,37 +8,35 @@ I respond to `description` and `value` messages for display.
 Class {
 	#name : 'LDAPEntryAttribute',
 	#superclass : 'Object',
-	#instVars : [
-		'description',
-		'content'
-	],
 	#category : 'LDAP-Spec2-Models',
 	#package : 'LDAP-Spec2',
 	#tag : 'Models'
 }
 
-{ #category : 'accessing' }
-LDAPEntryAttribute >> content [
+{ #category : 'comparing' }
+LDAPEntryAttribute >> = anAttribute [
 
-	^ content ifNil: [ '' ]
+	^ self name = anAttribute name
 ]
 
 { #category : 'accessing' }
-LDAPEntryAttribute >> content: anObject [
+LDAPEntryAttribute >> content [
 
-	content := anObject
+	self subclassResponsibility.
+	^ ''
 ]
 
 { #category : 'accessing' }
 LDAPEntryAttribute >> description [
 
-	^ description ifNil: [ '' ]
+	self subclassResponsibility.
+	^ ''
 ]
 
-{ #category : 'accessing' }
-LDAPEntryAttribute >> description: anObject [
+{ #category : 'comparing' }
+LDAPEntryAttribute >> hash [
 
-	description := anObject
+	^ self name hash
 ]
 
 { #category : 'testing' }
@@ -61,9 +59,9 @@ LDAPEntryAttribute >> isValid [
 
 { #category : 'accessing' }
 LDAPEntryAttribute >> name [
-	^ String streamContents: [ :out |
-		out nextPutAll: self description; nextPut: $=; nextPutAll: self content
-	]
+
+	self subclassResponsibility.
+	^ ''
 ]
 
 { #category : 'printing' }

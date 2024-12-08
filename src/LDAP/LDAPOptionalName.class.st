@@ -5,7 +5,7 @@ I am an option DN string.
 "
 Class {
 	#name : 'LDAPOptionalName',
-	#superclass : 'LDAPString',
+	#superclass : 'LDAPName',
 	#category : 'LDAP-Elements',
 	#package : 'LDAP',
 	#tag : 'Elements'

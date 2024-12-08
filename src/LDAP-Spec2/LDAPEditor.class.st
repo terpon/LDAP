@@ -28,7 +28,7 @@ LDAPEditor >> invalidateName: aDN [
 LDAPEditor >> invalidateParent: aDN [
 "Gets entry from the cache and invalidate it"
 	| parentDN |
-	parentDN := LDAPString parentOf: aDN.
+	parentDN := LDAPName parentOf: aDN.
 	self invalidateName: parentDN
 ]
 
