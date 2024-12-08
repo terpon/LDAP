@@ -185,7 +185,6 @@ LDAPInspectorPresenter >> presenterFor: aString [
 	| entry presenter |
 	entry := application entryFor: aString.
 	presenter := self newEntryPresenterOn: entry.
-	presenter activateOnSingleClick.
 	^ presenter
 ]
 

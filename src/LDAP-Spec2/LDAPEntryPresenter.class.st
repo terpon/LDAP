@@ -85,18 +85,6 @@ LDAPEntryPresenter >> activate [
 	self activationAction cull: (SpActivatedSelection newValue: dn)
 ]
 
-{ #category : 'api' }
-LDAPEntryPresenter >> activateOnDoubleClick [
-
-	table activateOnDoubleClick
-]
-
-{ #category : 'api' }
-LDAPEntryPresenter >> activateOnSingleClick [
-
-	table activateOnSingleClick
-]
-
 { #category : 'initialization' }
 LDAPEntryPresenter >> connectPresenters [ 
 
@@ -132,22 +120,18 @@ LDAPEntryPresenter >> initializePresenters [
 				action: [ Clipboard clipboardText: name text informing: ('DN {1} copied to clipboard' format: {name text}) ] ]);
 		yourself.
 
-	table := self newTable
+	table := self newTable activateOnSingleClick; 	alternateRowsColor;
 		isResizable: true;
-		alternateRowsColor;
-		addColumn: (SpCompositeTableColumn new
-			title: 'Attribute';
+		addColumn: (SpCompositeTableColumn new title: 'Attribute';
 			addColumn: (SpImageTableColumn new
-			width: 20;
-			evaluated: [ :i | self iconFor: i ];
-			yourself);
-		addColumn: (SpStringTableColumn new
-			evaluated: [ :i | i description ];
-			yourself));
-	addColumn: (SpStringTableColumn new
-		title: 'Value'; 
-		evaluated: [ :each | each content ]);
-	yourself.
+				evaluated: [ :i | self iconFor: i ];
+				yourself);
+			addColumn: (SpStringTableColumn new
+				evaluated: [ :i | i description ];
+				yourself));
+		addColumn: (SpStringTableColumn new title: 'Value'; 
+			evaluated: [ :each | each content ]);
+		yourself.
 ]
 
 { #category : 'initialization' }
