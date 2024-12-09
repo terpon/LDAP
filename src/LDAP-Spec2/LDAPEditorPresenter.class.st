@@ -38,7 +38,7 @@ LDAPEditorPresenter >> deleteEntry: aModel [
 		  label: 'About to delete ', aDN;
 		  acceptLabel: 'Delete';
 		  cancelLabel: 'Cancel';
-		  onAccept: [ self sendDeleteEntryRequest: aDN ];
+		  onAccept: [ application sendDeleteEntryRequest: aDN ];
 		  onCancel: [ :d | d inform: 'Cancelled delete entry ' , aDN ];
 		  openDialog.
 
@@ -54,10 +54,18 @@ LDAPEditorPresenter >> editEntry: aModel [
 	aDN := aModel name.
 	aPresenter name: aDN.
 	aDialog := aPresenter openDialog
-		okAction: [ :dialog | self sendModifyRequest: dialog presenter ];
+		okAction: [ :dialog | application sendModifyRequest: dialog presenter ];
 		cancelAction: [ :dialog | dialog inform: 'Cancelled edit entry for ' , aDN ];
 		yourself.
 	^ aPresenter
+]
+
+{ #category : 'callbacks' }
+LDAPEditorPresenter >> invalidatePage: aDN [
+
+	| page |
+	page := miller pages detect: [ :p | p model name = aDN ] ifNone: [ ^self ].
+	miller removeAllFrom: page.
 ]
 
 { #category : 'accessing' }
@@ -81,58 +89,10 @@ LDAPEditorPresenter >> newEntryPresenterOn: anEntry [
 	
 ]
 
-{ #category : 'callbacks' }
-LDAPEditorPresenter >> onAddedEntry: aDN [
-
-	application invalidateParent: aDN.
-]
-
-{ #category : 'callbacks' }
-LDAPEditorPresenter >> onDeletedEntry: aDN [
-
-	| page |
-	application invalidateParent: aDN.
-	
-	page := miller pages last.
-	page model name = aDN ifFalse: [ ^self ].
-	miller removeAllFrom: page.
-]
-
-{ #category : 'callbacks' }
-LDAPEditorPresenter >> onModifiedEntry: aDN [
-
-	application invalidateName: aDN.
-]
-
 { #category : 'dispatching' }
 LDAPEditorPresenter >> sendAddEntryRequest: aPresenter [
 
-	| aRequest |
 	lastAddedAttributes := aPresenter filledAttributes.
 
-	aRequest := aPresenter addRequest.
-	application sendRequest: aRequest 
-		onSuccessDo: [ :command | self onAddedEntry: aRequest name ] 
-		onFailureDo: [ :command | application reportError: command ]
-]
-
-{ #category : 'dispatching' }
-LDAPEditorPresenter >> sendDeleteEntryRequest: aDN [
-
-	| aRequest |
-	aRequest := LDAPDeleteRequest new name: aDN.
-
-	application sendRequest: aRequest 
-		onSuccessDo: [ :command | self onDeletedEntry: aDN ] 
-		onFailureDo: [ :command | application reportError: command ]
-]
-
-{ #category : 'dispatching' }
-LDAPEditorPresenter >> sendModifyRequest: aPresenter [
-
-	| aRequest |
-	aRequest := aPresenter modifyRequest.
-	application sendRequest: aRequest 
-		onSuccessDo: [ :command | self onModifiedEntry: aRequest name ] 
-		onFailureDo: [ :command | application reportError: command ]
+	application sendAddEntryRequest: aPresenter.
 ]

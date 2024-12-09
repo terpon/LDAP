@@ -6,12 +6,19 @@ Class {
 	#superclass : 'LDAPAttributePresenter',
 	#instVars : [
 		'name',
-		'rdn'
+		'rdn',
+		'clear'
 	],
 	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
 	#tag : 'Presenters'
 }
+
+{ #category : 'private' }
+LDAPEditEntryPresenter >> boldFor: anAttribute [
+
+	^ false
+]
 
 { #category : 'testing' }
 LDAPEditEntryPresenter >> checkOkTrigger [
@@ -30,6 +37,8 @@ LDAPEditEntryPresenter >> checkOkTrigger [
 { #category : 'private' }
 LDAPEditEntryPresenter >> colorFor: anAttribute [
 
+	anAttribute state ifTrue: [ ^ self deletedColor ].
+	
 	^ self defaultColor 
 ]
 
@@ -48,17 +57,47 @@ LDAPEditEntryPresenter >> defaultLayout [
 		yourself
 ]
 
+{ #category : 'callbacks' }
+LDAPEditEntryPresenter >> deleteSelectedElements [
+
+	| attrs |
+	clear isEnabled ifFalse: [ ^self ].
+	attrs := table items reject: [ :element | element state ].
+	self attributes: attrs.
+
+]
+
+{ #category : 'coloring' }
+LDAPEditEntryPresenter >> deletedColor [
+
+	^ self theme disabledTextColor
+]
+
 { #category : 'initialization' }
 LDAPEditEntryPresenter >> initializePresenters [ 
 
 	super initializePresenters.
 	
-	help text: 'Check the attributes to be deleted'.
+	help text: 'Check the attributes to enable the delete button'.
 	rdn := self newTable hideColumnHeaders; withoutScrollBars; propagateNaturalHeight: true;
 		isResizable: true;
 		addColumn: self descriptionColumn;
 		addColumn: self contentColumn;
 		yourself.
+	
+	table 
+		addColumn: self descriptionColumn beEditable;
+		addColumn: self contentColumn beEditable;
+		addColumn: self stateColumn.
+
+	clear := self newToolbarButton disable;
+		label: 'clear';
+		icon: (self iconNamed: #smallCancel);
+		help: 'Delete selected attributes';
+	   	action: [ self deleteSelectedElements ];
+	   	yourself.
+	toolbar add: clear.
+
 ]
 
 { #category : 'initialization' }
@@ -78,11 +117,15 @@ LDAPEditEntryPresenter >> initializeWindow: aWindowPresenter [
 { #category : 'accessing - model' }
 LDAPEditEntryPresenter >> modifyRequest [
 
-	| name request |
-	name := self name.
-	
-	request := LDAPModifyRequest new name: name.
-	
+	| request descriptions newDescriptions deletedAttributes addedAttributes changedAttributes deletedElements |
+	request := LDAPModifyRequest new name: self name.
+	deletedElements := table items select: [:element| element state].
+	deletedAttributes := (deletedElements collect: #description) asSet.
+
+	descriptions := (self attributes collect: #description) asSet.
+	newDescriptions := ((rdn items, table items) collect: #description) asSet.
+	addedAttributes := newDescriptions difference: descriptions.
+	changedAttributes := descriptions reject: [ :desc |  ].
 	^ request
 ]
 
@@ -101,12 +144,23 @@ LDAPEditEntryPresenter >> name: aString [
 	self updatePresenter.
 ]
 
+{ #category : 'private - accessing' }
+LDAPEditEntryPresenter >> state: aBoolean for: anAttribute [
+
+	aBoolean ifTrue: [ clear enable ] 
+		ifFalse: [ clear enabled: (table items anySatisfy: [ :element | element state ]) ].
+
+	super state: aBoolean for: anAttribute.
+]
+
 { #category : 'initialization' }
 LDAPEditEntryPresenter >> updatePresenter [
  
 	| rdnAttributes otherAttributes |
 	rdnAttributes := (LDAPName firstAsPairs: self name) collect: [ :pair | LDAPLeafEntryAttribute newFromPair: pair ].
-	otherAttributes := self attributes difference: rdnAttributes.
 	rdn items: rdnAttributes.
+
+	"Pass a copy of the attributes, we want to compare them for creating the request"
+	otherAttributes := (self attributes difference: rdnAttributes) collect: #copy.
 	table items: otherAttributes.
 ]

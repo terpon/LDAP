@@ -13,18 +13,17 @@ Class {
 LDAPNewEntryPresenter >> addRequest [
 
 	| name lines attrs |
-	attrs := Dictionary new.
 	lines := self attributes select: [ :element | element isValid ].
-	lines do: [ :element | | value |
-		value := element content.
-		attrs at: element description 
-			update: [ :values | values add: value; yourself ] 
-			initial: [ OrderedCollection new add: value; yourself ]
-	].
-			
+	attrs := self attributesAsDictionary: lines.		
 	name := self name.
 	
 	^ LDAPAddRequest new name: name; attributes: attrs
+]
+
+{ #category : 'private' }
+LDAPNewEntryPresenter >> boldFor: anAttribute [
+
+	^ anAttribute state
 ]
 
 { #category : 'testing' }
@@ -80,12 +79,24 @@ LDAPNewEntryPresenter >> defaultLayout [
 		yourself
 ]
 
+{ #category : 'coloring' }
+LDAPNewEntryPresenter >> emphasisColor [
+
+	^ (SHRBTextStyler attributesFor: #globalVar) ifEmpty: [ self theme textColor ]
+		ifNotEmpty: [ :a | a first color ]
+]
+
 { #category : 'initialization' }
 LDAPNewEntryPresenter >> initializePresenters [ 
 
 	super initializePresenters.
 	
 	help text: 'Check the attributes to be used as relative distinguished name'.
+	
+	table 
+		addColumn: self stateColumn;
+		addColumn: self descriptionColumn beEditable;
+		addColumn: self contentColumn beEditable.
 
 ]
 

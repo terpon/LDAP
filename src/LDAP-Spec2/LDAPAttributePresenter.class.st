@@ -56,6 +56,28 @@ LDAPAttributePresenter >> attributes: aCollection [
 	self updatePresenter
 ]
 
+{ #category : 'helper' }
+LDAPAttributePresenter >> attributesAsDictionary: aCollection [
+	
+	| dictionary |
+	dictionary := Dictionary new.
+	aCollection do: [ :element | | value |
+		value := element content.
+		dictionary at: element description 
+			update: [ :values | values add: value; yourself ] 
+			initial: [ OrderedCollection with: value ]
+	].
+	^ dictionary 
+
+]
+
+{ #category : 'private' }
+LDAPAttributePresenter >> boldFor: anAttribute [
+
+	self subclassResponsibility.	
+	^ false 
+]
+
 { #category : 'testing' }
 LDAPAttributePresenter >> checkOkTrigger [
 
@@ -88,7 +110,7 @@ LDAPAttributePresenter >> contentColumn [
 
 	^ SpStringTableColumn new
 			title: 'Value'; 
-			displayBold: [ :each | each state ];
+			displayBold: [ :each | self boldFor: each ];
 			displayColor: [ :each | self colorFor: each ];
 			evaluated: [ :each | each content ];
 			onTextChanged: [ :each :value | self content: value for: each ];
@@ -115,19 +137,12 @@ LDAPAttributePresenter >> descriptionColumn [
 	
 	^ SpStringTableColumn new
 			title: 'Attribute';
-			displayBold: [ :each | each state ];
+			displayBold: [ :each | self boldFor: each ];
 			displayColor: [ :each | self colorFor: each ];
 			evaluated: [ :each | each description ];
 			onTextChanged: [ :each :value | self description: value for: each ];
 			onAcceptEdition: [ table refresh ];
 			yourself
-]
-
-{ #category : 'coloring' }
-LDAPAttributePresenter >> emphasisColor [
-
-	^ (SHRBTextStyler attributesFor: #globalVar) ifEmpty: [ self theme textColor ]
-		ifNotEmpty: [ :a | a first color ]
 ]
 
 { #category : 'coloring' }
@@ -170,12 +185,8 @@ LDAPAttributePresenter >> initializePresenters [
 				     		help: 'Add a new attribute line';
 				       	action: [ self addNewElement ];
 				        	yourself); yourself.
-	table := self newTable
-		isResizable: true;
-		addColumn: self stateColumn;
-		addColumn: self descriptionColumn beEditable;
-		addColumn: self contentColumn beEditable;
-		yourself.
+
+	table := self newTable isResizable: true; yourself.
 ]
 
 { #category : 'accessing' }

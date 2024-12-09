@@ -32,6 +32,60 @@ LDAPEditor >> invalidateParent: aDN [
 	self invalidateName: parentDN
 ]
 
+{ #category : 'callbacks' }
+LDAPEditor >> onAddedEntry: aDN [
+
+	self invalidateParent: aDN.
+	self inform: 'Success on adding ', aDN
+]
+
+{ #category : 'callbacks' }
+LDAPEditor >> onDeletedEntry: aDN [
+
+	self invalidateParent: aDN.
+	self inform: 'Success on deleting ', aDN.
+
+	main invalidatePage: aDN.
+]
+
+{ #category : 'callbacks' }
+LDAPEditor >> onModifiedEntry: aDN [
+
+	self invalidateName: aDN.
+	self inform: 'Success on modyfying attributes in ', aDN
+]
+
+{ #category : 'dispatching' }
+LDAPEditor >> sendAddEntryRequest: aPresenter [
+
+	| aRequest |
+	aRequest := aPresenter addRequest.
+	self sendRequest: aRequest 
+		onSuccessDo: [ :command | self onAddedEntry: aRequest name ] 
+		onFailureDo: [ :command | self reportError: command ]
+]
+
+{ #category : 'dispatching' }
+LDAPEditor >> sendDeleteEntryRequest: aDN [
+
+	| aRequest |
+	aRequest := LDAPDeleteRequest new name: aDN.
+
+	self sendRequest: aRequest 
+		onSuccessDo: [ :command | self onDeletedEntry: aDN ] 
+		onFailureDo: [ :command | self reportError: command ]
+]
+
+{ #category : 'dispatching' }
+LDAPEditor >> sendModifyRequest: aPresenter [
+
+	| aRequest |
+	aRequest := aPresenter modifyRequest.
+	self sendRequest: aRequest 
+		onSuccessDo: [ :command | self onModifiedEntry: aRequest name ] 
+		onFailureDo: [ :command | self reportError: command ]
+]
+
 { #category : 'accessing' }
 LDAPEditor >> subSchema [
 
