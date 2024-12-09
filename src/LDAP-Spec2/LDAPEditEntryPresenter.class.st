@@ -14,6 +14,12 @@ Class {
 	#tag : 'Presenters'
 }
 
+{ #category : 'adding' }
+LDAPEditEntryPresenter >> addNewElement [
+
+	table items: (table items copyWith: LDAPLeafEntryAttribute new).
+]
+
 { #category : 'private' }
 LDAPEditEntryPresenter >> boldFor: anAttribute [
 
@@ -63,7 +69,7 @@ LDAPEditEntryPresenter >> deleteSelectedElements [
 	| attrs |
 	clear isEnabled ifFalse: [ ^self ].
 	attrs := table items reject: [ :element | element state ].
-	self attributes: attrs.
+	table items: attrs.
 
 ]
 
@@ -117,15 +123,26 @@ LDAPEditEntryPresenter >> initializeWindow: aWindowPresenter [
 { #category : 'accessing - model' }
 LDAPEditEntryPresenter >> modifyRequest [
 
-	| request descriptions newDescriptions deletedAttributes addedAttributes changedAttributes deletedElements |
+	| oldAttrs newAttrs request oldDescriptions newDescriptions addedAttributes |
 	request := LDAPModifyRequest new name: self name.
-	deletedElements := table items select: [:element| element state].
-	deletedAttributes := (deletedElements collect: #description) asSet.
+	oldAttrs := self attributesAsDictionary: self attributes.
+	newAttrs := self attributesAsDictionary: (rdn items, (table items select: [:i | i isValid])).
+	
+	oldDescriptions := oldAttrs keys.
+	newDescriptions := newAttrs keys.
+	
+	(oldDescriptions difference: newDescriptions) do: [:description | 
+		request delete: description
+	].
+	(addedAttributes := newDescriptions difference: oldDescriptions) do: [ :description |
+		request description: description add: (newAttrs at: description) 
+	].
+	(newDescriptions difference: addedAttributes) reject: [ :description |
+		(oldAttrs at: description) = (newAttrs at: description) 		
+	] thenDo: [:description | 
+		request set: description to: (newAttrs at: description) 
+	].
 
-	descriptions := (self attributes collect: #description) asSet.
-	newDescriptions := ((rdn items, table items) collect: #description) asSet.
-	addedAttributes := newDescriptions difference: descriptions.
-	changedAttributes := descriptions reject: [ :desc |  ].
 	^ request
 ]
 
@@ -138,7 +155,6 @@ LDAPEditEntryPresenter >> name [
 { #category : 'accessing' }
 LDAPEditEntryPresenter >> name: aString [
 	
-	| |
 	name := aString.
 	parent text: (LDAPName parentOf: aString).
 	self updatePresenter.

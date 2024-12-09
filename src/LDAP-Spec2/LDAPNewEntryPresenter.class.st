@@ -9,6 +9,13 @@ Class {
 	#tag : 'Presenters'
 }
 
+{ #category : 'adding' }
+LDAPNewEntryPresenter >> addNewElement [
+
+	attributes := self attributes copyWith: LDAPLeafEntryAttribute new.
+	self updatePresenter.
+]
+
 { #category : 'accessing - model' }
 LDAPNewEntryPresenter >> addRequest [
 

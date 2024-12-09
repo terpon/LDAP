@@ -17,19 +17,12 @@ LDAPPartialAttributeList >> asDictionary [
 ]
 
 { #category : 'accessing' }
-LDAPPartialAttributeList >> at: aDescription ifPresent: aPresentBlock ifAbsent: anAbsentBlock [
-	^ elements
-		detect: [ :pa | pa description = aDescription ] 
-		ifFound: [ :pa | aPresentBlock cull: pa ] 
-		ifNone: [ anAbsentBlock value ].
-]
-
-{ #category : 'accessing' }
 LDAPPartialAttributeList >> at: aDescription put: someValues [
 
-	self at: aDescription 
-		ifPresent: [ :pa | pa values: someValues ]
-		ifAbsent: [ self addElement: (LDAPPartialAttribute new description: aDescription; values: someValues) ].
+	^ elements
+			detect: [ :pa | pa description = aDescription ] 
+			ifFound: [ :pa | pa values: someValues ] 
+			ifNone: [ self addElement: (LDAPPartialAttribute new description: aDescription; values: someValues) ]
 ]
 
 { #category : 'accessing' }

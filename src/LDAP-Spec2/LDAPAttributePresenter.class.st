@@ -39,8 +39,7 @@ LDAPAttributePresenter class >> example [
 { #category : 'adding' }
 LDAPAttributePresenter >> addNewElement [
 
-	attributes := self attributes copyWith: LDAPLeafEntryAttribute new.
-	self updatePresenter.
+	self subclassResponsibility.
 ]
 
 { #category : 'accessing - model' }
@@ -65,7 +64,7 @@ LDAPAttributePresenter >> attributesAsDictionary: aCollection [
 		value := element content.
 		dictionary at: element description 
 			update: [ :values | values add: value; yourself ] 
-			initial: [ OrderedCollection with: value ]
+			initial: [ Set with: value ]
 	].
 	^ dictionary 
 
@@ -90,12 +89,6 @@ LDAPAttributePresenter >> colorFor: anAttribute [
 
 	self subclassResponsibility.	
 	^ self defaultColor 
-]
-
-{ #category : 'initialization' }
-LDAPAttributePresenter >> connectPresenters [ 
-
-	"table whenSelectionChangedDo: [ :s | self inform: s printString ]."
 ]
 
 { #category : 'private - accessing' }

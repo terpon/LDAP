@@ -118,6 +118,13 @@ LDAPBrowser >> errorHandler [
 	^ errorHandler ifNil: [ errorHandler := self initializeErrorPresenter ]
 ]
 
+{ #category : 'private' }
+LDAPBrowser >> inform: aString [
+
+	main notify: aString.
+	super inform: aString
+]
+
 { #category : 'initialization' }
 LDAPBrowser >> initialize [ 
 

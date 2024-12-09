@@ -81,6 +81,7 @@ LDAPEditor >> sendModifyRequest: aPresenter [
 
 	| aRequest |
 	aRequest := aPresenter modifyRequest.
+	aRequest operations ifEmpty: [ ^ self inform: 'No change for entry ', aRequest name ].
 	self sendRequest: aRequest 
 		onSuccessDo: [ :command | self onModifiedEntry: aRequest name ] 
 		onFailureDo: [ :command | self reportError: command ]
