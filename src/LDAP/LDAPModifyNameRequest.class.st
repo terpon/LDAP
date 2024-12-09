@@ -14,6 +14,12 @@ LDAPModifyNameRequest class >> tagValue [
 	^ 16r6C "Application 12"
 ]
 
+{ #category : 'changing state' }
+LDAPModifyNameRequest >> dropRelativeName [
+"The existing RDN attribute is not kept as an extra attribute value in the new entry."
+	elements third beTrue
+]
+
 { #category : 'initialization' }
 LDAPModifyNameRequest >> initialize [ 
 	super initialize.
@@ -22,6 +28,12 @@ LDAPModifyNameRequest >> initialize [
 	self addElement: (LDAPString new). "newrdn"
 	self addElement: (BERBoolean new). "deleteoldrdn"
 
+]
+
+{ #category : 'changing state' }
+LDAPModifyNameRequest >> keepRelativeName [
+"The existing RDN attribute is kept in the new entry."
+	elements third beFalse
 ]
 
 { #category : 'accessing' }
@@ -42,6 +54,6 @@ LDAPModifyNameRequest >> shouldDeleteOldRelativeName: aBoolean [
 
 { #category : 'accessing' }
 LDAPModifyNameRequest >> underName: aDn [
-	elements size < 4 ifTrue: [ elements addElement: (LDAPOptionalName new)].
+	self size < 4 ifTrue: [ self addElement: (LDAPOptionalName new)].
 	elements fourth content: aDn
 ]

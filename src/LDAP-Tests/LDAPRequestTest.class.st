@@ -23,14 +23,16 @@ Class {
 
 { #category : 'utilities' }
 LDAPRequestTest >> addEntry: aName [
-	|  attrs |
+	|  attrs cn dn |
+	cn := aName isString ifTrue: [ aName ] ifFalse: [ aName first ].
+	dn := aName isString ifTrue: [ self cn: aName ] ifFalse: [ self cns: aName ].
 	attrs := Dictionary new
 		at: 'objectClass' put: 'person';
-		at: 'cn' put: aName;
-		at: 'sn' put: aName;
+		at: 'cn' put: cn;
+		at: 'sn' put: cn;
 		yourself.
 		
-	self requestAndAssertSuccess: (LDAPAddRequest new name: (self cn: aName); attributes: attrs).
+	self requestAndAssertSuccess: (LDAPAddRequest new name: dn; attributes: attrs).
 
 ]
 
@@ -76,6 +78,14 @@ LDAPRequestTest >> cn: aString [
 ]
 
 { #category : 'utilities' }
+LDAPRequestTest >> cns: aCollection [
+	^ String streamContents: [ :s | 
+			aCollection do: [ :each | s << 'cn=' << each ] separatedBy: [ s nextPut: $, ]. 
+			s << ',' << self baseDN 
+		]
+]
+
+{ #category : 'utilities' }
 LDAPRequestTest >> connect [
 
 	connection := LDAPConnection to: self hostname port: self port.
@@ -87,8 +97,10 @@ LDAPRequestTest >> connect [
 
 { #category : 'utilities' }
 LDAPRequestTest >> deleteEntry: aName [
-
-	self requestAndAssertSuccess: (LDAPDeleteRequest new name: (self cn: aName)).
+	
+	| dn |
+	dn := aName isString ifTrue: [ self cn: aName ] ifFalse: [ self cns: aName ].
+	self requestAndAssertSuccess: (LDAPDeleteRequest new name: dn).
 
 ]
 

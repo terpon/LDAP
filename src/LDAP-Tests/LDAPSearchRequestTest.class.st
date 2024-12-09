@@ -199,7 +199,7 @@ LDAPSearchRequestTest >> testRootDse [
 		          scope: LDAPBaseObjectScope new;
 		          attributes: { '+' }.
 	responses := self requestAndAssertSuccess: search.
-	responses inspect.
+	"responses inspect."
 	result := responses first asDictionary.
 	self assert: (result includesKey: 'supportedldapversion').
 	self assert: (result includesKey: 'namingcontexts').

@@ -22,13 +22,13 @@ BERBoolean >> asBoolean [
 	^ boolean ifNil: [ false ]
 ]
 
-{ #category : 'accessing' }
+{ #category : 'changing state' }
 BERBoolean >> beFalse [
 
 	boolean := false
 ]
 
-{ #category : 'accessing' }
+{ #category : 'changing state' }
 BERBoolean >> beTrue [
 
 	boolean := true
