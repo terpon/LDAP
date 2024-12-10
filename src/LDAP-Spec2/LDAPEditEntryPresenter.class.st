@@ -192,7 +192,7 @@ LDAPEditEntryPresenter >> state: aBoolean for: anAttribute [
 LDAPEditEntryPresenter >> updatePresenter [
  
 	| rdnAttributes otherAttributes |
-	rdnAttributes := (LDAPName firstAsPairs: self name) collect: [ :pair | LDAPLeafEntryAttribute newFromPair: pair ].
+	rdnAttributes := LDAPEntryAttribute leavesFromRelativeNameIn: self name.
 	rdn items: rdnAttributes.
 
 	"Pass a copy of the attributes, we want to compare them for creating the request"

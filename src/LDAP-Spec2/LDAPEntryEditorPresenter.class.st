@@ -31,7 +31,11 @@ LDAPEntryEditorPresenter >> addAction [
 	aDN := aModel name.
 	aPresenter parent: aDN.
 	aDialog := aPresenter openDialog
-		okAction: [ :dialog | application sendAddEntryRequest: dialog presenter ];
+		okAction: [ :dialog | | presenter |
+			presenter := dialog presenter.
+			application lastAddedAttributes: presenter filledAttributes.
+			application sendAddEntry: presenter addRequest
+		];
 		cancelAction: [ :dialog | dialog inform: 'Cancelled add entry in ' , aDN ];
 		yourself.
 	^ aPresenter
@@ -43,13 +47,40 @@ LDAPEntryEditorPresenter >> connectPresenters [
 	super connectPresenters.
 	
 	toolBar addButton action: [ self addAction ].
+	toolBar copyButton action: [ self copyAction ].
 	toolBar deleteButton action: [ self deleteAction ].
-	toolBar copyButton action: [  ].
-	toolBar cutButton action: [  ].
-	toolBar pasteButton action: [  ].
+	toolBar cutButton action: [ self cutAction ].
+	toolBar pasteButton action: [ self pasteAction ].
 	toolBar modifyButton action: [ self modifyAction ].
 	toolBar editButton action: [ self editAction ].
 	
+]
+
+{ #category : 'actions' }
+LDAPEntryEditorPresenter >> copyAction [
+
+	| aModel attributes rdnAttributes aDN |
+	aModel := self model ifNil: [ ^self ].
+	aDN := aModel name.
+	rdnAttributes := LDAPEntryAttribute leavesFromRelativeNameIn: aDN.
+	attributes := aModel leaves collect: [ :leaf |
+		(rdnAttributes includes: leaf)
+			ifTrue: [ leaf state: true; yourself ]
+			ifFalse: [ leaf copy state: false; yourself ]
+	].
+
+	application lastAddedAttributes: attributes.
+	self inform: aDN, ' attributes saved as template'
+]
+
+{ #category : 'actions' }
+LDAPEntryEditorPresenter >> cutAction [
+
+	| aModel |
+	aModel := self model ifNil: [ ^self ].
+
+	application clipboardText: aModel name.
+	self inform: aModel name, ' copied to clipboard'
 ]
 
 { #category : 'layout' }
@@ -75,7 +106,7 @@ LDAPEntryEditorPresenter >> deleteAction [
 		  label: 'About to delete ', aDN;
 		  acceptLabel: 'Delete';
 		  cancelLabel: 'Cancel';
-		  onAccept: [ application sendDeleteEntryRequest: aDN ];
+		  onAccept: [ application sendDeleteEntry: aDN ];
 		  onCancel: [ :d | application inform: 'Cancelled delete entry ' , aDN ];
 		  openDialog.
 
@@ -93,7 +124,7 @@ LDAPEntryEditorPresenter >> editAction [
 	aDN := aModel name.
 	aPresenter name: aDN.
 	aDialog := aPresenter openDialog
-		okAction: [ :dialog | application sendModifyRequest: dialog presenter ];
+		okAction: [ :dialog | application sendModify: dialog presenter modifyRequest ];
 		cancelAction: [ :dialog | application inform: 'Cancelled edit entry for ' , aDN ];
 		yourself.
 	^ aPresenter
@@ -104,16 +135,21 @@ LDAPEntryEditorPresenter >> initializePresenters [
 
 	super initializePresenters.
 	
-	toolBar := self instantiate: LDAPEntryToolbarPresenter.
+	toolBar := LDAPEntryToolbarPresenter newApplication: application owner: self.
 
 ]
 
 { #category : 'initialization' }
 LDAPEntryEditorPresenter >> modelChanged [ 
-
+	
+	| model isLeaf |
 	super modelChanged.
 	
-	toolBar update: self model.
+	toolBar deleteButton disable.
+	model := self model ifNil: [ ^self ].
+	isLeaf := model branches isEmpty.
+	toolBar deleteButton enabled: isLeaf.
+
 
 ]
 
@@ -125,14 +161,34 @@ LDAPEntryEditorPresenter >> modifyAction [
 	aModel := self model ifNil: [ ^self ].
 
 	aDN := aModel name.
-	elements := (LDAPName firstAsPairs: aDN) collect: [ :pair | LDAPLeafEntryAttribute newFromPair: pair ].
+	elements := LDAPEntryAttribute leavesFromRelativeNameIn: aDN.
 
 	aPresenter := LDAPModifyEntryPresenter newApplication: application model: elements.
 	aPresenter parent: (LDAPName parentOf: aDN).
 
 	aDialog := aPresenter openDialog
-		okAction: [ :dialog | application sendModifyNameRequest: dialog presenter ];
+		okAction: [ :dialog | application sendModifyName: dialog presenter modifyRequest ];
 		cancelAction: [ :dialog | application inform: 'Cancelled modify entry for ' , aDN ];
 		yourself.
 	^ aPresenter
+]
+
+{ #category : 'actions' }
+LDAPEntryEditorPresenter >> pasteAction [
+
+	| aModel aDN aRequest |
+	toolBar pasteButton isEnabled ifFalse: [ ^self ].
+	aModel := self model ifNil: [ ^self ].
+
+	aDN := application clipboardText.
+	aDN isEmptyOrNil ifTrue: [ ^self ].
+	aDN = aModel name ifTrue: [ ^self ].
+
+	aRequest := LDAPModifyNameRequest new
+		name: aDN;
+		newRelativeName: (LDAPName firstName: aDN);
+		underName: aModel name;
+		yourself.
+
+	application sendModifyName: aRequest
 ]

@@ -19,6 +19,21 @@ LDAPEditor class >> mainPresenterClass [
 	^ LDAPEditorPresenter
 ]
 
+{ #category : 'accessing' }
+LDAPEditor >> clipboardText [
+	^ clipboard 
+]
+
+{ #category : 'accessing' }
+LDAPEditor >> clipboardText: aString [
+
+	clipboard = aString ifTrue: [ ^self ].
+	clipboard := aString.
+	self announcer announce: (aString 
+		ifNil: [ LDAPClipboardCleared new ] 
+		ifNotNil: [ LDAPClipboardChanged new text: aString ])
+]
+
 { #category : 'searching' }
 LDAPEditor >> invalidateName: aDN [
 "Gets entry from the cache and invalidate it"
@@ -42,6 +57,12 @@ LDAPEditor >> lastAddedAttributes [
 	^ lastAddedAttributes ifNil: [ 
 			lastAddedAttributes := { LDAPLeafEntryAttribute new description: 'objectClass' } 
 		]
+]
+
+{ #category : 'accessing' }
+LDAPEditor >> lastAddedAttributes: aCollection [
+
+	lastAddedAttributes := aCollection
 ]
 
 { #category : 'callbacks' }
@@ -82,19 +103,15 @@ LDAPEditor >> onModifiedNameEntry: aRequest [
 ]
 
 { #category : 'dispatching' }
-LDAPEditor >> sendAddEntryRequest: aPresenter [
+LDAPEditor >> sendAddEntry: aRequest [
 
-	| aRequest |
-	lastAddedAttributes := aPresenter filledAttributes.
-
-	aRequest := aPresenter addRequest.
 	self sendRequest: aRequest 
 		onSuccessDo: [ :command | self onAddedEntry: aRequest name ] 
 		onFailureDo: [ :command | self reportError: command ]
 ]
 
 { #category : 'dispatching' }
-LDAPEditor >> sendDeleteEntryRequest: aDN [
+LDAPEditor >> sendDeleteEntry: aDN [
 
 	| aRequest |
 	aRequest := LDAPDeleteRequest new name: aDN.
@@ -105,24 +122,20 @@ LDAPEditor >> sendDeleteEntryRequest: aDN [
 ]
 
 { #category : 'dispatching' }
-LDAPEditor >> sendModifyNameRequest: aPresenter [
+LDAPEditor >> sendModify: aRequest [
 
-	| aRequest |
-	aRequest := aPresenter modifyRequest.
-	aRequest ifNil: [ ^ self ].
+	aRequest operations ifEmpty: [ ^ self inform: 'No change for entry ', aRequest name ].
 	self sendRequest: aRequest 
-		onSuccessDo: [ :command | self onModifiedNameEntry: aRequest ] 
+		onSuccessDo: [ :command | self onModifiedEntry: aRequest name ] 
 		onFailureDo: [ :command | self reportError: command ]
 ]
 
 { #category : 'dispatching' }
-LDAPEditor >> sendModifyRequest: aPresenter [
+LDAPEditor >> sendModifyName: aRequest [
 
-	| aRequest |
-	aRequest := aPresenter modifyRequest.
-	aRequest operations ifEmpty: [ ^ self inform: 'No change for entry ', aRequest name ].
+	aRequest ifNil: [ ^ self ].
 	self sendRequest: aRequest 
-		onSuccessDo: [ :command | self onModifiedEntry: aRequest name ] 
+		onSuccessDo: [ :command | self onModifiedNameEntry: aRequest ] 
 		onFailureDo: [ :command | self reportError: command ]
 ]
 

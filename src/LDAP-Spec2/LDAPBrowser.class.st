@@ -5,6 +5,7 @@ Class {
 	#name : 'LDAPBrowser',
 	#superclass : 'SpApplication',
 	#instVars : [
+		'announcer',
 		'session',
 		'connection',
 		'errorHandler',
@@ -36,6 +37,12 @@ LDAPBrowser class >> openConnectionDialog [
 LDAPBrowser class >> start [
 <example>
 	^ self new start
+]
+
+{ #category : 'accessing' }
+LDAPBrowser >> announcer [
+
+	^ announcer ifNil: [ announcer := Announcer new ]
 ]
 
 { #category : 'connecting' }
@@ -298,4 +305,9 @@ LDAPBrowser >> start [
 
 	main withWindowDo: [ :w | w isOpen ifTrue:[ w activate. ^ w ] ].
 	^ main open
+]
+
+{ #category : 'announcer' }
+LDAPBrowser >> when: anAnnouncementClass send: aSelector to: anObject [
+	^ self announcer when: anAnnouncementClass send: aSelector to: anObject
 ]

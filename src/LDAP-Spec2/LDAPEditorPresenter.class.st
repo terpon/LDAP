@@ -9,6 +9,11 @@ Class {
 	#tag : 'Presenters'
 }
 
+{ #category : 'accessing' }
+LDAPEditorPresenter class >> currentApplication [ 
+	^ LDAPEditor new
+]
+
 { #category : 'callbacks' }
 LDAPEditorPresenter >> invalidatePage: aDN [
 

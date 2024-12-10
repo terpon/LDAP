@@ -16,7 +16,7 @@ LDAPDeleteRequest class >> tagValue [
 
 { #category : 'accessing' }
 LDAPDeleteRequest >> name [
-	^ self content
+	^ self asString
 ]
 
 { #category : 'accessing' }

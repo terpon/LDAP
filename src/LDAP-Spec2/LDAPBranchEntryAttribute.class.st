@@ -48,7 +48,5 @@ LDAPBranchEntryAttribute >> name [
 { #category : 'accessing' }
 LDAPBranchEntryAttribute >> name: aString [
 
-	| pairs |
-	pairs := LDAPName firstAsPairs: aString.
-	attributes := pairs collect: [ :pair | LDAPLeafEntryAttribute newFromPair: pair ]
+	attributes := self class leavesFromRelativeNameIn: aString
 ]

@@ -13,6 +13,14 @@ Class {
 	#tag : 'Models'
 }
 
+{ #category : 'helper' }
+LDAPEntryAttribute class >> leavesFromRelativeNameIn: aString [
+
+	| pairs |
+	pairs := LDAPName firstAsPairs: aString.
+	^ pairs collect: [ :pair | LDAPLeafEntryAttribute newFromPair: pair ]
+]
+
 { #category : 'comparing' }
 LDAPEntryAttribute >> = anAttribute [
 

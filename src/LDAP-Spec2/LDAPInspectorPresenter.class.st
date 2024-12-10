@@ -20,6 +20,11 @@ Class {
 	#tag : 'Presenters'
 }
 
+{ #category : 'accessing' }
+LDAPInspectorPresenter class >> currentApplication [ 
+	^ LDAPBrowser new
+]
+
 { #category : 'ui' }
 LDAPInspectorPresenter >> buildRootDropList: aCollection andSelect: anInteger [
 

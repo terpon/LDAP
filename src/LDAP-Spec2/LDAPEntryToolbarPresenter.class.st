@@ -24,6 +24,42 @@ LDAPEntryToolbarPresenter >> addButton [
 	^ new
 ]
 
+{ #category : 'updating' }
+LDAPEntryToolbarPresenter >> clipboardCleared [
+
+	paste disable;
+			help: 'Paste saved entry under current entry'.
+
+	"Does not update help with morphic"	
+	paste withAdapterDo: [ :anAdapter | anAdapter setBalloonText: paste help ]
+
+]
+
+{ #category : 'updating' }
+LDAPEntryToolbarPresenter >> clipboardSet: anAnnouncement [
+
+	| dn |
+	dn := anAnnouncement text.
+	paste enable;
+			help: 'Move saved entry under current entry', String cr, dn.
+
+	"Does not update help with morphic"	
+	paste withAdapterDo: [ :anAdapter | anAdapter setBalloonText: paste help ]
+
+]
+
+{ #category : 'initialization' }
+LDAPEntryToolbarPresenter >> connectPresenters [ 
+
+	super connectPresenters.
+	
+	application when: LDAPClipboardCleared send: #clipboardCleared to: self.
+	application when: LDAPClipboardChanged send: #clipboardSet: to: self.
+	
+	self reset.
+
+]
+
 { #category : 'accessing' }
 LDAPEntryToolbarPresenter >> copyButton [
 	^ copy
@@ -55,31 +91,30 @@ LDAPEntryToolbarPresenter >> editButton [
 LDAPEntryToolbarPresenter >> initializePresenters [
 
 	new := self newToolbarButton
-		label: 'New DN';
+		label: 'New entry';
 		icon: (self iconNamed: #smallAdd);
-		help: 'Add a new sub entry to current DN';
+		help: 'Add a new entry under current entry';
 		yourself.
 	copy := self newToolbarButton
 		label: 'Copy';
 		icon: (self iconNamed: #smallCopy);
-		help: 'Copy current entry';
+		help: 'Save current entry attributes as template for new entries';
 		yourself.
-	cut := self newToolbarButton disable;
+	cut := self newToolbarButton
 		label: 'Cut';
 		icon: (self iconNamed: #smallCut);
-		help: 'Cut current entry';
+		help: 'Cut current entry and all chidren';
 		yourself.
-	paste := self newToolbarButton disable;
+	paste := self newToolbarButton
 		label: 'Paste';
 		icon: (self iconNamed: #smallPaste);
-		help: 'Paste saved entry under current entry';
 		yourself.
-	delete := self newToolbarButton disable;
+	delete := self newToolbarButton
 		label: 'Delete';
 		icon: (self iconNamed: #smallDelete);
 		help: 'Delete current entry';
 		yourself.
-	modify := self newToolbarButton disable;
+	modify := self newToolbarButton
 		label: 'Modify';
 		icon: (self iconNamed: #branch);
 		help: 'Change current entry relative DN';
@@ -92,8 +127,8 @@ LDAPEntryToolbarPresenter >> initializePresenters [
 	toolBar := self newToolbar
 		           beIcons;
 		           addItemLeft: new;
-		           addItemLeft: delete;
 		           addItemLeft: copy;
+		           addItemLeft: delete;
 		           addItemLeft: cut;
 		           addItemLeft: paste;
 		           addItemRight: edit;
@@ -115,18 +150,7 @@ LDAPEntryToolbarPresenter >> pasteButton [
 LDAPEntryToolbarPresenter >> reset [ 
 
 	delete disable.
-	cut disable.
-	modify disable.
-]
-
-{ #category : 'updating' }
-LDAPEntryToolbarPresenter >> update: anEntry [
-
-	| isLeaf |
-	anEntry ifNil: [ ^ self reset ].
-	
-	isLeaf := anEntry branches isEmpty.
-	delete enabled: isLeaf.
-	cut enabled: isLeaf.
-	modify enabled: isLeaf.
+	application clipboardText 
+		ifNotNil: [ :text | self clipboardSet: (LDAPClipboardChanged new text: text) ] 
+		ifNil: [ self clipboardCleared ] 
 ]
