@@ -21,6 +21,12 @@ Class {
 	#tag : 'Utility'
 }
 
+{ #category : 'testing' }
+LDAPRequestTest class >> isAbstract [
+
+	^ self = LDAPRequestTest
+]
+
 { #category : 'utilities' }
 LDAPRequestTest >> addEntry: aName [
 	|  attrs cn dn |

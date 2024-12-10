@@ -34,6 +34,11 @@ LDAPModifyEntryPresenter class >> example [
 
 ]
 
+{ #category : 'accessing' }
+LDAPModifyEntryPresenter >> attributes [
+	^ attributes ifNil: [ #() ]
+]
+
 { #category : 'layout' }
 LDAPModifyEntryPresenter >> defaultLayout [ 
 
@@ -127,5 +132,5 @@ LDAPModifyEntryPresenter >> setModelBeforeInitialization: aCollection [
 { #category : 'initialization' }
 LDAPModifyEntryPresenter >> updatePresenter [
  
-	table items: (attributes collect: #copy)
+	table items: (self attributes collect: #copy)
 ]

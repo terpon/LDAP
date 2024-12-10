@@ -48,17 +48,17 @@ LDAPConnectionPresenter class >> title [
 { #category : 'callbacks' }
 LDAPConnectionPresenter >> accept [
 
-	acceptBlock ifNotNil: [ :block | block cull: serverInfo ]
+	acceptBlock ifNotNil: [ :block | block cull: self serverInfo ]
 ]
 
 { #category : 'initialization' }
 LDAPConnectionPresenter >> connectPresenters [ 
 
-	hostname whenTextChangedDo: [ :text | serverInfo hostname: text ] .
-	ssl whenChangedDo: [ :state | serverInfo ssl: state. self updateDefaultPort ].
-	port whenNumberChangedDo: [ :number | serverInfo port: number ] .
-	username whenTextChangedDo: [ :text | serverInfo username: text ] .
-	password whenTextChangedDo: [ :text | serverInfo password: text ] .
+	hostname whenTextChangedDo: [ :text | self serverInfo hostname: text ] .
+	ssl whenChangedDo: [ :state | self serverInfo ssl: state. self updateDefaultPort ].
+	port whenNumberChangedDo: [ :number | self serverInfo port: number ] .
+	username whenTextChangedDo: [ :text | self serverInfo username: text ] .
+	password whenTextChangedDo: [ :text | self serverInfo password: text ] .
 ]
 
 { #category : 'layout' }
@@ -74,16 +74,6 @@ LDAPConnectionPresenter >> defaultLayout [
 				add: 'Username:'; add: username; nextRow;
 				add: 'Password:'; add: password
  	]
-]
-
-{ #category : 'initialization' }
-LDAPConnectionPresenter >> initialize [
-
-	super initialize.
-
-	serverInfo ifNil: [ serverInfo := LDAPServerInfo new ].
-	
-
 ]
 
 { #category : 'initialization' }
@@ -117,6 +107,12 @@ LDAPConnectionPresenter >> onAccept: aBlock [
 	acceptBlock := aBlock
 ]
 
+{ #category : 'accessing' }
+LDAPConnectionPresenter >> serverInfo [
+
+	^ serverInfo ifNil: [ serverInfo := LDAPServerInfo new ]
+]
+
 { #category : 'accessing - model' }
 LDAPConnectionPresenter >> setModel: aServerInfo [
 
@@ -133,7 +129,7 @@ LDAPConnectionPresenter >> setModelBeforeInitialization: aServerInfo [
 { #category : 'default values' }
 LDAPConnectionPresenter >> updateDefaultPort [
 	| default wasDefault |
-	default := serverInfo defaultPort.
+	default := self serverInfo defaultPort.
 	port placeholder: default asString.	
 
 	"Clear value if default"
@@ -145,12 +141,12 @@ LDAPConnectionPresenter >> updateDefaultPort [
 { #category : 'initialization' }
 LDAPConnectionPresenter >> updatePresenter [
  
-	hostname text: serverInfo hostname.
-	ssl state: serverInfo isSSL.
+	hostname text: self serverInfo hostname.
+	ssl state: self serverInfo isSSL.
 	self updateDefaultPort.
-	port text: ((serverInfo port = serverInfo defaultPort) ifTrue: [ '' ] ifFalse: [ serverInfo port asString ]).
-	username text: serverInfo username.
-	password text: serverInfo password.
+	port text: (self serverInfo isPortDefault ifTrue: [ '' ] ifFalse: [ self serverInfo port asString ]).
+	username text: self serverInfo username.
+	password text: self serverInfo password.
 	
 
 ]
