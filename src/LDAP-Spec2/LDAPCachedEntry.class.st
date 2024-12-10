@@ -106,7 +106,6 @@ LDAPCachedEntry >> update: anApplication [
 	updateProcess := [ 
 		[ anApplication isConnected and: [ state atEnd not ] ] whileTrue: [
 			state := state nextFor: entry on: anApplication.
-			Processor yield
 		]
 	] forkAt: Processor userBackgroundPriority named: 'LDAP update ', entry name
 ]
