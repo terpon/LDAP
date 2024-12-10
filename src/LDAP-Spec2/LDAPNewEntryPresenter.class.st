@@ -9,6 +9,25 @@ Class {
 	#tag : 'Presenters'
 }
 
+{ #category : 'examples' }
+LDAPNewEntryPresenter class >> example [
+	| aModel aPresenter aDialog |
+	aModel := {
+		LDAPLeafEntryAttribute newFromPair: #( 'objectClass' 'person' ).
+		LDAPLeafEntryAttribute new description: 'cn'; content: 'foo'; state: true; yourself.
+		LDAPLeafEntryAttribute newFromPair: #( 'sn' 'bar' ).
+		LDAPLeafEntryAttribute newFromPair: #( 'sn' 'nox' ).
+	}.
+	aPresenter := self on: aModel.
+	aPresenter parent: 'dc=example,dc=com'.
+	aDialog := aPresenter openDialog 
+		okAction: [ :dialog | dialog presenter addRequest inspect ];
+		cancelAction: [ :dialog | dialog inform: 'Cancelled' ];
+		yourself.
+	^ aPresenter
+
+]
+
 { #category : 'adding' }
 LDAPNewEntryPresenter >> addNewElement [
 

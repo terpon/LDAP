@@ -4,6 +4,10 @@ I add edition commands to the LDAP browser.
 Class {
 	#name : 'LDAPEditor',
 	#superclass : 'LDAPBrowser',
+	#instVars : [
+		'lastAddedAttributes',
+		'clipboard'
+	],
 	#category : 'LDAP-Spec2-Applications',
 	#package : 'LDAP-Spec2',
 	#tag : 'Applications'
@@ -32,6 +36,14 @@ LDAPEditor >> invalidateParent: aDN [
 	self invalidateName: parentDN
 ]
 
+{ #category : 'accessing' }
+LDAPEditor >> lastAddedAttributes [
+
+	^ lastAddedAttributes ifNil: [ 
+			lastAddedAttributes := { LDAPLeafEntryAttribute new description: 'objectClass' } 
+		]
+]
+
 { #category : 'callbacks' }
 LDAPEditor >> onAddedEntry: aDN [
 
@@ -55,10 +67,26 @@ LDAPEditor >> onModifiedEntry: aDN [
 	self inform: 'Success on modyfying attributes in ', aDN
 ]
 
+{ #category : 'callbacks' }
+LDAPEditor >> onModifiedNameEntry: aRequest [
+	
+	"Invalidate source parent always"
+	self invalidateParent: aRequest name.
+	aRequest underName  ifNotNil: [ :parentDN |
+			self invalidateName: parentDN.
+	].
+	
+	main invalidatePage: aRequest name.
+	self inform: 'Success on modyfying attributes in ', aRequest name
+
+]
+
 { #category : 'dispatching' }
 LDAPEditor >> sendAddEntryRequest: aPresenter [
 
 	| aRequest |
+	lastAddedAttributes := aPresenter filledAttributes.
+
 	aRequest := aPresenter addRequest.
 	self sendRequest: aRequest 
 		onSuccessDo: [ :command | self onAddedEntry: aRequest name ] 
@@ -73,6 +101,17 @@ LDAPEditor >> sendDeleteEntryRequest: aDN [
 
 	self sendRequest: aRequest 
 		onSuccessDo: [ :command | self onDeletedEntry: aDN ] 
+		onFailureDo: [ :command | self reportError: command ]
+]
+
+{ #category : 'dispatching' }
+LDAPEditor >> sendModifyNameRequest: aPresenter [
+
+	| aRequest |
+	aRequest := aPresenter modifyRequest.
+	aRequest ifNil: [ ^ self ].
+	self sendRequest: aRequest 
+		onSuccessDo: [ :command | self onModifiedNameEntry: aRequest ] 
 		onFailureDo: [ :command | self reportError: command ]
 ]
 

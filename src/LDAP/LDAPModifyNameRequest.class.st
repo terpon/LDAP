@@ -20,6 +20,12 @@ LDAPModifyNameRequest >> dropRelativeName [
 	elements third beTrue
 ]
 
+{ #category : 'testing' }
+LDAPModifyNameRequest >> hasMove [
+
+	^ self underName isNotNil
+]
+
 { #category : 'initialization' }
 LDAPModifyNameRequest >> initialize [ 
 	super initialize.
@@ -37,6 +43,11 @@ LDAPModifyNameRequest >> keepRelativeName [
 ]
 
 { #category : 'accessing' }
+LDAPModifyNameRequest >> name [
+	^ elements first asString
+]
+
+{ #category : 'accessing' }
 LDAPModifyNameRequest >> name: aDn [
 	elements first content: aDn
 ]
@@ -50,6 +61,12 @@ LDAPModifyNameRequest >> newRelativeName: aRdn [
 LDAPModifyNameRequest >> shouldDeleteOldRelativeName: aBoolean [
 "If true existing RDN is retained as an extra attribute and value in the new entry."
 	elements third content: aBoolean
+]
+
+{ #category : 'accessing' }
+LDAPModifyNameRequest >> underName [
+	self size < 4 ifTrue: [ ^ nil ].
+	^ elements fourth asString
 ]
 
 { #category : 'accessing' }
