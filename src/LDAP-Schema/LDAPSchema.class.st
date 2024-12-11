@@ -6,8 +6,7 @@ Class {
 		'aliases'
 	],
 	#category : 'LDAP-Schema',
-	#package : 'LDAP',
-	#tag : 'Schema'
+	#package : 'LDAP-Schema'
 }
 
 { #category : 'initialization' }

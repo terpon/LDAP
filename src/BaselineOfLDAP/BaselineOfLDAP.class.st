@@ -26,10 +26,11 @@ BaselineOfLDAP >> groups: spec [
 	"groups"
 	spec
 		group: 'Core' with: #('LDAP' );
-		group: 'UI' with: #('Core' 'LDAP-Spec2');
 		group: 'AD' with: #('Core' 'LDAP-ActiveDirectory');
-		group: 'Tests' with: #('UI' 'LDAP-Tests' 'LDAP-UI-Tests');
-		group: 'All' with: #('Core' 'Tests' 'AD' 'UI' ) 
+		group: 'Schema' with: #('Core' 'LDAP-Schema');
+		group: 'UI' with: #('Core' 'LDAP-Spec2');
+		group: 'Tests' with: #('LDAP-Tests' 'LDAP-Schema' 'LDAP-UI-Tests');
+		group: 'All' with: #('Core' 'Tests' 'AD' 'UI' 'Schema') 
 ]
 
 { #category : 'accessing' }
@@ -37,8 +38,10 @@ BaselineOfLDAP >> packages: spec [
 	"Packages"
 	spec
 		package: 'LDAP';
-		package: 'LDAP-Spec2' with: [ spec requires: #('LDAP') ];
-		package: 'LDAP-Tests' with: [ spec requires: #('LDAP') ];
+		package: 'LDAP-Schema' with: [ spec requires: #('LDAP') ];
+		package: 'LDAP-Spec2' with: [ spec requires: #('LDAP' 'LDAP-Schema') ];
 		package: 'LDAP-ActiveDirectory' with: [ spec requires: #('LDAP') ];
-		package: 'LDAP-UI-Tests' with: [ spec requires: #('LDAP' 'LDAP-Spec2') ]
+		package: 'LDAP-Tests' with: [ spec requires: #('LDAP') ];
+		package: 'LDAP-Schema-Tests' with: [ spec requires: #('LDAP-Schema') ];
+		package: 'LDAP-UI-Tests' with: [ spec requires: #('LDAP-Spec2') ]
 ]

@@ -5,8 +5,7 @@ Class {
 	#name : 'LDAPAuxiliaryObjectClass',
 	#superclass : 'LDAPObjectClass',
 	#category : 'LDAP-Schema',
-	#package : 'LDAP',
-	#tag : 'Schema'
+	#package : 'LDAP-Schema'
 }
 
 { #category : 'description' }

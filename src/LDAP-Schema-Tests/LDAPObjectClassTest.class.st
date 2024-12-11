@@ -1,9 +1,8 @@
 Class {
 	#name : 'LDAPObjectClassTest',
 	#superclass : 'TestCase',
-	#category : 'LDAP-Tests-Schema',
-	#package : 'LDAP-Tests',
-	#tag : 'Schema'
+	#category : 'LDAP-Schema-Tests',
+	#package : 'LDAP-Schema-Tests'
 }
 
 { #category : 'test data' }

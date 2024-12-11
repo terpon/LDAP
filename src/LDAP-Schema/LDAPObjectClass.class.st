@@ -14,8 +14,7 @@ Class {
 		'may'
 	],
 	#category : 'LDAP-Schema',
-	#package : 'LDAP',
-	#tag : 'Schema'
+	#package : 'LDAP-Schema'
 }
 
 { #category : 'testing' }
