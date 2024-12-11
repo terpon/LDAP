@@ -16,6 +16,9 @@ BaselineOfLDAP >> baseline: spec [
 	spec
 		for: #common
 			do: [
+				"Dependencies"
+				self petitParser2: spec.
+
 				self packages:  spec.
 				self groups: spec.
 			]
@@ -38,10 +41,20 @@ BaselineOfLDAP >> packages: spec [
 	"Packages"
 	spec
 		package: 'LDAP';
-		package: 'LDAP-Schema' with: [ spec requires: #('LDAP') ];
+		package: 'LDAP-Schema' with: [ spec requires: #('LDAP' 'PetitParser2Core') ];
 		package: 'LDAP-Spec2' with: [ spec requires: #('LDAP' 'LDAP-Schema') ];
 		package: 'LDAP-ActiveDirectory' with: [ spec requires: #('LDAP') ];
 		package: 'LDAP-Tests' with: [ spec requires: #('LDAP') ];
 		package: 'LDAP-Schema-Tests' with: [ spec requires: #('LDAP-Schema') ];
 		package: 'LDAP-UI-Tests' with: [ spec requires: #('LDAP-Spec2') ]
+]
+
+{ #category : 'dependencies' }
+BaselineOfLDAP >> petitParser2: spec [
+	spec
+		baseline: 'PetitParser2Core'
+		with: [
+			spec  
+				repository: 'github://kursjan/petitparser2'
+		]
 ]
