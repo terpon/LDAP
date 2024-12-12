@@ -28,9 +28,3 @@ LDAPObjectClassParser >> objectClass [
 			yourself
 	]
 ]
-
-{ #category : 'accessing' }
-LDAPObjectClassParser >> obsolete [ 
-
-	^ super obsolete map: [ :o | true ]
-]

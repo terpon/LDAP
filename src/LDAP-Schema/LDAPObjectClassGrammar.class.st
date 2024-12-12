@@ -86,7 +86,7 @@ LDAPObjectClassGrammar >> objectClass [
 { #category : 'accessing' }
 LDAPObjectClassGrammar >> obsolete [ 
 
-	^ (self space, 'OBSOLETE' asPParser) ==> #second
+	^ (self space, 'OBSOLETE' asPParser) ==> [ :t | true ]
 ]
 
 { #category : 'accessing' }

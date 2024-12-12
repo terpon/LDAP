@@ -1,12 +1,12 @@
 Class {
-	#name : 'LDAPObjectClassTest',
-	#superclass : 'TestCase',
+	#name : 'LDAPObjectClassParserTest',
+	#superclass : 'PP2CompositeNodeTest',
 	#category : 'LDAP-Schema-Tests',
 	#package : 'LDAP-Schema-Tests'
 }
 
 { #category : 'test data' }
-LDAPObjectClassTest >> data [
+LDAPObjectClassParserTest >> data [
 
 	^ #( '( 2.5.6.0 NAME ''top'' DESC ''top of the superclass chain'' ABSTRACT MUST objectClass )'
 	     '( 1.3.6.1.4.1.1466.101.120.111 NAME ''extensibleObject'' DESC ''RFC4512: extensible object'' SUP top AUXILIARY )'
@@ -86,7 +86,7 @@ LDAPObjectClassTest >> data [
 ]
 
 { #category : 'test data' }
-LDAPObjectClassTest >> parseData [
+LDAPObjectClassParserTest >> parseData [
 "LPAREN WSP
          numericoid                 ; object identifier
          [ SP ""NAME"" SP qdescrs ]   ; short names (descriptors)
@@ -119,8 +119,13 @@ LDAPObjectClassTest >> parseData [
 )
 ]
 
+{ #category : 'accessing' }
+LDAPObjectClassParserTest >> parserClass [
+	^ LDAPObjectClassParser 
+]
+
 { #category : 'test data' }
-LDAPObjectClassTest >> shortData [
+LDAPObjectClassParserTest >> shortData [
 
 	^ #( '( 2.5.6.0 NAME ''top'' DESC ''top of the superclass chain'' ABSTRACT MUST objectClass )'
 	     '( 1.3.6.1.4.1.1466.101.120.111 NAME ''extensibleObject'' DESC ''RFC4512: extensible object'' SUP top AUXILIARY )'
@@ -137,33 +142,33 @@ LDAPObjectClassTest >> shortData [
 ]
 
 { #category : 'tests' }
-LDAPObjectClassTest >> testFull [
+LDAPObjectClassParserTest >> testFull [
 
-	(self data collect: [ :string |
+	self data do: [ :string |
 		LDAPObjectClassParser parse: string
-	 ]) inspect
+	 ]
 ]
 
 { #category : 'tests' }
-LDAPObjectClassTest >> testGrammar [
+LDAPObjectClassParserTest >> testGrammar [
 
-	(self parseData collect: [ :string |
+	self parseData do: [ :string |
 		LDAPObjectClassGrammar parse: string
-	 ]) inspect
+	 ]
 ]
 
 { #category : 'tests' }
-LDAPObjectClassTest >> testParse [
+LDAPObjectClassParserTest >> testParse [
 
-	(self parseData collect: [ :string |
+	self parseData do: [ :string |
 		LDAPObjectClassParser parse: string
-	 ]) inspect
+	 ]
 ]
 
 { #category : 'tests' }
-LDAPObjectClassTest >> testShort [
+LDAPObjectClassParserTest >> testShort [
 
-	(self shortData collect: [ :string |
+	self shortData do: [ :string |
 		LDAPObjectClassParser parse: string
-	 ]) inspect
+	 ]
 ]
