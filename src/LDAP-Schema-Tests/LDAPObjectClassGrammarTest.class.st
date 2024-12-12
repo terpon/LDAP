@@ -175,6 +175,26 @@ LDAPObjectClassGrammarTest >> testShortData [
 	 ]
 ]
 
+{ #category : 'tests' }
+LDAPObjectClassGrammarTest >> testSuperiors [ 
+
+	self parse: ' SUP top' rule: #superiors.
+	self assert: result equals: #('top').
+	self parse: ' SUP 2.5.6.0' rule: #superiors.
+	self assert: result equals: #('2.5.6.0').
+
+	self parse: ' SUP (a $ b)' rule: #superiors.
+	self assert: result equals: #( 'a' 'b' ).
+	self parse: ' SUP (a$b)' rule: #superiors.
+	self assert: result equals: #( 'a' 'b' ).
+	
+	self parse: ' SUP (1.2$3.4)' rule: #superiors.
+	self assert: result equals: #( '1.2' '3.4' ).
+	self parse: ' SUP (1.2$s$3.4)' rule: #superiors.
+	self assert: result equals: #( '1.2' 's' '3.4' ).
+
+]
+
 { #category : 'accessing' }
 LDAPObjectClassGrammarTest >> top [
 

@@ -6,7 +6,6 @@ Class {
 	#superclass : 'LDAPSchemaPrimitiveGrammar',
 	#instVars : [
 		'names',
-		'superiors',
 		'description',
 		'obsolete',
 		'extensions'
@@ -40,7 +39,7 @@ LDAPSchemaGrammar >> extensions [
 { #category : 'grammar - helper' }
 LDAPSchemaGrammar >> flagNamed: aString [
 
-	^ (self space, aString asPParser) ==> #second
+	^ (self space, aString asPParser) ==> [ :tokens | true ]
 ]
 
 { #category : 'accessing' }
@@ -59,10 +58,4 @@ LDAPSchemaGrammar >> obsolete [
 LDAPSchemaGrammar >> start [
 "Not meant to be used directly, but the method is necessary for the tests"
 	^ #epsilon asPParser
-]
-
-{ #category : 'accessing' }
-LDAPSchemaGrammar >> superiors [ 
-
-	^ self elementNamed: 'SUP' as: oids
 ]

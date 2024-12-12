@@ -6,6 +6,7 @@ Class {
 	#superclass : 'LDAPSchemaGrammar',
 	#instVars : [
 		'objectClass',
+		'superiors',
 		'kind',
 		'must',
 		'may'
@@ -64,4 +65,10 @@ LDAPObjectClassGrammar >> objectClass [
 LDAPObjectClassGrammar >> start [
 
 	^ objectClass end
+]
+
+{ #category : 'accessing' }
+LDAPObjectClassGrammar >> superiors [
+
+	^ self elementNamed: 'SUP' as: oids
 ]

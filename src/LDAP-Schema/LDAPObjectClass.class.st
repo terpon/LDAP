@@ -3,32 +3,17 @@ I represent an object class
 "
 Class {
 	#name : 'LDAPObjectClass',
-	#superclass : 'LDAPObject',
+	#superclass : 'LDAPNamedObject',
 	#instVars : [
-		'names',
-		'description',
-		'obsolete',
-		'superiors',
 		'must',
 		'may',
-		'kind'
+		'kind',
+		'superiors'
 	],
 	#category : 'LDAP-Schema-Schema',
 	#package : 'LDAP-Schema',
 	#tag : 'Schema'
 }
-
-{ #category : 'accessing' }
-LDAPObjectClass >> description [
-
-	^ description ifNil: [ '' ]
-]
-
-{ #category : 'accessing' }
-LDAPObjectClass >> description: anObject [
-
-	description := anObject
-]
 
 { #category : 'accessing - extension' }
 LDAPObjectClass >> extensions: aDictionary [
@@ -69,40 +54,6 @@ LDAPObjectClass >> must [
 LDAPObjectClass >> must: anObject [
 
 	must := anObject
-]
-
-{ #category : 'accessing' }
-LDAPObjectClass >> names [
-
-	^ names ifNil: [ #() ]
-]
-
-{ #category : 'accessing' }
-LDAPObjectClass >> names: anObject [
-
-	names := anObject
-]
-
-{ #category : 'accessing' }
-LDAPObjectClass >> obsolete [
-
-	^ obsolete ifNil: [ false ]
-]
-
-{ #category : 'accessing' }
-LDAPObjectClass >> obsolete: anObject [
-
-	obsolete := anObject
-]
-
-{ #category : 'printing' }
-LDAPObjectClass >> printOn: aStream [
-
-	aStream nextPutAll: 'a '; nextPutAll: self className; space.
-	self names size = 1
-		ifTrue: [ aStream nextPutAll: names first ] 
-		ifFalse: [ self names printElementsOn: aStream ].
-	aStream nextPutAll: ' ('; nextPutAll: oid; nextPut: $).
 ]
 
 { #category : 'accessing' }

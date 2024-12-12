@@ -16,6 +16,17 @@ LDAPObjectClassParserTest >> inspectData [
 
 ]
 
+{ #category : 'script' }
+LDAPObjectClassParserTest >> inspectShortData [
+<script: 'self new setUp; inspectShortData; tearDown' >
+
+	(self shortData collect: [ :string |
+		self parse: string
+	 ]) inspect.
+
+
+]
+
 { #category : 'accessing' }
 LDAPObjectClassParserTest >> parserClass [
 	^ LDAPObjectClassParser 
@@ -47,4 +58,17 @@ LDAPObjectClassParserTest >> testObjectClass [
 	self assert: result kind equals: #abstract.
 	self assert: result must equals: #('objectClass').
 	self assert: result may isEmpty.
+]
+
+{ #category : 'tests' }
+LDAPObjectClassParserTest >> testObsolete [
+
+	self parse: '(1.2.3 NAME ''foo'' DESC ''bar'' OBSOLETE SUP top)' rule: #objectClass.
+	self assert: result class equals: LDAPObjectClass.
+	self assert: result oid equals: '1.2.3'.
+	self assert: result names equals: #('foo').
+	self assert: result description equals: 'bar'.
+	self assert: result obsolete.
+	self assert: result superiors equals: #('top').
+	self assert: result kind equals: #structural.
 ]

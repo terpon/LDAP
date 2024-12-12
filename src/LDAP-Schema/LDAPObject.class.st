@@ -5,7 +5,9 @@ Class {
 	#name : 'LDAPObject',
 	#superclass : 'Object',
 	#instVars : [
-		'oid'
+		'oid',
+		'description',
+		'obsolete'
 	],
 	#category : 'LDAP-Schema-Schema',
 	#package : 'LDAP-Schema',
@@ -16,6 +18,18 @@ Class {
 LDAPObject >> = anObject [
 
 	^ oid = anObject oid
+]
+
+{ #category : 'accessing' }
+LDAPObject >> description [
+
+	^ description ifNil: [ '' ]
+]
+
+{ #category : 'accessing' }
+LDAPObject >> description: anObject [
+
+	description := anObject
 ]
 
 { #category : 'accessing - extension' }
@@ -29,6 +43,18 @@ LDAPObject >> extensions: aDictionary [
 LDAPObject >> hash [
 
 	^ oid hash
+]
+
+{ #category : 'accessing' }
+LDAPObject >> obsolete [
+
+	^ obsolete ifNil: [ false ]
+]
+
+{ #category : 'accessing' }
+LDAPObject >> obsolete: anObject [
+
+	obsolete := anObject
 ]
 
 { #category : 'accessing' }

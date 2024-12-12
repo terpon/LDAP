@@ -1,6 +1,6 @@
 Class {
 	#name : 'LDAPSchemaGrammarTest',
-	#superclass : 'PP2CompositeNodeTest',
+	#superclass : 'LDAPSchemaPrimitiveGrammarTest',
 	#category : 'LDAP-Schema-Tests',
 	#package : 'LDAP-Schema-Tests'
 }
@@ -60,25 +60,5 @@ LDAPSchemaGrammarTest >> testNames [
 LDAPSchemaGrammarTest >> testObsolete [ 
 
 	self parse: ' OBSOLETE' rule: #obsolete.
-	self assert: result equals: 'OBSOLETE'.
-]
-
-{ #category : 'tests' }
-LDAPSchemaGrammarTest >> testSuperiors [ 
-
-	self parse: ' SUP top' rule: #superiors.
-	self assert: result equals: #('top').
-	self parse: ' SUP 2.5.6.0' rule: #superiors.
-	self assert: result equals: #('2.5.6.0').
-
-	self parse: ' SUP (a $ b)' rule: #superiors.
-	self assert: result equals: #( 'a' 'b' ).
-	self parse: ' SUP (a$b)' rule: #superiors.
-	self assert: result equals: #( 'a' 'b' ).
-	
-	self parse: ' SUP (1.2$3.4)' rule: #superiors.
-	self assert: result equals: #( '1.2' '3.4' ).
-	self parse: ' SUP (1.2$s$3.4)' rule: #superiors.
-	self assert: result equals: #( '1.2' 's' '3.4' ).
-
+	self assert: result.
 ]

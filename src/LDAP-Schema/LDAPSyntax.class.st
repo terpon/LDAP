@@ -5,7 +5,6 @@ Class {
 	#name : 'LDAPSyntax',
 	#superclass : 'LDAPObject',
 	#instVars : [
-		'description',
 		'notHumanReadable',
 		'binaryTransferRequired'
 	],
@@ -18,18 +17,6 @@ Class {
 LDAPSyntax >> binaryTransferRequired: aBoolean [
 
 	binaryTransferRequired := aBoolean
-]
-
-{ #category : 'accessing' }
-LDAPSyntax >> description [
-
-	^ description ifNil: [ '' ]
-]
-
-{ #category : 'accessing' }
-LDAPSyntax >> description: anObject [
-
-	description := anObject
 ]
 
 { #category : 'testing' }

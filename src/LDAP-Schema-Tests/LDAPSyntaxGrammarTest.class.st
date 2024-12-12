@@ -52,7 +52,7 @@ LDAPSyntaxGrammarTest >> parserClass [
 LDAPSyntaxGrammarTest >> testData [
 
 	self data do: [ :string |
-		self parse: string rule: #syntax.
+		self parse: string
 	]
 ]
 

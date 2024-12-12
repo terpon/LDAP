@@ -5,6 +5,7 @@ Class {
 	#name : 'LDAPSchemaPrimitiveGrammar',
 	#superclass : 'PP2CompositeNode',
 	#instVars : [
+		'number',
 		'lparen',
 		'rparen',
 		'dollar',
@@ -55,6 +56,12 @@ LDAPSchemaPrimitiveGrammar >> listOf: anObject separatedBy: aSeparator [
 LDAPSchemaPrimitiveGrammar >> lparen [
 
 	^ ($( asPParser, self wspace) ==> #first
+]
+
+{ #category : 'accessing' }
+LDAPSchemaPrimitiveGrammar >> number [
+
+	^ ($0 asPParser / #digit asPParser plus) flatten ==> #asInteger
 ]
 
 { #category : 'grammar' }
