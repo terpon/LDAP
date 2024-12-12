@@ -106,6 +106,7 @@ LDAPObjectClassTest >> parseData [
 	     '( 1.2.3.1002 DESC ''description'' )'
 	     '(1.2.3.1003 OBSOLETE )'
 	     '( 1.2.3.1004 SUP 1.2.3.1000 )'
+	     '( 1.2.3.1014 SUP top )'
 	     '( 1.2.3.1104 SUP (1.2.3.1000$1.2.3.1001) )'
 	     '( 1.2.3.1005 STRUCTURAL )'
 	     '( 1.2.3.1006 MUST must )'
@@ -133,4 +134,12 @@ LDAPObjectClassTest >> shortData [
 	     '( 0.9.2342.19200300.100.4.18 NAME ''friendlyCountry'' SUP country STRUCTURAL MUST friendlyCountryName )'
 	     '( 1.3.6.1.1.1.2.0 NAME ''posixAccount'' DESC ''Abstraction of an account with POSIX attributes'' SUP top AUXILIARY MUST ( cn $ uid $ uidNumber $ gidNumber $ homeDirectory ) MAY ( userPassword $ loginShell $ gecos $ description ) )'
 )
+]
+
+{ #category : 'tests' }
+LDAPObjectClassTest >> testParse [
+
+	(self parseData collect: [ :string |
+		LDAPObjectClassGrammar parse: string
+	 ]) inspect
 ]
