@@ -3,28 +3,20 @@ I represent an object class
 "
 Class {
 	#name : 'LDAPObjectClass',
-	#superclass : 'Object',
+	#superclass : 'LDAPObject',
 	#instVars : [
-		'oid',
 		'names',
 		'description',
 		'obsolete',
 		'superiors',
 		'must',
 		'may',
-		'kind',
-		'extensions'
+		'kind'
 	],
 	#category : 'LDAP-Schema-Schema',
 	#package : 'LDAP-Schema',
 	#tag : 'Schema'
 }
-
-{ #category : 'comparing' }
-LDAPObjectClass >> = anObject [
-
-	^ oid = anObject oid
-]
 
 { #category : 'accessing' }
 LDAPObjectClass >> description [
@@ -38,22 +30,9 @@ LDAPObjectClass >> description: anObject [
 	description := anObject
 ]
 
-{ #category : 'accessing' }
-LDAPObjectClass >> extensions [
-
-	^ extensions ifNil: [ #() ]
-]
-
-{ #category : 'accessing' }
-LDAPObjectClass >> extensions: anObject [
-
-	extensions := anObject
-]
-
-{ #category : 'comparing' }
-LDAPObjectClass >> hash [
-
-	^ oid hash
+{ #category : 'accessing - extension' }
+LDAPObjectClass >> extensions: aDictionary [
+	"No extensions managed here"
 ]
 
 { #category : 'accessing' }
@@ -116,26 +95,14 @@ LDAPObjectClass >> obsolete: anObject [
 	obsolete := anObject
 ]
 
-{ #category : 'accessing' }
-LDAPObjectClass >> oid [
-
-	^ oid
-]
-
-{ #category : 'accessing' }
-LDAPObjectClass >> oid: anObject [
-
-	oid := anObject
-]
-
 { #category : 'printing' }
 LDAPObjectClass >> printOn: aStream [
 
-	super printOn: aStream.
-	aStream space; nextPutAll: oid; space.
+	aStream nextPutAll: 'a '; nextPutAll: self className; space.
 	self names size = 1
 		ifTrue: [ aStream nextPutAll: names first ] 
-		ifFalse: [ self names printElementsOn: aStream ] 
+		ifFalse: [ self names printElementsOn: aStream ].
+	aStream nextPutAll: ' ('; nextPutAll: oid; nextPut: $).
 ]
 
 { #category : 'accessing' }

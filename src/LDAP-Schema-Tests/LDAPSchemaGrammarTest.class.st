@@ -23,13 +23,13 @@ LDAPSchemaGrammarTest >> testDescription [
 LDAPSchemaGrammarTest >> testExtensions [ 
 
 	self parse: ' X-ORIGIN ''RFC 4519''' rule: #extensions.
-	self assert: result asArray equals: { 'X-ORIGIN' -> #('RFC 4519') }.
+	self assert: result equals: { 'X-ORIGIN' -> #('RFC 4519') } asDictionary.
 	
 	self parse: ' X-A ( ''a1'' ''a2'' )' rule: #extensions.
-	self assert: result asArray equals: { 'X-A' -> #('a1' 'a2') }.
+	self assert: result equals: { 'X-A' -> #('a1' 'a2') } asDictionary.
 
 	self parse: ' X-A ''a'' X-B ''b''' rule: #extensions.
-	self assert: result asArray equals: { 'X-A' -> #('a'). 'X-B' -> #('b') }.
+	self assert: result equals: { 'X-A' -> #('a'). 'X-B' -> #('b') } asDictionary.
 	
 
 ]

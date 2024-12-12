@@ -1,3 +1,6 @@
+"
+I am a parser returning `LDAPObjectClass` instances
+"
 Class {
 	#name : 'LDAPObjectClassParser',
 	#superclass : 'LDAPObjectClassGrammar',
@@ -24,7 +27,7 @@ LDAPObjectClassParser >> objectClass [
 			kind: _kind;
 			must: _must;
 			may: _may;
-			extensions: _extensions asArray;
+			extensions: _extensions;
 			yourself
 	]
 ]

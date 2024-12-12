@@ -34,7 +34,7 @@ LDAPSchemaGrammar >> extensions [
 	| extension |
 	extension := (self space, self xstring, self space, qdstrings)
 		==> [ :tokens | tokens second -> tokens fourth ].
-	^ extension star
+	^ extension star ==> [ :elements | elements asDictionary ]
 ]
 
 { #category : 'grammar - helper' }
