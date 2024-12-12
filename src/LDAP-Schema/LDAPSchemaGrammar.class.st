@@ -23,7 +23,6 @@ LDAPSchemaGrammar >> description [
 
 { #category : 'grammar - helper' }
 LDAPSchemaGrammar >> elementNamed: aString as: anObject [
-
 	^ (self space, aString asPParser, self space, anObject) ==> #fourth
 ]
 
@@ -38,8 +37,9 @@ LDAPSchemaGrammar >> extensions [
 
 { #category : 'grammar - helper' }
 LDAPSchemaGrammar >> flagNamed: aString [
-
-	^ (self space, aString asPParser) ==> [ :tokens | true ]
+	| flag |
+	flag := (self space, aString asPParser) ==> #second.
+	^ (flag optional) ==> [ :token | token isNotNil ]
 ]
 
 { #category : 'accessing' }

@@ -28,6 +28,8 @@ LDAPSyntax >> doesNotRequireBinaryTransfer [
 { #category : 'accessing - extension' }
 LDAPSyntax >> extensions: aDictionary [
 
+	self checkSupport: #( 'X-BINARY-TRANSFER-REQUIRED' 'X-NOT-HUMAN-READABLE' ) in: aDictionary.
+	
 	aDictionary at: 'X-BINARY-TRANSFER-REQUIRED' ifPresent: [ :value | value = 'TRUE' ifTrue: [ binaryTransferRequired := true ] ].
 	aDictionary at: 'X-NOT-HUMAN-READABLE' ifPresent: [ :value | value = 'TRUE' ifTrue: [ notHumanReadable := true ] ].	
 ]

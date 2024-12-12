@@ -18,6 +18,8 @@ Class {
 { #category : 'accessing - extension' }
 LDAPObjectClass >> extensions: aDictionary [
 	"No extensions managed here"
+	self checkSupport: #() in: aDictionary.
+
 ]
 
 { #category : 'accessing' }

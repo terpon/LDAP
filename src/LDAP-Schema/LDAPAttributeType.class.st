@@ -15,7 +15,9 @@ Class {
 		'ordered',
 		'collective',
 		'singleValue',
-		'noUserModification'
+		'noUserModification',
+		'hasOrderedValues',
+		'hasOrderedSiblings'
 	],
 	#category : 'LDAP-Schema-Schema',
 	#package : 'LDAP-Schema',
@@ -54,7 +56,30 @@ LDAPAttributeType >> equality: anObject [
 
 { #category : 'accessing - extension' }
 LDAPAttributeType >> extensions: aDictionary [
-	"No extensions managed here"
+
+	| supported |
+	self checkSupport: #( 'X-ORDERED' ) in: aDictionary.
+	
+	supported := #( 'VALUES' 'SIBLINGS' ).
+	aDictionary at: 'X-ORDERED' ifPresent: [ :values | values do: [ :value | 
+		(supported includes: value) 
+			ifTrue: [ 
+				value = 'VALUES' ifTrue: [ hasOrderedValues := true ] ifFalse: [ hasOrderedSiblings := true ]
+			] 
+			ifFalse: [ self error: ('Unknown extension value for X-ORDERED: ', value) ] 
+	] ].
+]
+
+{ #category : 'accessing' }
+LDAPAttributeType >> hasOrderedSiblings [
+
+	^ hasOrderedSiblings ifNil: [ false ]
+]
+
+{ #category : 'accessing' }
+LDAPAttributeType >> hasOrderedValues [
+
+	^ hasOrderedValues ifNil: [ false ]
 ]
 
 { #category : 'accessing' }

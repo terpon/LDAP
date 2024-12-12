@@ -309,11 +309,39 @@ LDAPTypeGrammarTest >> parserClass [
 ]
 
 { #category : 'tests' }
+LDAPTypeGrammarTest >> testCollective [ 
+
+	self parse: ' COLLECTIVE' rule: #collective.
+	self assert: result.
+	
+	self fail: ' collective' rule: #collective.
+
+]
+
+{ #category : 'tests' }
 LDAPTypeGrammarTest >> testData [
 
 	self data do: [ :string |
 		self parse: string.
 	]
+]
+
+{ #category : 'tests' }
+LDAPTypeGrammarTest >> testEquality [
+
+	self parse: ' EQUALITY objectIdentifierMatch' rule: #equality.
+	self assert: result equals: 'objectIdentifierMatch'.
+	
+	self fail: ' EQUALITY object_IdentifierMatch' rule: #equality.
+
+]
+
+{ #category : 'tests' }
+LDAPTypeGrammarTest >> testNoUserModification [ 
+
+	self parse: ' NO-USER-MODIFICATION' rule: #noUserModification.
+	self assert: result.
+
 ]
 
 { #category : 'tests' }
@@ -329,6 +357,32 @@ LDAPTypeGrammarTest >> testNoidlen [
 ]
 
 { #category : 'tests' }
+LDAPTypeGrammarTest >> testOrdering [
+
+	self parse: ' ORDERING UUIDOrderingMatch' rule: #ordering.
+	self assert: result equals: 'UUIDOrderingMatch'.
+	
+	self fail: ' ORDERING 1UUIDOrderingMatch' rule: #ordering.
+
+]
+
+{ #category : 'tests' }
+LDAPTypeGrammarTest >> testSingleValue [ 
+
+	self parse: ' SINGLE-VALUE' rule: #singleValue.
+	self assert: result.
+
+]
+
+{ #category : 'tests' }
+LDAPTypeGrammarTest >> testSubstr [
+
+	self parse: ' SUBSTR caseIgnoreIA5SubstringsMatch' rule: #substr.
+	self assert: result equals: 'caseIgnoreIA5SubstringsMatch'.
+
+]
+
+{ #category : 'tests' }
 LDAPTypeGrammarTest >> testSuperior [ 
 
 	self parse: ' SUP top' rule: #superior.
@@ -341,6 +395,16 @@ LDAPTypeGrammarTest >> testSuperior [
 ]
 
 { #category : 'tests' }
+LDAPTypeGrammarTest >> testSyntax [
+
+	self parse: ' SYNTAX 1.3.6.1.1.16.1' rule: #syntax.
+	self assert: result equals: #('1.3.6.1.1.16.1' nil).
+	
+	self parse: ' SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{128}' rule: #syntax.
+	self assert: result equals: #('1.3.6.1.4.1.1466.115.121.1.26' 128).
+]
+
+{ #category : 'tests' }
 LDAPTypeGrammarTest >> testType [
 
 	self fail: '(-)' rule: #type.
@@ -348,26 +412,40 @@ LDAPTypeGrammarTest >> testType [
 	self assert: result equals: {
 			'2.5.4.42'. #( 'givenName' 'gn' ).
 			'RFC2256: first name(s) for which the entity is known by'.
-			nil.
-			'name'.
-			nil. nil. nil. nil. nil. nil. nil. nil.
+			false. 'name'.
+			nil. nil. nil. nil. false. false. false. nil.
 			Dictionary empty }.
 
 	self parse: '( 2.5.4.41 NAME ''name'' DESC ''RFC4519: common supertype of name attributes'' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{32768} )' rule: #type.
 	self assert: result equals: {
 			'2.5.4.41'. #( 'name' ). 'RFC4519: common supertype of name attributes'.
-			nil. nil.
+			false. nil.
 			'caseIgnoreMatch'. nil. 'caseIgnoreSubstringsMatch'. 
-			#('1.3.6.1.4.1.1466.115.121.1.15' 32768). nil. nil. nil. nil.
+			#('1.3.6.1.4.1.1466.115.121.1.15' 32768). false. false. false. nil.
 			Dictionary empty }.
 				   
 	self parse: '( 2.5.18.10 NAME ''subschemaSubentry'' DESC ''RFC4512: name of controlling subschema entry'' EQUALITY distinguishedNameMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 SINGLE-VALUE NO-USER-MODIFICATION USAGE directoryOperation )' rule: #type.
 	self assert: result equals: {
 			'2.5.18.10'. #( 'subschemaSubentry' ). 'RFC4512: name of controlling subschema entry'.
-			nil. nil.
+			false. nil.
 			'distinguishedNameMatch'. nil. nil. 
 			#('1.3.6.1.4.1.1466.115.121.1.12' nil). 
-			true. nil. true. #directoryOperation.
+			true. false. true. #directoryOperation.
 			Dictionary empty }.
 
+]
+
+{ #category : 'tests' }
+LDAPTypeGrammarTest >> testUsage [
+
+	self parse: ' USAGE userApplications' rule: #usage.
+	self assert: result equals: #userApplications.
+	self parse: ' USAGE directoryOperation' rule: #usage.
+	self assert: result equals: #directoryOperation.
+	self parse: ' USAGE distributedOperation' rule: #usage.
+	self assert: result equals: #distributedOperation.
+	self parse: ' USAGE dSAOperation' rule: #usage.
+	self assert: result equals: #dSAOperation.
+
+	self fail: ' USAGE userNotFound' rule: #usage.
 ]

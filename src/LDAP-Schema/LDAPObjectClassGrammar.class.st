@@ -52,7 +52,7 @@ LDAPObjectClassGrammar >> objectClass [
 		numericOid,
 		names optional,
 		description optional,
-		obsolete optional,
+		obsolete,
 		superiors optional,
 		kind optional,
 		must optional,

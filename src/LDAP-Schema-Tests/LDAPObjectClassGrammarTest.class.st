@@ -162,7 +162,7 @@ LDAPObjectClassGrammarTest >> testObjectClass [
 
 	self fail: '(what)' rule: #objectClass.
 	self parse: self top rule: #objectClass.
-	self assert: result equals: { '2.5.6.0'. #('top') . 'top of the superclass chain'. nil. nil. #abstract . #('objectClass'). nil . Dictionary empty }.
+	self assert: result equals: { '2.5.6.0'. #('top') . 'top of the superclass chain'. false. nil. #abstract . #('objectClass'). nil . Dictionary empty }.
 	
 
 ]

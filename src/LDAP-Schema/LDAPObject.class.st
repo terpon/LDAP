@@ -20,6 +20,16 @@ LDAPObject >> = anObject [
 	^ oid = anObject oid
 ]
 
+{ #category : 'extensions' }
+LDAPObject >> checkSupport: aCollection in: aDictionary [
+
+	aDictionary keys asSet removeAllFoundIn: aCollection; ifNotEmpty: [ :set |
+		| extra |
+		extra := String streamContents: [ :s | set printElementsOn: s ].
+		self error: 'Extensions not supported: ', extra
+	].
+]
+
 { #category : 'accessing' }
 LDAPObject >> description [
 
