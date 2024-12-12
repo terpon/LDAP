@@ -12,6 +12,11 @@ Class {
 	#tag : 'Presenters'
 }
 
+{ #category : 'accessing' }
+LDAPEntryEditorPresenter class >> currentApplication [ 
+	^ LDAPEditor new
+]
+
 { #category : 'examples' }
 LDAPEntryEditorPresenter class >> example [
 
