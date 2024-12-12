@@ -1,17 +1,15 @@
+"
+I have the common rules for parsing different schema strings
+"
 Class {
 	#name : 'LDAPSchemaGrammar',
-	#superclass : 'PP2CompositeNode',
+	#superclass : 'LDAPSchemaPrimitiveGrammar',
 	#instVars : [
-		'lparen',
-		'rparen',
-		'dollar',
-		'descriptor',
-		'qdescriptors',
-		'qdstring',
-		'qdstrings',
-		'oids',
-		'numericOid',
-		'oid'
+		'names',
+		'superiors',
+		'description',
+		'obsolete',
+		'extensions'
 	],
 	#category : 'LDAP-Schema-Parsers',
 	#package : 'LDAP-Schema',
@@ -19,21 +17,9 @@ Class {
 }
 
 { #category : 'grammar' }
-LDAPSchemaGrammar >> descriptor [
+LDAPSchemaGrammar >> description [ 
 
-	^ (#letter asPParser, (#letter asPParser / #digit asPParser / $- asPParser) star) flatten
-]
-
-{ #category : 'grammar - primitives' }
-LDAPSchemaGrammar >> dollar [
-
-	^ (self wspace, $$ asPParser, self wspace) ==> #second
-]
-
-{ #category : 'grammar - primitives' }
-LDAPSchemaGrammar >> dstring [
-
-	^ (self qs / self qq / self qutf8) plus flatten
+	^ self elementNamed: 'DESC' as: qdstring
 ]
 
 { #category : 'grammar - helper' }
@@ -42,122 +28,41 @@ LDAPSchemaGrammar >> elementNamed: aString as: anObject [
 	^ (self space, aString asPParser, self space, anObject) ==> #fourth
 ]
 
-{ #category : 'grammar - helper' }
-LDAPSchemaGrammar >> listOf: anObject separatedBy: aSeparator [
-" qdescrs = qdescr / ( LPAREN WSP qdescrlist WSP RPAREN )
-  qdescrlist = [ qdescr *( SP qdescr ) ]
-  qdescr = SQUOTE descr SQUOTE"
-	| single following list |
-	single := (anObject ==> [:t | {t}]).
-	following := (aSeparator, anObject) ==> #second.
-	list := (anObject , following star) ==> [ :tokens | { tokens first}, tokens second ].
-	^ single / (self parenthesesAround: list)
-]
-
-{ #category : 'grammar - primitives' }
-LDAPSchemaGrammar >> lparen [
-
-	^ ($( asPParser, self wspace) ==> #first
-]
-
-{ #category : 'grammar' }
-LDAPSchemaGrammar >> numericOid [
-
-	^ (#digit asPParser, (#digit asPParser / $. asPParser) star) flatten
-]
-
-{ #category : 'grammar' }
-LDAPSchemaGrammar >> oid [
-
-	^ numericOid / descriptor
-]
-
-{ #category : 'grammar' }
-LDAPSchemaGrammar >> oids [
-
-	^ 	self listOf: oid separatedBy: dollar
+{ #category : 'accessing' }
+LDAPSchemaGrammar >> extensions [
+"*( SP xstring SP qdstrings )"
+	| extension |
+	extension := (self space, self xstring, self space, qdstrings)
+		==> [ :tokens | tokens second -> tokens fourth ].
+	^ extension star
 ]
 
 { #category : 'grammar - helper' }
-LDAPSchemaGrammar >> parenthesesAround: anObject [
+LDAPSchemaGrammar >> flagNamed: aString [
 
-	^ (lparen, anObject, rparen) ==> #second
+	^ (self space, aString asPParser) ==> #second
+]
+
+{ #category : 'accessing' }
+LDAPSchemaGrammar >> names [
+
+	^ self elementNamed: 'NAME' as: qdescriptors
 ]
 
 { #category : 'grammar' }
-LDAPSchemaGrammar >> qdescriptor [
+LDAPSchemaGrammar >> obsolete [ 
 
-	^ self quotesAround: descriptor
+	^ self flagNamed: 'OBSOLETE'
 ]
 
-{ #category : 'grammar' }
-LDAPSchemaGrammar >> qdescriptors [
-
-	^ self listOf: self qdescriptor separatedBy: self space
+{ #category : 'accessing' }
+LDAPSchemaGrammar >> start [
+"Not meant to be used directly, but the method is necessary for the tests"
+	^ #epsilon asPParser
 ]
 
-{ #category : 'grammar' }
-LDAPSchemaGrammar >> qdstring [
+{ #category : 'accessing' }
+LDAPSchemaGrammar >> superiors [ 
 
-	^ self quotesAround: self dstring
-]
-
-{ #category : 'grammar' }
-LDAPSchemaGrammar >> qdstrings [
-
-	^ self listOf: qdstring separatedBy: self space
-]
-
-{ #category : 'grammar - primitives' }
-LDAPSchemaGrammar >> qq [
-
-	^ '\27' asPParser ==> $\
-]
-
-{ #category : 'grammar - primitives' }
-LDAPSchemaGrammar >> qs [
-
-	^ ('\5' asPParser, ($c asPParser / $C asPParser)) ==> $'
-]
-
-{ #category : 'grammar - helper' }
-LDAPSchemaGrammar >> quotesAround: anObject [
-
-	^ (self squote, anObject, self squote) ==> #second
-]
-
-{ #category : 'grammar - primitives' }
-LDAPSchemaGrammar >> qutf8 [
-
-	^ PP2PredicateObjectNode noneOf: '\'''
-]
-
-{ #category : 'grammar' }
-LDAPSchemaGrammar >> rparen [
-
-	^ (self wspace, $) asPParser ) ==> #second
-]
-
-{ #category : 'grammar - primitives' }
-LDAPSchemaGrammar >> space [
-
-	^ Character space asPParser
-]
-
-{ #category : 'grammar - primitives' }
-LDAPSchemaGrammar >> squote [
-
-	^ $' asPParser 
-]
-
-{ #category : 'grammar - primitives' }
-LDAPSchemaGrammar >> wspace [
-
-	^ self space optional
-]
-
-{ #category : 'grammar - primitives' }
-LDAPSchemaGrammar >> xstring [
-"X HYPHEN 1*( ALPHA / HYPHEN / USCORE )"
-	^ ('X-' asPParser, (#letter asPParser / $_ asPParser / $- asPParser) star) flatten
+	^ self elementNamed: 'SUP' as: oids
 ]

@@ -1,36 +1,19 @@
+"
+I represent the grammar of an object class definition
+"
 Class {
 	#name : 'LDAPObjectClassGrammar',
 	#superclass : 'LDAPSchemaGrammar',
 	#instVars : [
 		'objectClass',
-		'names',
-		'description',
-		'obsolete',
 		'kind',
 		'must',
-		'may',
-		'extensions',
-		'superiors'
+		'may'
 	],
 	#category : 'LDAP-Schema-Parsers',
 	#package : 'LDAP-Schema',
 	#tag : 'Parsers'
 }
-
-{ #category : 'accessing' }
-LDAPObjectClassGrammar >> description [ 
-
-	^ self elementNamed: 'DESC' as: qdstring
-]
-
-{ #category : 'accessing' }
-LDAPObjectClassGrammar >> extensions [
-"*( SP xstring SP qdstrings )"
-	| extension |
-	extension := (self space, self xstring, self space, qdstrings)
-		==> [ :tokens | tokens second -> tokens fourth ].
-	^ extension star
-]
 
 { #category : 'accessing' }
 LDAPObjectClassGrammar >> kind [ 
@@ -49,12 +32,6 @@ LDAPObjectClassGrammar >> may [
 LDAPObjectClassGrammar >> must [ 
 
 	^ self elementNamed: 'MUST' as: oids
-]
-
-{ #category : 'accessing' }
-LDAPObjectClassGrammar >> names [
-
-	^ self elementNamed: 'NAME' as: qdescriptors
 ]
 
 { #category : 'accessing' }
@@ -84,19 +61,7 @@ LDAPObjectClassGrammar >> objectClass [
 ]
 
 { #category : 'accessing' }
-LDAPObjectClassGrammar >> obsolete [ 
-
-	^ (self space, 'OBSOLETE' asPParser) ==> [ :t | true ]
-]
-
-{ #category : 'accessing' }
 LDAPObjectClassGrammar >> start [
 
 	^ objectClass end
-]
-
-{ #category : 'accessing' }
-LDAPObjectClassGrammar >> superiors [ 
-
-	^ self elementNamed: 'SUP' as: oids
 ]
