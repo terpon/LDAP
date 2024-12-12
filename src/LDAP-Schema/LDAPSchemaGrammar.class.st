@@ -8,6 +8,7 @@ Class {
 		'descriptor',
 		'qdescriptors',
 		'qdstring',
+		'qdstrings',
 		'oids',
 		'numericOid',
 		'oid'
@@ -43,12 +44,14 @@ LDAPSchemaGrammar >> elementNamed: aString as: anObject [
 
 { #category : 'grammar - helper' }
 LDAPSchemaGrammar >> listOf: anObject separatedBy: aSeparator [
-"( LPAREN WSP qdescrlist WSP RPAREN )
- qdescrlist = [ qdescr *( SP qdescr ) ]"
-	| following list |
+" qdescrs = qdescr / ( LPAREN WSP qdescrlist WSP RPAREN )
+  qdescrlist = [ qdescr *( SP qdescr ) ]
+  qdescr = SQUOTE descr SQUOTE"
+	| single following list |
+	single := (anObject ==> [:t | {t}]).
 	following := (aSeparator, anObject) ==> #second.
 	list := (anObject , following star) ==> [ :tokens | { tokens first}, tokens second ].
-	^ self parenthesesAround: list
+	^ single / (self parenthesesAround: list)
 ]
 
 { #category : 'grammar - primitives' }
@@ -72,7 +75,7 @@ LDAPSchemaGrammar >> oid [
 { #category : 'grammar' }
 LDAPSchemaGrammar >> oids [
 
-	^ 	oid / (self listOf: oid separatedBy: dollar)
+	^ 	self listOf: oid separatedBy: dollar
 ]
 
 { #category : 'grammar - helper' }
@@ -90,7 +93,7 @@ LDAPSchemaGrammar >> qdescriptor [
 { #category : 'grammar' }
 LDAPSchemaGrammar >> qdescriptors [
 
-	^ self singleOrListOf: self qdescriptor
+	^ self listOf: self qdescriptor separatedBy: self space
 ]
 
 { #category : 'grammar' }
@@ -102,7 +105,7 @@ LDAPSchemaGrammar >> qdstring [
 { #category : 'grammar' }
 LDAPSchemaGrammar >> qdstrings [
 
-	^ self singleOrListOf: qdstring
+	^ self listOf: qdstring separatedBy: self space
 ]
 
 { #category : 'grammar - primitives' }
@@ -133,11 +136,6 @@ LDAPSchemaGrammar >> qutf8 [
 LDAPSchemaGrammar >> rparen [
 
 	^ (self wspace, $) asPParser ) ==> #second
-]
-
-{ #category : 'grammar - helper' }
-LDAPSchemaGrammar >> singleOrListOf: anObject [
-	^ anObject / (self listOf: anObject separatedBy: self space)
 ]
 
 { #category : 'grammar - primitives' }

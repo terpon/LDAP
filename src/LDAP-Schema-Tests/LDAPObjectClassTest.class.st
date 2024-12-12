@@ -137,9 +137,33 @@ LDAPObjectClassTest >> shortData [
 ]
 
 { #category : 'tests' }
-LDAPObjectClassTest >> testParse [
+LDAPObjectClassTest >> testFull [
+
+	(self data collect: [ :string |
+		LDAPObjectClassParser parse: string
+	 ]) inspect
+]
+
+{ #category : 'tests' }
+LDAPObjectClassTest >> testGrammar [
 
 	(self parseData collect: [ :string |
 		LDAPObjectClassGrammar parse: string
+	 ]) inspect
+]
+
+{ #category : 'tests' }
+LDAPObjectClassTest >> testParse [
+
+	(self parseData collect: [ :string |
+		LDAPObjectClassParser parse: string
+	 ]) inspect
+]
+
+{ #category : 'tests' }
+LDAPObjectClassTest >> testShort [
+
+	(self shortData collect: [ :string |
+		LDAPObjectClassParser parse: string
 	 ]) inspect
 ]

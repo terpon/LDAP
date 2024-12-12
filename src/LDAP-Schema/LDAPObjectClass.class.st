@@ -11,43 +11,43 @@ Class {
 		'obsolete',
 		'superiors',
 		'must',
-		'may'
+		'may',
+		'kind',
+		'extensions'
 	],
-	#category : 'LDAP-Schema',
-	#package : 'LDAP-Schema'
+	#category : 'LDAP-Schema-Schema',
+	#package : 'LDAP-Schema',
+	#tag : 'Schema'
 }
-
-{ #category : 'testing' }
-LDAPObjectClass class >> isAbstract [
-
-	^ self = LDAPObjectClass 
-]
-
-{ #category : 'description' }
-LDAPObjectClass class >> kind [
-
-	self subclassResponsibility.
-	^ #none
-]
-
-{ #category : 'instance creation' }
-LDAPObjectClass class >> kindClass: aString [
-
-	| aSymbol |
-	aSymbol := aString asSymbol.
-	^ self subclasses detect: [ :c | c kind = aSymbol ]
-]
-
-{ #category : 'instance creation' }
-LDAPObjectClass class >> newKind: aString [
-
-	^ (self kindClass: aString) new
-]
 
 { #category : 'comparing' }
 LDAPObjectClass >> = anObject [
 
 	^ oid = anObject oid
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> description [
+
+	^ description ifNil: [ '' ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> description: anObject [
+
+	description := anObject
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> extensions [
+
+	^ extensions ifNil: [ #() ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> extensions: anObject [
+
+	extensions := anObject
 ]
 
 { #category : 'comparing' }
@@ -57,7 +57,95 @@ LDAPObjectClass >> hash [
 ]
 
 { #category : 'accessing' }
+LDAPObjectClass >> kind [
+
+	^ kind ifNil: [ #structural ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> kind: anObject [
+
+	kind := anObject
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> may [
+
+	^ may ifNil: [ #() ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> may: anObject [
+
+	may := anObject
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> must [
+
+	^ must ifNil: [ #() ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> must: anObject [
+
+	must := anObject
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> names [
+
+	^ names ifNil: [ #() ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> names: anObject [
+
+	names := anObject
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> obsolete [
+
+	^ obsolete ifNil: [ false ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> obsolete: anObject [
+
+	obsolete := anObject
+]
+
+{ #category : 'accessing' }
 LDAPObjectClass >> oid [
 
 	^ oid
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> oid: anObject [
+
+	oid := anObject
+]
+
+{ #category : 'printing' }
+LDAPObjectClass >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream space; nextPutAll: oid; space.
+	self names size = 1
+		ifTrue: [ aStream nextPutAll: names first ] 
+		ifFalse: [ self names printElementsOn: aStream ] 
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> superiors [
+
+	^ superiors 	ifNil: [ #() ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> superiors: anObject [
+
+	superiors := anObject
 ]

@@ -10,8 +10,7 @@ Class {
 		'must',
 		'may',
 		'extensions',
-		'superiors',
-		'qdstrings'
+		'superiors'
 	],
 	#category : 'LDAP-Schema-Parsers',
 	#package : 'LDAP-Schema',
@@ -37,7 +36,7 @@ LDAPObjectClassGrammar >> extensions [
 LDAPObjectClassGrammar >> kind [ 
 
 	^ (self space, ('ABSTRACT' asPParser / 'AUXILIARY' asPParser / 'STRUCTURAL' asPParser)) 
-	==> [ :t | t second asSymbol ]
+	==> [ :t | t second asLowercase asSymbol ]
 ]
 
 { #category : 'accessing' }
@@ -71,7 +70,7 @@ LDAPObjectClassGrammar >> objectClass [
          [ SP ""MAY"" SP oids ]       ; attribute types
          extensions WSP RPAREN
      kind = ""ABSTRACT"" / ""STRUCTURAL"" / ""AUXILIARY"""
-	^ lparen,
+	^ self parenthesesAround: (
 		numericOid,
 		names optional,
 		description optional,
@@ -80,8 +79,8 @@ LDAPObjectClassGrammar >> objectClass [
 		kind optional,
 		must optional,
 		may optional,
-		extensions, 
-		rparen
+		extensions
+	)
 ]
 
 { #category : 'accessing' }
