@@ -5,7 +5,9 @@ Class {
 	#name : 'LDAPSchemaInspectLogger',
 	#superclass : 'LDAPSchemaLogger',
 	#instVars : [
-		'logs'
+		'attributes',
+		'syntaxes',
+		'classes'
 	],
 	#category : 'LDAP-Schema-Utilities',
 	#package : 'LDAP-Schema',
@@ -15,29 +17,42 @@ Class {
 { #category : 'reporting' }
 LDAPSchemaInspectLogger >> missingAttribute: aString for: aMember in: anObject [ 
 
-	logs addLast: { 'Missing attribute'. aString . anObject . aMember }.
+	| pair |
+	pair := { aMember . anObject }.
+	attributes at: aString update: [ :value | value add: pair; yourself ] initial: [ OrderedCollection with: pair ].	
+
+
 ]
 
 { #category : 'reporting' }
-LDAPSchemaInspectLogger >> missingClass: aString for: aMember in: anObject [ 
+LDAPSchemaInspectLogger >> missingClass: aString in: anObject [ 
 
-	logs addLast: { 'Missing objectClass'. aString . anObject . aMember }.
+	classes at: aString update: [ :value | value add: anObject; yourself ] initial: [ OrderedCollection with: anObject ].
+
 ]
 
 { #category : 'reporting' }
 LDAPSchemaInspectLogger >> missingSyntax: aString in: anObject [ 
 
-	logs addLast: { 'Missing syntax'. aString . anObject }.
+	syntaxes at: aString update: [ :value | value add: anObject; yourself ] initial: [ OrderedCollection with: anObject ].
+
 ]
 
 { #category : 'reporting' }
 LDAPSchemaInspectLogger >> report [
-
-	logs ifNotNil: [ logs inspect ].
+	
+	^ (Array streamContents: [ :stream |
+			syntaxes keysAndValuesDo: [ :syntax :elements | stream nextPut: { 'Missing syntax'. syntax . elements asArray } ].
+			classes keysAndValuesDo: [ :class :elements | stream nextPut: { 'Missing objectClass'. class . elements asArray } ].
+			attributes keysAndValuesDo: [ :attr :elements | stream nextPut: { 'Missing attribute'. attr . elements asArray } ].
+	
+		]) ifNotEmpty: [ :logs | logs inspect; yourself ].
 ]
 
 { #category : 'initialization' }
 LDAPSchemaInspectLogger >> reset [
 
-	logs := OrderedCollection new.
+	attributes := Dictionary new.
+	syntaxes := Dictionary new.
+	classes := Dictionary new.
 ]

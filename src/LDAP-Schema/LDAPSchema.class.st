@@ -65,7 +65,7 @@ LDAPSchema >> build [
 	self logger reset.
 	self pullAttributesProperties.
 	self pullClassesProperties.
-	self logger report.
+	self logger report; reset.
 ]
 
 { #category : 'initialization' }
@@ -167,7 +167,7 @@ LDAPSchema >> pullClassesProperties [
 	set do: [ :class |
 		class superiors: (class superiors collect: [ :sup |
 				 self objectClass: sup ifAbsent: [
-					 logger missingClass: sup for: 'sup' in: class.
+					 logger missingClass: sup in: class.
 					 sup ] ]) ].
 	set do: [ :class | class pullProperties ].
 	"Now all attributes are populated"
@@ -195,6 +195,19 @@ LDAPSchema >> referencedTypes [
 	all := attributeTypes values asSet.
 
 	^ { types. all removeAllFoundIn: types; yourself }
+]
+
+{ #category : 'enumerating' }
+LDAPSchema >> references: aType [
+
+	| type |
+	type := aType isString ifFalse: [ aType ] ifTrue: [ self type: aType ifAbsent: [ self error: 'No such attribute type'. ^ #() ] ].
+	^ Array streamContents: [ :stream |
+		objectClasses values asSet do: [ :class | 
+			((class must includes: type) or: [class may includes: type])
+				ifTrue: [ stream nextPut: class ] 
+		] 
+	]
 ]
 
 { #category : 'accessing' }

@@ -51,7 +51,6 @@ LDAPAttributeType class >> defaultObjects [
 	     '( 2.5.21.5 NAME ''attributeTypes'' DESC ''RFC4512: attribute types'' EQUALITY objectIdentifierFirstComponentMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.3 USAGE directoryOperation )'
 	     '( 2.5.21.6 NAME ''objectClasses'' DESC ''RFC4512: object classes'' EQUALITY objectIdentifierFirstComponentMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.37 USAGE directoryOperation )'
 	     '( 2.5.21.8 NAME ''matchingRuleUse'' DESC ''RFC4512: matching rule uses'' EQUALITY objectIdentifierFirstComponentMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.31 USAGE directoryOperation )'
-	     '( 1.3.6.1.4.1.1466.101.120.16 NAME ''ldapSyntaxes'' DESC ''RFC4512: LDAP syntaxes'' EQUALITY objectIdentifierFirstComponentMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.54 USAGE directoryOperation )'
 	     '( 2.5.4.1 NAME ( ''aliasedObjectName'' ''aliasedEntryName'' ) DESC ''RFC4512: name of aliased object'' EQUALITY distinguishedNameMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 SINGLE-VALUE )'
 	     '( 2.16.840.1.113730.3.1.34 NAME ''ref'' DESC ''RFC3296: subordinate referral URL'' EQUALITY caseExactMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 USAGE distributedOperation )'
 	     '( 1.3.6.1.4.1.1466.101.119.3 NAME ''entryTtl'' DESC ''RFC2589: entry time-to-live'' SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE NO-USER-MODIFICATION USAGE dSAOperation )'

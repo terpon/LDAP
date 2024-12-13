@@ -38,10 +38,10 @@ LDAPSchemaLogger >> missingClass: aString for: aMember in: anObject [
 ]
 
 { #category : 'reporting' }
-LDAPSchemaLogger >> missingSyntax: aString in: anObject [ 
+LDAPSchemaLogger >> missingClass: aString in: anObject [ 
 
 	(String streamContents: [ :stream | 
-		stream nextPutAll: 'Missing syntax OID ';
+		stream nextPutAll: 'Missing object class named ';
 			nextPutAll: aString asString;
 			nextPutAll: ' in ';			
 			nextPutAll: anObject asString
