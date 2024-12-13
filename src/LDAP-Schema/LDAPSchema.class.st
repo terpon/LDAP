@@ -176,6 +176,27 @@ LDAPSchema >> pullClassesProperties [
 		class may: (self pullAttributes: class may for: 'may' in: class) ]
 ]
 
+{ #category : 'enumerating' }
+LDAPSchema >> referencedSyntaxes [
+
+	| syntaxes all |
+	syntaxes := attributeTypes values asSet collect: #syntax.
+	all := attributeSyntaxes values asSet.
+
+	^ { syntaxes. all removeAllFoundIn: syntaxes; yourself }
+]
+
+{ #category : 'enumerating' }
+LDAPSchema >> referencedTypes [
+
+	| types all |
+	types := Set new.
+	objectClasses values asSet do: [ :class | types addAll: class must; addAll: class may ].
+	all := attributeTypes values asSet.
+
+	^ { types. all removeAllFoundIn: types; yourself }
+]
+
 { #category : 'accessing' }
 LDAPSchema >> syntax: aString ifAbsent: aBlock [
 

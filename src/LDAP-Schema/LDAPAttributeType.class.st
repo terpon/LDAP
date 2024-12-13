@@ -34,7 +34,6 @@ LDAPAttributeType class >> defaultObjects [
 	     '( 2.5.18.3 NAME ''creatorsName'' DESC ''RFC4512: name of creator'' EQUALITY distinguishedNameMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 SINGLE-VALUE NO-USER-MODIFICATION USAGE directoryOperation )'
 	     '( 2.5.18.4 NAME ''modifiersName'' DESC ''RFC4512: name of last modifier'' EQUALITY distinguishedNameMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 SINGLE-VALUE NO-USER-MODIFICATION USAGE directoryOperation )'
 	     '( 2.5.18.9 NAME ''hasSubordinates'' DESC ''X.501: entry has children'' EQUALITY booleanMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 SINGLE-VALUE NO-USER-MODIFICATION USAGE directoryOperation )'
-	     '( 2.5.18.10 NAME ''subschemaSubentry'' DESC ''RFC4512: name of controlling subschema entry'' EQUALITY distinguishedNameMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 SINGLE-VALUE NO-USER-MODIFICATION USAGE directoryOperation )'
 	     '( 1.3.6.1.1.20 NAME ''entryDN'' DESC ''DN of the entry'' EQUALITY distinguishedNameMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 SINGLE-VALUE NO-USER-MODIFICATION USAGE directoryOperation )'
 	     '( 1.3.6.1.1.16.4 NAME ''entryUUID'' DESC ''UUID of the entry'' EQUALITY UUIDMatch ORDERING UUIDOrderingMatch SYNTAX 1.3.6.1.1.16.1 SINGLE-VALUE NO-USER-MODIFICATION USAGE directoryOperation )'
 	     '( 1.3.6.1.4.1.4203.666.1.7 NAME ''entryCSN'' DESC ''change sequence number of the entry content'' EQUALITY CSNMatch ORDERING CSNOrderingMatch SYNTAX 1.3.6.1.4.1.4203.666.11.2.1{64} SINGLE-VALUE NO-USER-MODIFICATION USAGE directoryOperation )'

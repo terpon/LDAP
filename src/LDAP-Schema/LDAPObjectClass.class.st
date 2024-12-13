@@ -22,8 +22,6 @@ LDAPObjectClass class >> defaultObjects [
 	     '( 1.3.6.1.4.1.1466.101.120.111 NAME ''extensibleObject'' DESC ''RFC4512: extensible object'' SUP top AUXILIARY )'
 	     '( 2.5.6.1 NAME ''alias'' DESC ''RFC4512: an alias'' SUP top STRUCTURAL MUST aliasedObjectName )'
 	     '( 2.16.840.1.113730.3.2.6 NAME ''referral'' DESC ''namedref: named subordinate referral'' SUP top STRUCTURAL MUST ref )'
-	     '( 2.5.17.0 NAME ''subentry'' DESC ''RFC3672: subentry'' SUP top STRUCTURAL MUST ( cn $ subtreeSpecification ) )'
-	     '( 2.5.20.1 NAME ''subschema'' DESC ''RFC4512: controlling subschema (sub)entry'' AUXILIARY MAY ( dITStructureRules $ nameForms $ dITContentRules $ objectClasses $ attributeTypes $ matchingRules $ matchingRuleUse ) )'
 	     '( 1.3.6.1.4.1.1466.101.119.2 NAME ''dynamicObject'' DESC ''RFC2589: Dynamic Object'' SUP top AUXILIARY )'
 	     '( 2.5.6.2 NAME ''country'' DESC ''RFC2256: a country'' SUP top STRUCTURAL MUST c MAY ( searchGuide $ description ) )'
 	     '( 2.5.6.3 NAME ''locality'' DESC ''RFC2256: a locality'' SUP top STRUCTURAL MAY ( street $ seeAlso $ searchGuide $ st $ l $ description ) )'
