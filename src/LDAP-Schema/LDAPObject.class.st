@@ -20,6 +20,12 @@ LDAPObject >> = anObject [
 	^ oid = anObject oid
 ]
 
+{ #category : 'converting' }
+LDAPObject >> asString [
+
+	^ oid ifNil: [ '' ]
+]
+
 { #category : 'extensions' }
 LDAPObject >> checkSupport: aCollection in: aDictionary [
 

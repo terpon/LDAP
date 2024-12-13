@@ -12,6 +12,12 @@ Class {
 	#tag : 'Schema'
 }
 
+{ #category : 'converting' }
+LDAPNamedObject >> asString [ 
+
+	^ names isEmptyOrNil ifTrue: [ super asString ] ifFalse: [ names first asString ]
+]
+
 { #category : 'accessing' }
 LDAPNamedObject >> names [
 

@@ -8,7 +8,8 @@ Class {
 		'objects',
 		'objectClasses',
 		'attributeSyntaxes',
-		'attributeTypes'
+		'attributeTypes',
+		'logger'
 	],
 	#classVars : [
 		'DefaultSchema'
@@ -31,6 +32,7 @@ LDAPSchema class >> initialize [
 		parseSyntaxes: LDAPSyntax defaultObjects;
 		parseTypes: LDAPAttributeType defaultObjects;
 		parseClasses: LDAPObjectClass defaultObjects;
+		logger: LDAPSchemaInspectLogger new;
 		build
 ]
 
@@ -60,9 +62,10 @@ LDAPSchema >> addType: anObject [
 { #category : 'building' }
 LDAPSchema >> build [
 "Replace names and OIDs with actual objects"
-
+	self logger reset.
 	self pullAttributesProperties.
 	self pullClassesProperties.
+	self logger report.
 ]
 
 { #category : 'initialization' }
@@ -73,6 +76,18 @@ LDAPSchema >> initialize [
 	objectClasses := Dictionary new.
 	attributeSyntaxes := Dictionary new.
 	attributeTypes := Dictionary new.
+]
+
+{ #category : 'accessing' }
+LDAPSchema >> logger [
+
+	^ logger ifNil: [ logger := LDAPSchemaLogger new ]
+]
+
+{ #category : 'accessing' }
+LDAPSchema >> logger: anObject [
+
+	logger := anObject
 ]
 
 { #category : 'accessing' }
@@ -112,11 +127,13 @@ LDAPSchema >> parseTypes: aCollection [
 ]
 
 { #category : 'building' }
-LDAPSchema >> pullAttributesFor: aCollection [
+LDAPSchema >> pullAttributes: aCollection for: aString in: anObject [
 "Replace names and OIDs with actual objects"
 
 	| set |
-	set := aCollection collect: [ :name | self type: name ifAbsent: [ name ] ].
+	set := aCollection collect: [ :name | self type: name 
+		ifAbsent: [ logger missingAttribute: name for: aString in: anObject. name ]
+	].
 	^ set asSet asArray
 ]
 
@@ -127,31 +144,36 @@ LDAPSchema >> pullAttributesProperties [
 	| set |
 	set := attributeTypes values asSet.
 	"First fix all sups"
-	set do: [ :type | type superior ifNotNil: [ :sup | type superior: (self type: sup ifAbsent: [ self error: 'Unknown attribute']) ] ].
+	set do: [ :type | type superior ifNotNil: [ :sup | 
+			type superior: (self type: sup 
+				ifAbsent: [ logger missingAttribute: sup for: 'sup' in: type. sup ]) ] 
+	].
 	set do: [ :type | type pullProperties ].
 	"Now syntax are there"
 	set do: [ :type | type syntax: (self syntax: type syntax 
-		ifAbsent: [ type names first trace. ' - Unknown syntax ' trace. type syntax traceCr ]) ].
+		ifAbsent: [ logger missingSyntax: type syntax in: type.  ]) 
+	].
 	
 
 ]
 
 { #category : 'building' }
 LDAPSchema >> pullClassesProperties [
-"Replace names and OIDs with actual objects"
+	"Replace names and OIDs with actual objects"
 
 	| set |
 	set := objectClasses values asSet.
 	"First fix all sups"
-	set do: [ :class | class superiors: (class superiors collect: [ :sup | self objectClass: sup ifAbsent: [ self error: 'Unknow class ', sup ]  ]) ].
+	set do: [ :class |
+		class superiors: (class superiors collect: [ :sup |
+				 self objectClass: sup ifAbsent: [
+					 logger missingClass: sup for: 'sup' in: class.
+					 sup ] ]) ].
 	set do: [ :class | class pullProperties ].
 	"Now all attributes are populated"
-	set do: [ :class | 
-			class must: (self pullAttributesFor: class must).
-			class may: (self pullAttributesFor: class may). 
-	].
-	
-
+	set do: [ :class |
+		class must: (self pullAttributes: class must for: 'must' in: class).
+		class may: (self pullAttributes: class may for: 'may' in: class) ]
 ]
 
 { #category : 'accessing' }
