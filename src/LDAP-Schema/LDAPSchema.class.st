@@ -32,7 +32,7 @@ LDAPSchema class >> initialize [
 		parseSyntaxes: LDAPSyntax defaultObjects;
 		parseTypes: LDAPAttributeType defaultObjects;
 		parseClasses: LDAPObjectClass defaultObjects;
-		logger: LDAPSchemaInspectLogger new;
+		"logger: LDAPSchemaInspectLogger new;"
 		build
 ]
 
@@ -191,7 +191,11 @@ LDAPSchema >> referencedTypes [
 
 	| types all |
 	types := Set new.
-	objectClasses values asSet do: [ :class | types addAll: class must; addAll: class may ].
+	objectClasses values asSet do: [ :class | types 
+		addAll: (class must reject: #isString); 
+		addAll: (class may reject: #isString) 
+	].
+	types addAll: (attributeTypes values asSet collect: [ :attr | attr superior ] thenSelect: #isNotNil).
 	all := attributeTypes values asSet.
 
 	^ { types. all removeAllFoundIn: types; yourself }

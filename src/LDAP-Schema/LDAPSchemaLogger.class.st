@@ -25,23 +25,21 @@ LDAPSchemaLogger >> missingAttribute: aString for: aMember in: anObject [
 ]
 
 { #category : 'reporting' }
-LDAPSchemaLogger >> missingClass: aString for: aMember in: anObject [ 
+LDAPSchemaLogger >> missingClass: aString in: anObject [ 
 
 	(String streamContents: [ :stream | 
 		stream nextPutAll: 'Missing object class named ';
 			nextPutAll: aString asString;
-			nextPutAll: ' for ';
-			nextPutAll: aMember asString;
 			nextPutAll: ' in ';			
 			nextPutAll: anObject asString
 	]) traceCr
 ]
 
 { #category : 'reporting' }
-LDAPSchemaLogger >> missingClass: aString in: anObject [ 
+LDAPSchemaLogger >> missingSyntax: aString in: anObject [ 
 
 	(String streamContents: [ :stream | 
-		stream nextPutAll: 'Missing object class named ';
+		stream nextPutAll: 'Missing syntax OID ';
 			nextPutAll: aString asString;
 			nextPutAll: ' in ';			
 			nextPutAll: anObject asString
