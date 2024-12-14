@@ -14,10 +14,36 @@ Class {
 		'clearAll',
 		'position'
 	],
-	#category : 'LDAP-Spec2-Presenters',
+	#category : 'LDAP-Spec2-Windows',
 	#package : 'LDAP-Spec2',
-	#tag : 'Presenters'
+	#tag : 'Windows'
 }
+
+{ #category : 'accessing' }
+LDAPErrorPresenter class >> currentApplication [ 
+	^ LDAPBrowser new
+]
+
+{ #category : 'examples' }
+LDAPErrorPresenter class >> example [
+	| model |
+	model := LDAPErrorQueueModel new.
+	model report: (LDAPCommand new
+		initializeWith: (LDAPMessage new id: 14; operation: (
+			LDAPModifyRequest new name: 'cn=labab2,cn=bar55,dc=example,dc=com';
+				delete: 'sn'; set: 'cn' to:  { 'labab2' .  'pop' }; 
+				yourself); 
+			yourself);
+		processResponse: (LDAPModifyResult new fromCode: 65 name: '' message: 'object class ''person'' requires attribute ''sn'''; yourself);
+		yourself).
+	model report: (LDAPCommand new
+		initializeWith: (LDAPMessage new id: 15; operation: (
+			LDAPAddRequest new name: 'cn=labab2,cn=bar55,dc=example,dc=com';
+				attributes: {'cn'-> #( 'labab2' ) . 'sn'-> #( 'foo' 'pop' )} ; yourself));
+		processResponse: (LDAPAddResult new fromCode: 65 name: '' message: 'no objectClass attribute'; yourself);
+		yourself).
+	^ (self newApplication: self currentApplication model: model) last; open
+]
 
 { #category : 'specs' }
 LDAPErrorPresenter class >> title [
@@ -100,6 +126,13 @@ LDAPErrorPresenter >> initializeWindow: aSpWindowPresenter [
 LDAPErrorPresenter >> inspectCurrent [
 	
 	self model ifNotNil: [ :model | model currentCommand ifNotNil: [ :command | command message inspect ] ]
+]
+
+{ #category : 'api - events' }
+LDAPErrorPresenter >> last [
+
+	self model ifNotNil: [ :model | model last ].
+
 ]
 
 { #category : 'initialization' }

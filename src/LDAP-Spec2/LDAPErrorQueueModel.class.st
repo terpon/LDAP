@@ -59,6 +59,13 @@ LDAPErrorQueueModel >> initialize [
 
 ]
 
+{ #category : 'api - events' }
+LDAPErrorQueueModel >> last [
+	position < queue size ifFalse: [ ^ self ].
+	position := queue size.
+	self valueChanged.
+]
+
 { #category : 'accessing' }
 LDAPErrorQueueModel >> maxSize: anInteger [
 

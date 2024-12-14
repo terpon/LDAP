@@ -11,9 +11,9 @@ Class {
 		'name',
 		'message'
 	],
-	#category : 'LDAP-Spec2-Presenters',
+	#category : 'LDAP-Spec2-Windows',
 	#package : 'LDAP-Spec2',
-	#tag : 'Presenters'
+	#tag : 'Windows'
 }
 
 { #category : 'examples' }

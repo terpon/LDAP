@@ -8,6 +8,7 @@ Class {
 		'announcer',
 		'session',
 		'connection',
+		'errorPresenter',
 		'errorHandler',
 		'errorLock',
 		'main',
@@ -122,7 +123,13 @@ LDAPBrowser >> entryFor: aDN [
 { #category : 'accessing' }
 LDAPBrowser >> errorHandler [
 
-	^ errorHandler ifNil: [ errorHandler := self initializeErrorPresenter ]
+	^ errorHandler ifNil: [ errorHandler := LDAPErrorQueueModel new ]
+]
+
+{ #category : 'accessing' }
+LDAPBrowser >> errorPresenter [
+
+	^ errorPresenter ifNil: [ self initializeErrorPresenter ]
 ]
 
 { #category : 'private' }
@@ -148,7 +155,7 @@ LDAPBrowser >> initialize [
 { #category : 'initialization' }
 LDAPBrowser >> initializeErrorPresenter [
 
-	^ LDAPErrorPresenter newApplication: self model: LDAPErrorQueueModel new
+	^ errorPresenter := LDAPErrorPresenter newApplication: self model: self errorHandler
 
 
 ]
@@ -221,19 +228,22 @@ LDAPBrowser >> openCustomRootDialog [
 { #category : 'enumerating' }
 LDAPBrowser >> openErrorWindow [
 
-	| presenter |
-	presenter := self errorHandler.
-	presenter withWindowDo: [ :w | w isOpen ifTrue:[ w activate. ^ w ] ].
-	^ presenter open.
+	^ self errorPresenter
+		withWindowDo: [ :w | w isOpen ifTrue:[ w activate. ^ w ] ];
+		last;
+		open
 ]
 
 { #category : 'private' }
 LDAPBrowser >> reportError: aResult [
 
 	errorLock critical: [ 
-		self openErrorWindow.
-		errorHandler model report: aResult
+		self errorHandler report: aResult
 	].
+
+	self openErrorWindow.
+
+
 ]
 
 { #category : 'private' }
@@ -248,7 +258,7 @@ LDAPBrowser >> reportException: anError [
 { #category : 'connecting' }
 LDAPBrowser >> reset [ 
 
-	errorHandler reset.
+	self errorHandler removeAll.
 
 ]
 
