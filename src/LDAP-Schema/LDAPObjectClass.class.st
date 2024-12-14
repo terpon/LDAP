@@ -15,6 +15,20 @@ Class {
 	#tag : 'Schema'
 }
 
+{ #category : 'converting' }
+LDAPObjectClass class >> attributesFrom: aCollection [
+"Returns two list of required and allowed attribures from the list of Object Classes"
+	| must may |
+	must := (aCollection collect: [ :class | class must ]) flattened asSet 
+		"remove objectClass"
+		reject: [ :t | t oid = '2.5.4.0' ].
+
+	may := (aCollection collect: [ :class | class may ]) flattened asSet
+		removeAllFoundIn: must; yourself.
+
+	^ { must . may }
+]
+
 { #category : 'default values' }
 LDAPObjectClass class >> defaultObjects [
 "This is a part of the response from a standard intallation of OpenLDAP server"
@@ -86,6 +100,12 @@ LDAPObjectClass >> extensions: aDictionary [
 	"No extensions managed here"
 	self checkSupport: #() in: aDictionary.
 
+]
+
+{ #category : 'testing' }
+LDAPObjectClass >> isStructural [
+
+	^ self kind = #structural
 ]
 
 { #category : 'accessing' }

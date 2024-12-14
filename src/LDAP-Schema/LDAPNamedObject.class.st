@@ -12,8 +12,22 @@ Class {
 	#tag : 'Schema'
 }
 
+{ #category : 'accessing' }
+LDAPNamedObject >> displayName [
+
+	self names ifEmpty: [ ^ super displayName ].
+	
+	names size = 1 ifTrue: [ ^ names first ].
+	
+	^ String streamContents: [ :stream |
+		stream nextPutAll: names first; nextPutAll: ' ('.
+		names allButFirst do: [ :name | stream nextPutAll: name ] separatedBy: [ stream nextPutAll: ', ' ].
+		stream nextPut: $)
+	]
+]
+
 { #category : 'converting' }
-LDAPNamedObject >> asString [ 
+LDAPNamedObject >> name [
 
 	^ names isEmptyOrNil ifTrue: [ super asString ] ifFalse: [ names first asString ]
 ]

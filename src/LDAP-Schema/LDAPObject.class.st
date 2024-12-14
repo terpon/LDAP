@@ -15,15 +15,22 @@ Class {
 }
 
 { #category : 'comparing' }
-LDAPObject >> = anObject [
+LDAPObject >> <= anObject [
 
+	^ self displayName <= anObject displayName
+]
+
+{ #category : 'comparing' }
+LDAPObject >> = anObject [
+	
+	anObject ifNil: [ ^ false ].
 	^ oid = anObject oid
 ]
 
 { #category : 'converting' }
 LDAPObject >> asString [
 
-	^ oid ifNil: [ '' ]
+	^ self name
 ]
 
 { #category : 'extensions' }
@@ -48,6 +55,12 @@ LDAPObject >> description: anObject [
 	description := anObject
 ]
 
+{ #category : 'accessing' }
+LDAPObject >> displayName [
+
+	^ oid asString
+]
+
 { #category : 'accessing - extension' }
 LDAPObject >> extensions: aDictionary [
 
@@ -59,6 +72,12 @@ LDAPObject >> extensions: aDictionary [
 LDAPObject >> hash [
 
 	^ oid hash
+]
+
+{ #category : 'converting' }
+LDAPObject >> name [
+
+	^ oid ifNil: [ '' ]
 ]
 
 { #category : 'accessing' }
@@ -88,7 +107,6 @@ LDAPObject >> oid: anObject [
 { #category : 'printing' }
 LDAPObject >> printOn: aStream [
 
-	super printOn: aStream.
 	aStream 
 		nextPutAll: 'a '; nextPutAll: self className;
 		nextPutAll: ' ('; nextPutAll: oid; nextPut: $).

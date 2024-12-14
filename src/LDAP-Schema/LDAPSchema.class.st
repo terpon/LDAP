@@ -7,6 +7,7 @@ Class {
 	#instVars : [
 		'objects',
 		'objectClasses',
+		'structuralClasses',
 		'attributeSyntaxes',
 		'attributeTypes',
 		'logger'
@@ -65,6 +66,8 @@ LDAPSchema >> build [
 	self logger reset.
 	self pullAttributesProperties.
 	self pullClassesProperties.
+	structuralClasses := (objectClasses values asSet select: #isStructural)
+		sorted: [ :a :b | a names first caseInsensitiveLessOrEqual: b names first ].
 	self logger report; reset.
 ]
 
@@ -132,7 +135,7 @@ LDAPSchema >> pullAttributes: aCollection for: aString in: anObject [
 
 	| set |
 	set := aCollection collect: [ :name | self type: name 
-		ifAbsent: [ logger missingAttribute: name for: aString in: anObject. name ]
+		ifAbsent: [ logger missingAttribute: name for: aString in: anObject. LDAPAttributeType unknownNamed: name ]
 	].
 	^ set asSet asArray
 ]
@@ -212,6 +215,12 @@ LDAPSchema >> references: aType [
 				ifTrue: [ stream nextPut: class ] 
 		] 
 	]
+]
+
+{ #category : 'accessing' }
+LDAPSchema >> structuralClasses [
+
+	^ structuralClasses
 ]
 
 { #category : 'accessing' }
