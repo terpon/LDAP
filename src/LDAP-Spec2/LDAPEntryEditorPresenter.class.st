@@ -64,15 +64,10 @@ LDAPEntryEditorPresenter >> connectPresenters [
 { #category : 'actions' }
 LDAPEntryEditorPresenter >> copyAction [
 
-	| aModel attributes rdnAttributes aDN |
+	| aModel attributes aDN |
 	aModel := self model ifNil: [ ^self ].
 	aDN := aModel name.
-	rdnAttributes := LDAPEntryAttribute leavesFromRelativeNameIn: aDN.
-	attributes := aModel leaves collect: [ :leaf |
-		(rdnAttributes includes: leaf)
-			ifTrue: [ leaf state: true; yourself ]
-			ifFalse: [ leaf copy state: false; yourself ]
-	].
+	attributes := aModel leaves collect: #copy.
 
 	application lastAddedAttributes: attributes.
 	self inform: aDN, ' attributes saved as template'
@@ -166,7 +161,7 @@ LDAPEntryEditorPresenter >> modifyAction [
 	aModel := self model ifNil: [ ^self ].
 
 	aDN := aModel name.
-	elements := LDAPEntryAttribute leavesFromRelativeNameIn: aDN.
+	elements := aModel leaves select: #isKey.
 
 	aPresenter := LDAPModifyEntryPresenter newApplication: application model: elements.
 	aPresenter parent: (LDAPName parentOf: aDN).

@@ -55,6 +55,7 @@ LDAPEntryPresenter class >> sampleList [
 LDAPEntryPresenter class >> show: anEntry [
 	| model |
 	(anEntry isKindOf: LDAPEntryModel) ifTrue: [ ^ (self on: anEntry) open ].
+	
 	model := LDAPEntryModel new name: 'dc=example,dc=com'.
 	
 	(anEntry isKindOf: LDAPSearchResultEntry) ifTrue: [ 

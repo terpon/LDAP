@@ -8,13 +8,29 @@ Class {
 	#superclass : 'LDAPEntryAttribute',
 	#instVars : [
 		'description',
-		'content',
-		'state'
+		'content'
 	],
 	#category : 'LDAP-Spec2-Models',
 	#package : 'LDAP-Spec2',
 	#tag : 'Models'
 }
+
+{ #category : 'instance creation' }
+LDAPLeafEntryAttribute class >> arrayFromRelativeNameIn: aString [
+
+	| rdn |
+	rdn := LDAPName firstAsPairs: aString.
+	^ rdn collect: [ :pair | self newFromPair: pair ]
+]
+
+{ #category : 'instance creation' }
+LDAPLeafEntryAttribute class >> copy: anAttribute [
+
+	^ self new 
+			description: anAttribute description;
+			content: anAttribute content;
+			yourself
+]
 
 { #category : 'instance creation' }
 LDAPLeafEntryAttribute class >> newFromPair: aPair [
@@ -60,24 +76,4 @@ LDAPLeafEntryAttribute >> name [
 	^ String streamContents: [ :out |
 		out nextPutAll: self description; nextPut: $=; nextPutAll: self content
 	]
-]
-
-{ #category : 'printing' }
-LDAPLeafEntryAttribute >> printOn: aStream [
-
-	super printOn: aStream.
-	aStream space;
-		nextPut: $(; nextPutAll: self state asString; nextPut: $)
-]
-
-{ #category : 'accessing' }
-LDAPLeafEntryAttribute >> state [
-
-	^ state ifNil: [ false ]
-]
-
-{ #category : 'accessing' }
-LDAPLeafEntryAttribute >> state: anObject [
-
-	state := anObject
 ]

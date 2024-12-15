@@ -13,18 +13,10 @@ Class {
 	#tag : 'Models'
 }
 
-{ #category : 'helper' }
-LDAPEntryAttribute class >> leavesFromRelativeNameIn: aString [
-
-	| pairs |
-	pairs := LDAPName firstAsPairs: aString.
-	^ pairs collect: [ :pair | LDAPLeafEntryAttribute newFromPair: pair ]
-]
-
 { #category : 'comparing' }
 LDAPEntryAttribute >> = anAttribute [
 
-	^ self name = anAttribute name
+	^ self name sameAs: anAttribute name
 ]
 
 { #category : 'converting' }
@@ -57,6 +49,12 @@ LDAPEntryAttribute >> hash [
 LDAPEntryAttribute >> isEmpty [
 
 	^ self description isEmpty and: [ self content isEmpty ]
+]
+
+{ #category : 'testing' }
+LDAPEntryAttribute >> isKey [
+	"Returns true if this attribute is part of the RDN"
+	^ false
 ]
 
 { #category : 'testing' }

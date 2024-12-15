@@ -48,5 +48,5 @@ LDAPBranchEntryAttribute >> name [
 { #category : 'accessing' }
 LDAPBranchEntryAttribute >> name: aString [
 
-	attributes := self class leavesFromRelativeNameIn: aString
+	attributes := LDAPKeyEntryAttribute arrayFromRelativeNameIn: aString
 ]

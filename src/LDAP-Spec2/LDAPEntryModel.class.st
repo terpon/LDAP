@@ -30,15 +30,6 @@ LDAPEntryModel >> branches [
 	^ branches
 ]
 
-{ #category : 'accessing' }
-LDAPEntryModel >> firstPairFrom: aString [
-
-	| rdn |
-	rdn := aString copyUpToSubstring: ','.
-	^ rdn splitOn: $=
-	
-]
-
 { #category : 'initialization' }
 LDAPEntryModel >> initialize [ 
 
@@ -70,9 +61,14 @@ LDAPEntryModel >> name: anObject [
 { #category : 'initialization' }
 LDAPEntryModel >> populateFromPartialAttributeList: anObject [
 "only leaves"
+	
+	| rdn |
+	rdn := LDAPKeyEntryAttribute arrayFromRelativeNameIn: self name.
+	rdn := rdn asSet.
 
-	leaves := anObject flattened collect: [ :pair |
-		LDAPLeafEntryAttribute newFromPair: pair 
+	leaves := anObject flattened collect: [ :pair | | leaf |
+		leaf := LDAPLeafEntryAttribute newFromPair: pair.
+		rdn remove: leaf ifAbsent: [ leaf ]
 	].
 	self valueChanged
 ]
@@ -81,10 +77,7 @@ LDAPEntryModel >> populateFromPartialAttributeList: anObject [
 LDAPEntryModel >> populateFromResults: aCollection [
 "at this level all results are children on the current entry"
 	| elements |
-	elements := aCollection reject: [ :each | each isReference ].
-	branches := elements collect: [ :each | | dn pair |
-		dn := each name.
-		LDAPBranchEntryAttribute new name: dn
-	].
+	elements := aCollection reject: #isReference.
+	branches := elements collect: [ :each | LDAPBranchEntryAttribute new name: each name ].
 	self valueChanged
 ]

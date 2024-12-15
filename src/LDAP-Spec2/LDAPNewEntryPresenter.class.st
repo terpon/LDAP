@@ -14,7 +14,7 @@ LDAPNewEntryPresenter class >> example [
 	| aModel aPresenter aDialog |
 	aModel := {
 		LDAPLeafEntryAttribute newFromPair: #( 'objectClass' 'person' ).
-		LDAPLeafEntryAttribute new description: 'cn'; content: 'foo'; state: true; yourself.
+		LDAPKeyEntryAttribute newFromPair: #( 'cn' 'foo' ).
 		LDAPLeafEntryAttribute newFromPair: #( 'sn' 'bar' ).
 		LDAPLeafEntryAttribute newFromPair: #( 'sn' 'nox' ).
 	}.
@@ -49,7 +49,7 @@ LDAPNewEntryPresenter >> addRequest [
 { #category : 'private' }
 LDAPNewEntryPresenter >> boldFor: anAttribute [
 
-	^ anAttribute state
+	^ anAttribute isKey
 ]
 
 { #category : 'testing' }
@@ -57,9 +57,9 @@ LDAPNewEntryPresenter >> checkOkTrigger [
 "At least one attribute must be checked and to two identical descriptions"
 	| bag |
 	table refresh.
-	bag := self attributes reject: [ :element | element isEmpty ].
+	bag := self attributes reject: #isEmpty.
 
-	bag detect: [ :element | element state and: [ element content isEmpty] ]
+	bag detect: [ :element | element isKey and: [ element content isEmpty] ]
 		ifFound: [ :element | self inform: 'Attribute ''', element description, ''' for RDN has no value'. ^ false ].
 	
 	"Ignore attributes with no content"	
@@ -67,10 +67,10 @@ LDAPNewEntryPresenter >> checkOkTrigger [
 	bag detect: [ :element | element description isEmpty ]
 		ifFound: [ :element | self inform: 'Attribute value ''', element content, ''' has no name'. ^ false ].
 		
-	bag := bag select: [ :element | element state ].
-	bag ifEmpty: [ self inform: 'No attribute selected for Relative Distinguished Name'. ^ false ].
+	bag := bag select: #isKey.
+	bag ifEmpty: [ self inform: 'No attributes selected for Relative Distinguished Name'. ^ false ].
 	
-	bag := bag asBag collect: [ :element | element description ].
+	bag := bag asBag collect: #description.
 	bag associationsDo: [ :a | a value > 1 
 		ifTrue: [ self inform: 'Multiple attributes with type ''', a key, ''' used for RDN'. ^ false ] ].
 	^ true
@@ -79,14 +79,20 @@ LDAPNewEntryPresenter >> checkOkTrigger [
 { #category : 'private - accessing' }
 LDAPNewEntryPresenter >> checkStateChanged: aBoolean for: anAttribute [
 
-	anAttribute state: aBoolean.
+	| index class |
+	aBoolean = anAttribute isKey ifTrue: [ ^self ].
+	
+	index := table items identityIndexOf: anAttribute ifAbsent: [ self inform: 'no such attribute ', anAttribute asString. ^ self ].
+	
+	class := aBoolean ifFalse: [ LDAPLeafEntryAttribute ] ifTrue: [ LDAPKeyEntryAttribute ]. 
+	table items at: index put: (class copy: anAttribute).
 	table refresh.
 ]
 
 { #category : 'private - accessing' }
 LDAPNewEntryPresenter >> checkStateFor: anAttribute [
 
-	^ anAttribute state
+	^ anAttribute isKey
 ]
 
 { #category : 'private' }
@@ -94,11 +100,11 @@ LDAPNewEntryPresenter >> colorFor: anAttribute [
 
 	(anAttribute description isEmpty and: [ anAttribute content isNotEmpty ]) ifTrue: [ ^ self errorColor ].
 	
-	anAttribute state ifFalse: [ ^ self defaultColor ].
+	anAttribute isKey ifFalse: [ ^ self defaultColor ].
 	
 	anAttribute content isEmpty ifTrue: [ ^ self errorColor ].
 
-	((self attributes count: [ :a | a state and: [a description = anAttribute description] ]) > 1) ifTrue: [ ^ self errorColor ].
+	((self attributes count: [ :a | a isKey and: [a description = anAttribute description] ]) > 1) ifTrue: [ ^ self errorColor ].
 	
 	^ self emphasisColor
 	
@@ -150,7 +156,7 @@ LDAPNewEntryPresenter >> initializeWindow: aWindowPresenter [
 LDAPNewEntryPresenter >> name [
 
 	^ String streamContents: [ :out |
-		(self attributes select: [ :element | element isValid and: [ element state ] ])
+		(self attributes select: [ :element | element isValid and: [ element isKey ] ])
 			do: [ :element | out nextPutAll: element description; nextPut: $=; nextPutAll: element content ] 
 			separatedBy: [ out nextPut: $+ ].
 		parent text ifNotEmpty: [ :string | out nextPut: $,; nextPutAll: string ]

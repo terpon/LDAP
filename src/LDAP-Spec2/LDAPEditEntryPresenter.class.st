@@ -20,7 +20,7 @@ LDAPEditEntryPresenter class >> example [
 	| aModel aPresenter aDialog |
 	aModel := {
 		LDAPLeafEntryAttribute newFromPair: #( 'objectClass' 'person' ).
-		LDAPLeafEntryAttribute new description: 'cn'; content: 'foo'; state: true; yourself.
+		LDAPKeyEntryAttribute newFromPair: #( 'cn' 'foo' ).
 		LDAPLeafEntryAttribute newFromPair: #( 'sn' 'bar' ).
 		LDAPLeafEntryAttribute newFromPair: #( 'sn' 'nox' ).
 	}.
@@ -211,7 +211,7 @@ LDAPEditEntryPresenter >> name: aString [
 LDAPEditEntryPresenter >> updatePresenter [
  
 	| rdnAttributes otherAttributes |
-	rdnAttributes := LDAPEntryAttribute leavesFromRelativeNameIn: self name.
+	rdnAttributes := self attributes select: #isKey.
 	rdn items: rdnAttributes.
 
 	"Pass a copy of the attributes, we want to compare them for creating the request"
