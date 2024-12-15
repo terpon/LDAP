@@ -68,7 +68,7 @@ LDAPEntryModel >> populateFromPartialAttributeList: anObject [
 
 	leaves := anObject flattened collect: [ :pair | | leaf |
 		leaf := LDAPLeafEntryAttribute newFromPair: pair.
-		rdn remove: leaf ifAbsent: [ leaf ]
+		rdn like: leaf ifAbsent: [ leaf ]
 	].
 	self valueChanged
 ]

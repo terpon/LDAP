@@ -10,9 +10,9 @@ Class {
 		'table',
 		'name'
 	],
-	#category : 'LDAP-Spec2-Windows',
+	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
-	#tag : 'Windows'
+	#tag : 'Presenters'
 }
 
 { #category : 'examples' }
@@ -86,6 +86,12 @@ LDAPEntryPresenter >> activate [
 	self activationAction cull: (SpActivatedSelection newValue: dn)
 ]
 
+{ #category : 'private' }
+LDAPEntryPresenter >> colorFor: anAttribute [
+
+	^ anAttribute isKey ifTrue: [ application emphasisColor ] ifFalse: [ application defaultColor ]
+]
+
 { #category : 'initialization' }
 LDAPEntryPresenter >> connectPresenters [ 
 
@@ -128,9 +134,11 @@ LDAPEntryPresenter >> initializePresenters [
 				evaluated: [ :i | self iconFor: i ];
 				yourself);
 			addColumn: (SpStringTableColumn new
+				displayColor: [ :i | self colorFor: i ];
 				evaluated: [ :i | i description ];
 				yourself));
 		addColumn: (SpStringTableColumn new title: 'Value'; 
+			displayColor: [ :i | self colorFor: i ];
 			evaluated: [ :each | each content ]);
 		yourself.
 ]

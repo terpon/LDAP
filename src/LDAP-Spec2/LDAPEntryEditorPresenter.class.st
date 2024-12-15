@@ -7,9 +7,9 @@ Class {
 	#instVars : [
 		'toolBar'
 	],
-	#category : 'LDAP-Spec2-Windows',
+	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
-	#tag : 'Windows'
+	#tag : 'Presenters'
 }
 
 { #category : 'accessing' }
