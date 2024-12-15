@@ -41,6 +41,11 @@ LDAPBrowser class >> start [
 ]
 
 { #category : 'accessing' }
+LDAPBrowser class >> theme [
+	^ Smalltalk ui theme
+]
+
+{ #category : 'accessing' }
 LDAPBrowser >> announcer [
 
 	^ announcer ifNil: [ announcer := Announcer new ]
@@ -101,12 +106,32 @@ LDAPBrowser >> currentRoot: aDN [
 	session currentRoot: aDN.
 ]
 
+{ #category : 'coloring' }
+LDAPBrowser >> defaultColor [
+
+	^ (SHRBTextStyler attributesFor: #default) ifEmpty: [ self class theme textColor ]
+		ifNotEmpty: [ :a | a first color ]
+]
+
+{ #category : 'coloring' }
+LDAPBrowser >> disabledColor [
+
+	^ self class theme disabledTextColor
+]
+
 { #category : 'running' }
 LDAPBrowser >> disconnect [
 
 	session connected: false.
 	connection ifNotNil: [ connection disconnect ].
 
+]
+
+{ #category : 'coloring' }
+LDAPBrowser >> emphasisColor [
+
+	^ (SHRBTextStyler attributesFor: #globalVar) ifEmpty: [ self class theme textColor ]
+		ifNotEmpty: [ :a | a first color ]
 ]
 
 { #category : 'searching' }
@@ -118,6 +143,13 @@ LDAPBrowser >> entryFor: aDN [
 	self isConnected ifTrue: [ aCachedEntry update: self ].
 	^ aCachedEntry entry
 
+]
+
+{ #category : 'coloring' }
+LDAPBrowser >> errorColor [
+
+	^ (SHRBTextStyler attributesFor: #invalid) ifEmpty: [ Color red ]
+		ifNotEmpty: [ :a | a first color ]
 ]
 
 { #category : 'accessing' }

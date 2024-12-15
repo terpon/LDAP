@@ -98,15 +98,15 @@ LDAPNewEntryPresenter >> checkStateFor: anAttribute [
 { #category : 'private' }
 LDAPNewEntryPresenter >> colorFor: anAttribute [
 
-	(anAttribute description isEmpty and: [ anAttribute content isNotEmpty ]) ifTrue: [ ^ self errorColor ].
+	(anAttribute description isEmpty and: [ anAttribute content isNotEmpty ]) ifTrue: [ ^ application errorColor ].
 	
-	anAttribute isKey ifFalse: [ ^ self defaultColor ].
+	anAttribute isKey ifFalse: [ ^ application defaultColor ].
 	
-	anAttribute content isEmpty ifTrue: [ ^ self errorColor ].
+	anAttribute content isEmpty ifTrue: [ ^ application errorColor ].
 
-	((self attributes count: [ :a | a isKey and: [a description = anAttribute description] ]) > 1) ifTrue: [ ^ self errorColor ].
+	((self attributes count: [ :a | a isKey and: [a description = anAttribute description] ]) > 1) ifTrue: [ ^ application errorColor ].
 	
-	^ self emphasisColor
+	^ application emphasisColor
 	
 ]
 

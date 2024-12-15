@@ -17,6 +17,11 @@ Class {
 	#tag : 'Windows'
 }
 
+{ #category : 'accessing' }
+LDAPAttributePresenter class >> currentApplication [ 
+	^ LDAPBrowser new
+]
+
 { #category : 'adding' }
 LDAPAttributePresenter >> addNewElement [
 
@@ -93,7 +98,7 @@ LDAPAttributePresenter >> checkStateFor: anAttribute [
 LDAPAttributePresenter >> colorFor: anAttribute [
 
 	self subclassResponsibility.	
-	^ self defaultColor 
+	^ application defaultColor 
 ]
 
 { #category : 'private - accessing' }
@@ -116,13 +121,6 @@ LDAPAttributePresenter >> contentColumn [
 			yourself
 ]
 
-{ #category : 'coloring' }
-LDAPAttributePresenter >> defaultColor [
-
-	^ (SHRBTextStyler attributesFor: #default) ifEmpty: [ self theme textColor ]
-		ifNotEmpty: [ :a | a first color ]
-]
-
 { #category : 'private - accessing' }
 LDAPAttributePresenter >> description: aString for: anAttribute [
 
@@ -141,20 +139,6 @@ LDAPAttributePresenter >> descriptionColumn [
 			onTextChanged: [ :each :value | self description: value for: each ];
 			onAcceptEdition: [ table refresh ];
 			yourself
-]
-
-{ #category : 'coloring' }
-LDAPAttributePresenter >> emphasisColor [
-
-	^ (SHRBTextStyler attributesFor: #globalVar) ifEmpty: [ self theme textColor ]
-		ifNotEmpty: [ :a | a first color ]
-]
-
-{ #category : 'coloring' }
-LDAPAttributePresenter >> errorColor [
-
-	^ (SHRBTextStyler attributesFor: #invalid) ifEmpty: [ Color red ]
-		ifNotEmpty: [ :a | a first color ]
 ]
 
 { #category : 'accessing - model' }

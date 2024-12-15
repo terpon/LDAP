@@ -86,12 +86,12 @@ LDAPEditEntryPresenter >> checkStateFor: anAttribute [
 LDAPEditEntryPresenter >> colorFor: anAttribute [
 
 	| index |
-	(rdn items identityIncludes: anAttribute) ifTrue: [ ^self emphasisColor ].
+	(rdn items identityIncludes: anAttribute) ifTrue: [ ^ application emphasisColor ].
 	
-	index := table items identityIndexOf: anAttribute ifAbsent: [ ^self errorColor ].
-	(checked at: index) ifTrue: [ ^ self deletedColor ].
+	index := table items identityIndexOf: anAttribute ifAbsent: [ ^ application errorColor ].
+	(checked at: index) ifTrue: [ ^ application disabledColor ].
 	
-	^ self defaultColor 
+	^ application defaultColor 
 ]
 
 { #category : 'layout' }
@@ -118,12 +118,6 @@ LDAPEditEntryPresenter >> deleteSelectedElements [
 	checked := Array new: attrs size withAll: false.
 	table items: attrs.
 
-]
-
-{ #category : 'coloring' }
-LDAPEditEntryPresenter >> deletedColor [
-
-	^ self theme disabledTextColor
 ]
 
 { #category : 'initialization' }
