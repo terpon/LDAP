@@ -18,6 +18,12 @@ Class {
 	#tag : 'Models'
 }
 
+{ #category : 'converting' }
+LDAPEntryModel >> asString [
+
+	^ self name
+]
+
 { #category : 'accessing' }
 LDAPEntryModel >> attributes [
 

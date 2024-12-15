@@ -176,7 +176,7 @@ LDAPEntryEditorPresenter >> modifyAction [
 { #category : 'actions' }
 LDAPEntryEditorPresenter >> pasteAction [
 
-	| aModel aDN aRequest |
+	| aModel aDN aRequest dialog |
 	toolBar pasteButton isEnabled ifFalse: [ ^self ].
 	aModel := self model ifNil: [ ^self ].
 
@@ -190,5 +190,15 @@ LDAPEntryEditorPresenter >> pasteAction [
 		underName: aModel name;
 		yourself.
 
-	application sendModifyName: aRequest
+	dialog := SpConfirmDialog new
+		  title: 'Confirm paste entry';
+		  label: (String streamContents: [ :stream |
+				stream nextPutAll: 'About to move '; nextPutAll: aDN; cr;
+					nextPutAll: 'under '; nextPutAll: aModel name
+			]);
+		  acceptLabel: 'Move';
+		  cancelLabel: 'Cancel';
+		  onAccept: [ application sendModifyName: aRequest ];
+		  onCancel: [ :d | application inform: 'Cancelled move entry ' , aDN ];
+		  openDialog.
 ]
