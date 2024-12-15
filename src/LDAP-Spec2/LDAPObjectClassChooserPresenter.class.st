@@ -5,6 +5,7 @@ Class {
 	#name : 'LDAPObjectClassChooserPresenter',
 	#superclass : 'SpPresenterWithModel',
 	#instVars : [
+		'schema',
 		'classes',
 		'mustAttributes',
 		'mayAttributes',
@@ -18,7 +19,9 @@ Class {
 { #category : 'examples' }
 LDAPObjectClassChooserPresenter class >> example [
 
-	^ (self on: LDAPSchema default) openDialog 
+	| classes |
+	classes := LDAPSchema default structuralClasses select: [ :c | c hasAttribute: 'ou' ].
+	^ (self on: classes) openDialog 
 		okAction: [ :dialog | dialog inform: (dialog presenter selectedItems collect: #name) ];
 		cancelAction: [ :dialog | dialog inform: 'Cancelled' ];
 		yourself.
@@ -90,7 +93,7 @@ LDAPObjectClassChooserPresenter >> initializePresenters [
 
 	classes := (self instantiate: SpFilteringSelectableListPresenter)
 		display: [ :item | item displayName ];
-		items: self objectClasses;
+		items: self model;
 		yourself.
 
 	mustAttributes := self newList
@@ -114,10 +117,33 @@ LDAPObjectClassChooserPresenter >> initializeWindow: aWindowPresenter [
 		initialExtent: 550 @ 500
 ]
 
-{ #category : 'accessing - model' }
-LDAPObjectClassChooserPresenter >> objectClasses [
+{ #category : 'accessing' }
+LDAPObjectClassChooserPresenter >> model [
 	
-	^ self model ifNil: [ #() ] ifNotNil: [ :model | model structuralClasses ]
+	| model |
+	super model ifNotNil: [ :m | ^m ].
+	
+	model := self schema structuralClasses.
+	self model: model.
+	^ model
+]
+
+{ #category : 'initialization' }
+LDAPObjectClassChooserPresenter >> modelChanged [ 
+
+	classes items: self model.
+]
+
+{ #category : 'accessing' }
+LDAPObjectClassChooserPresenter >> schema [
+
+	^ schema ifNil: [ LDAPSchema default ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClassChooserPresenter >> schema: anObject [
+
+	schema := anObject
 ]
 
 { #category : 'api - selection' }

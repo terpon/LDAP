@@ -103,6 +103,24 @@ LDAPObjectClass >> extensions: aDictionary [
 ]
 
 { #category : 'testing' }
+LDAPObjectClass >> hasAllowedAttribute: aString [
+
+	^ self may anySatisfy: [ :attr | attr sameAs: aString ]
+]
+
+{ #category : 'testing' }
+LDAPObjectClass >> hasAttribute: aString [
+
+	^ (self hasRequiredAttribute: aString) or: [ self hasAllowedAttribute: aString ] 
+]
+
+{ #category : 'testing' }
+LDAPObjectClass >> hasRequiredAttribute: aString [
+
+	^ self must anySatisfy: [ :attr | attr sameAs: aString ]
+]
+
+{ #category : 'testing' }
 LDAPObjectClass >> isStructural [
 
 	^ self kind = #structural

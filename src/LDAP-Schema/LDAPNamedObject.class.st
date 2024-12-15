@@ -60,3 +60,9 @@ LDAPNamedObject >> printOn: aStream [
 		space;
 		nextPutAll: oid.
 ]
+
+{ #category : 'comparing' }
+LDAPNamedObject >> sameAs: aString [
+	"Case insensitive equality against any name, interface compatibility with String>>sameAs:"
+	^ self names anySatisfy: [ :name | name sameAs: aString ]
+]
