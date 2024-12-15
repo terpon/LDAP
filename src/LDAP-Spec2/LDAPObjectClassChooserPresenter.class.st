@@ -18,8 +18,18 @@ Class {
 { #category : 'examples' }
 LDAPObjectClassChooserPresenter class >> example [
 
-	^ (self on: LDAPSchema default) open.
+	^ (self on: LDAPSchema default) openDialog 
+		okAction: [ :dialog | dialog inform: (dialog presenter selectedItems collect: #name) ];
+		cancelAction: [ :dialog | dialog inform: 'Cancelled' ];
+		yourself.
+]
 
+{ #category : 'testing' }
+LDAPObjectClassChooserPresenter >> checkOkTrigger [
+"At least one object class must be selected"
+	self selectedItems ifEmpty: [ self inform: 'At least one Object Class must be selected'. ^ false ].
+		
+	^ true
 ]
 
 { #category : 'initialization' }
@@ -45,9 +55,9 @@ LDAPObjectClassChooserPresenter >> defaultLayout [
 		yourself.
 	
 	attributesLayout := SpBoxLayout newTopToBottom
-		add: 'Required Attributes' expand: false;
+		spacing: 5;
+		add: 'Attributes' expand: false;
 		add: mustAttributes;
-		add: 'Allowed Attributes' expand: false;
 		add: mayAttributes;
 		yourself.
 		
@@ -62,6 +72,20 @@ LDAPObjectClassChooserPresenter >> defaultLayout [
 ]
 
 { #category : 'initialization' }
+LDAPObjectClassChooserPresenter >> initializeDialogWindow: aDialogWindowPresenter [
+	 "Override OK button to add check"
+	
+	aDialogWindowPresenter
+		addButton: 'Cancel' do: [ :presenter | 
+			presenter triggerCancelAction.
+			presenter close ];
+		addDefaultButton: 'Ok' do: [ :presenter |
+			self checkOkTrigger ifTrue: [ 
+				presenter triggerOkAction.
+				presenter close ] ]
+]
+
+{ #category : 'initialization' }
 LDAPObjectClassChooserPresenter >> initializePresenters [
 
 	classes := (self instantiate: SpFilteringSelectableListPresenter)
@@ -71,10 +95,12 @@ LDAPObjectClassChooserPresenter >> initializePresenters [
 
 	mustAttributes := self newList
 		display: [ :item | item displayName ];
+		headerTitle: 'Required Attributes';
 		yourself.
 
 	mayAttributes := self newList
 		display: [ :item | item displayName ];
+		headerTitle: 'Allowed Attributes';
 		yourself.
 		
 	description := self newTextInput beNotEditable.

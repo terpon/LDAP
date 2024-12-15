@@ -12,16 +12,22 @@ Class {
 	#tag : 'Schema'
 }
 
+{ #category : 'comparing' }
+LDAPNamedObject >> <= anObject [
+
+	^	self name caseInsensitiveLessOrEqual: anObject name
+]
+
 { #category : 'accessing' }
 LDAPNamedObject >> displayName [
 
-	self names ifEmpty: [ ^ super displayName ].
-	
-	names size = 1 ifTrue: [ ^ names first ].
+	| list |
+	list := self names ifEmpty: [ ^ self name ].
+	list size = 1 ifTrue: [ ^ names first ].
 	
 	^ String streamContents: [ :stream |
-		stream nextPutAll: names first; nextPutAll: ' ('.
-		names allButFirst do: [ :name | stream nextPutAll: name ] separatedBy: [ stream nextPutAll: ', ' ].
+		stream nextPutAll: list first; nextPutAll: ' ('.
+		list allButFirst do: [ :name | stream nextPutAll: name ] separatedBy: [ stream nextPutAll: ', ' ].
 		stream nextPut: $)
 	]
 ]
@@ -47,9 +53,10 @@ LDAPNamedObject >> names: anObject [
 { #category : 'printing' }
 LDAPNamedObject >> printOn: aStream [
 
-	aStream nextPutAll: 'a '; nextPutAll: self className; space.
-	self names size = 1
-		ifTrue: [ aStream nextPutAll: names first ] 
-		ifFalse: [ self names printElementsOn: aStream ].
-	aStream nextPutAll: ' ('; nextPutAll: oid; nextPut: $).
+	aStream 
+		nextPutAll: 'a '; nextPutAll: self className; 
+		space; 
+		nextPutAll: self displayName;
+		space;
+		nextPutAll: oid.
 ]

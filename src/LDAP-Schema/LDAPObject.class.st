@@ -15,12 +15,6 @@ Class {
 }
 
 { #category : 'comparing' }
-LDAPObject >> <= anObject [
-
-	^ self displayName <= anObject displayName
-]
-
-{ #category : 'comparing' }
 LDAPObject >> = anObject [
 	
 	anObject ifNil: [ ^ false ].
@@ -55,12 +49,6 @@ LDAPObject >> description: anObject [
 	description := anObject
 ]
 
-{ #category : 'accessing' }
-LDAPObject >> displayName [
-
-	^ oid asString
-]
-
 { #category : 'accessing - extension' }
 LDAPObject >> extensions: aDictionary [
 
@@ -77,7 +65,7 @@ LDAPObject >> hash [
 { #category : 'converting' }
 LDAPObject >> name [
 
-	^ oid ifNil: [ '' ]
+	^ oid asString
 ]
 
 { #category : 'accessing' }

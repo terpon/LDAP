@@ -66,8 +66,7 @@ LDAPSchema >> build [
 	self logger reset.
 	self pullAttributesProperties.
 	self pullClassesProperties.
-	structuralClasses := (objectClasses values asSet select: #isStructural)
-		sorted: [ :a :b | a names first caseInsensitiveLessOrEqual: b names first ].
+	structuralClasses := (objectClasses values asSet select: #isStructural) sorted.
 	self logger report; reset.
 ]
 
