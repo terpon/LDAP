@@ -7,7 +7,8 @@ Class {
 	#instVars : [
 		'name',
 		'rdn',
-		'clear'
+		'clear',
+		'checked'
 	],
 	#category : 'LDAP-Spec2-Windows',
 	#package : 'LDAP-Spec2',
@@ -37,6 +38,7 @@ LDAPEditEntryPresenter class >> example [
 LDAPEditEntryPresenter >> addNewElement [
 
 	table items: (table items copyWith: LDAPLeafEntryAttribute new).
+	checked := checked copyWith: false.
 ]
 
 { #category : 'private' }
@@ -59,10 +61,35 @@ LDAPEditEntryPresenter >> checkOkTrigger [
 	^ true
 ]
 
+{ #category : 'private - accessing' }
+LDAPEditEntryPresenter >> checkStateChanged: aBoolean for: anAttribute [
+
+	| index |
+	index := table items identityIndexOf: anAttribute ifAbsent: [ self inform: 'no such attribute ', anAttribute asString. ^ self ].
+	checked at: index put: aBoolean.
+	
+	aBoolean ifTrue: [ clear enable ] 
+		ifFalse: [ clear enabled: (checked anySatisfy: [ :each | each ]) ].
+	
+	
+]
+
+{ #category : 'private - accessing' }
+LDAPEditEntryPresenter >> checkStateFor: anAttribute [
+
+	| index |
+	index := table items identityIndexOf: anAttribute ifAbsent: [ ^false ].
+	^ checked at: index
+]
+
 { #category : 'private' }
 LDAPEditEntryPresenter >> colorFor: anAttribute [
 
-	anAttribute state ifTrue: [ ^ self deletedColor ].
+	| index |
+	(rdn items identityIncludes: anAttribute) ifTrue: [ ^self emphasisColor ].
+	
+	index := table items identityIndexOf: anAttribute ifAbsent: [ ^self errorColor ].
+	(checked at: index) ifTrue: [ ^ self deletedColor ].
 	
 	^ self defaultColor 
 ]
@@ -87,7 +114,8 @@ LDAPEditEntryPresenter >> deleteSelectedElements [
 
 	| attrs |
 	clear isEnabled ifFalse: [ ^self ].
-	attrs := table items reject: [ :element | element state ].
+	attrs := table items withIndexSelect: [ :element :index | (checked at: index) not ].
+	checked := Array new: attrs size withAll: false.
 	table items: attrs.
 
 ]
@@ -113,7 +141,7 @@ LDAPEditEntryPresenter >> initializePresenters [
 	table 
 		addColumn: self descriptionColumn beEditable;
 		addColumn: self contentColumn beEditable;
-		addColumn: self stateColumn.
+		addColumn: self checkColumn.
 
 	clear := self newToolbarButton disable;
 		label: 'clear';
@@ -179,15 +207,6 @@ LDAPEditEntryPresenter >> name: aString [
 	self updatePresenter.
 ]
 
-{ #category : 'private - accessing' }
-LDAPEditEntryPresenter >> state: aBoolean for: anAttribute [
-
-	aBoolean ifTrue: [ clear enable ] 
-		ifFalse: [ clear enabled: (table items anySatisfy: [ :element | element state ]) ].
-
-	super state: aBoolean for: anAttribute.
-]
-
 { #category : 'initialization' }
 LDAPEditEntryPresenter >> updatePresenter [
  
@@ -197,5 +216,6 @@ LDAPEditEntryPresenter >> updatePresenter [
 
 	"Pass a copy of the attributes, we want to compare them for creating the request"
 	otherAttributes := (self attributes difference: rdnAttributes) collect: #copy.
+	checked := Array new: otherAttributes size withAll: false.
 	table items: otherAttributes.
 ]

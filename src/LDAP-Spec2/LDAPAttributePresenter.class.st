@@ -58,11 +58,35 @@ LDAPAttributePresenter >> boldFor: anAttribute [
 	^ false 
 ]
 
+{ #category : 'initialization' }
+LDAPAttributePresenter >> checkColumn [ 
+
+	^ SpCheckBoxTableColumn new
+			beNotExpandable; width: 20;
+			onActivation: [ :each | self checkStateChanged: true for: each ];
+			onDeactivation: [ :each | self checkStateChanged: false for: each ];
+			evaluated: [ :each | self checkStateFor: each ];
+			yourself
+]
+
 { #category : 'testing' }
 LDAPAttributePresenter >> checkOkTrigger [
 
 	self subclassResponsibility.
 	^ true
+]
+
+{ #category : 'private - accessing' }
+LDAPAttributePresenter >> checkStateChanged: aBoolean for: anAttribute [
+
+	self subclassResponsibility.
+]
+
+{ #category : 'private - accessing' }
+LDAPAttributePresenter >> checkStateFor: anAttribute [
+
+	self subclassResponsibility.
+	^ false
 ]
 
 { #category : 'private' }
@@ -117,6 +141,13 @@ LDAPAttributePresenter >> descriptionColumn [
 			onTextChanged: [ :each :value | self description: value for: each ];
 			onAcceptEdition: [ table refresh ];
 			yourself
+]
+
+{ #category : 'coloring' }
+LDAPAttributePresenter >> emphasisColor [
+
+	^ (SHRBTextStyler attributesFor: #globalVar) ifEmpty: [ self theme textColor ]
+		ifNotEmpty: [ :a | a first color ]
 ]
 
 { #category : 'coloring' }
@@ -180,24 +211,6 @@ LDAPAttributePresenter >> setModelBeforeInitialization: aCollection [
 
 	attributes := aCollection
 
-]
-
-{ #category : 'private - accessing' }
-LDAPAttributePresenter >> state: aBoolean for: anAttribute [
-
-	anAttribute state: aBoolean.
-	table refresh.
-]
-
-{ #category : 'initialization' }
-LDAPAttributePresenter >> stateColumn [ 
-
-	^ SpCheckBoxTableColumn new
-			beNotExpandable; width: 20;
-			onActivation: [ :each | self state: true for: each ];
-			onDeactivation: [ :each | self state: false for: each ];
-			evaluated: [ :each | each state ];
-			yourself
 ]
 
 { #category : 'initialization' }

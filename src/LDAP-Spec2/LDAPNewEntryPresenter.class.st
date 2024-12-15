@@ -76,6 +76,19 @@ LDAPNewEntryPresenter >> checkOkTrigger [
 	^ true
 ]
 
+{ #category : 'private - accessing' }
+LDAPNewEntryPresenter >> checkStateChanged: aBoolean for: anAttribute [
+
+	anAttribute state: aBoolean.
+	table refresh.
+]
+
+{ #category : 'private - accessing' }
+LDAPNewEntryPresenter >> checkStateFor: anAttribute [
+
+	^ anAttribute state
+]
+
 { #category : 'private' }
 LDAPNewEntryPresenter >> colorFor: anAttribute [
 
@@ -105,13 +118,6 @@ LDAPNewEntryPresenter >> defaultLayout [
 		yourself
 ]
 
-{ #category : 'coloring' }
-LDAPNewEntryPresenter >> emphasisColor [
-
-	^ (SHRBTextStyler attributesFor: #globalVar) ifEmpty: [ self theme textColor ]
-		ifNotEmpty: [ :a | a first color ]
-]
-
 { #category : 'initialization' }
 LDAPNewEntryPresenter >> initializePresenters [ 
 
@@ -120,7 +126,7 @@ LDAPNewEntryPresenter >> initializePresenters [
 	help text: 'Check the attributes to be used as relative distinguished name'.
 	
 	table 
-		addColumn: self stateColumn;
+		addColumn: self checkColumn;
 		addColumn: self descriptionColumn beEditable;
 		addColumn: self contentColumn beEditable.
 

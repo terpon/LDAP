@@ -27,6 +27,12 @@ LDAPEntryAttribute >> = anAttribute [
 	^ self name = anAttribute name
 ]
 
+{ #category : 'converting' }
+LDAPEntryAttribute >> asString [
+
+	^ self name
+]
+
 { #category : 'accessing' }
 LDAPEntryAttribute >> content [
 
