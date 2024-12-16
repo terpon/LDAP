@@ -15,6 +15,11 @@ Class {
 	#tag : 'Presenters'
 }
 
+{ #category : 'accessing' }
+LDAPEntryPresenter class >> currentApplication [ 
+	^ LDAPBrowser new
+]
+
 { #category : 'examples' }
 LDAPEntryPresenter class >> example [
 	| result |
