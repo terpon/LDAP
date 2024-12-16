@@ -5,15 +5,12 @@ Class {
 	#name : 'LDAPWorker',
 	#superclass : 'Object',
 	#instVars : [
-		'host',
-		'port',
+		'connection',
 		'sockStream',
 		'nextMessageId',
 		'lock',
 		'targets',
 		'running',
-		'connectBlock',
-		'disconnectBlock',
 		'exception'
 	],
 	#category : 'LDAP-Internal',
@@ -63,23 +60,9 @@ LDAPWorker >> announceTargetsLost [
 ]
 
 { #category : 'accessing' }
-LDAPWorker >> connectBlock: aBlock [
+LDAPWorker >> connection: anObject [
 
-	connectBlock := aBlock.
-]
-
-{ #category : 'running' }
-LDAPWorker >> connectTo: aHostname port: aPort [
-	host := aHostname.
-	port := aPort.
-	^ self start
-
-]
-
-{ #category : 'accessing' }
-LDAPWorker >> disconnectBlock: aBlock [
-
-	disconnectBlock := aBlock.
+	connection := anObject
 ]
 
 { #category : 'private - dispatching' }
@@ -123,7 +106,7 @@ LDAPWorker >> initializeSocket [
 
 	exception := nil.
 	lock critical: [
-		sockStream := [ self class socketClass openConnectionToHostNamed: host port: port ]
+		sockStream := [ self class socketClass openConnectionToHostNamed: connection host port: connection port ]
 			on: NetworkError do: [ :ex | exception := ex. nil ].
 		sockStream ifNil: [ ^ self ].
 		sockStream 
@@ -134,7 +117,7 @@ LDAPWorker >> initializeSocket [
 		self postConnect.
 	].
 
-	connectBlock ifNotNil: [ :block | block fork ].
+	connection onNewSocket.
 ]
 
 { #category : 'dispatching' }
@@ -228,7 +211,7 @@ LDAPWorker >> releaseSocket [
 		sockStream := nil.
 	].
 
-	disconnectBlock ifNotNil: [ :block | [ block cull: exception ] fork ].
+	connection onClosedSocket: exception
 ]
 
 { #category : 'private - dispatching' }
@@ -255,7 +238,7 @@ LDAPWorker >> send: aCommand [
 LDAPWorker >> start [
 	| process |
 	process := [self listenLoop] newProcess.
-	process name: ('LDAP listener on: {1}:{2}' format: { host . port }).
+	process name: ('LDAP listener on: {1}:{2}' format: { connection host . connection port }).
 	process priority: Processor highIOPriority.
 
 	running := true.

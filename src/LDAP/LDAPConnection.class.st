@@ -77,10 +77,8 @@ LDAPConnection >> announcer [
 { #category : 'running' }
 LDAPConnection >> connect [
 
-	worker := self class workerClass new 
-		connectBlock: [ self onNewSocket ];
-		disconnectBlock: [ :cause | self onClosedSocket: cause ].
-	workerThread := worker connectTo: host port: self port.
+	worker := self class workerClass new connection: self. 
+	workerThread := worker start.
 ]
 
 { #category : 'accessing - defaults' }
@@ -148,12 +146,14 @@ LDAPConnection >> onNewSocket [
 	
 	connectRequest ifNil: [ ^self announcer announce: LDAPIsConnected new ].
 	
-	command := self request: connectRequest.
-	command ifNil: [ ^self ].
-	command wait.
-	(command isDone and: [ command success ]) ifTrue: [ 
-		self announcer announce: LDAPIsConnected new.
-	]
+	[ 
+		command := self request: connectRequest.
+		command ifNil: [ ^self ].
+		command wait.
+		(command isDone and: [ command success ]) ifTrue: [ 
+			self announcer announce: LDAPIsConnected new.
+		]
+	] fork
 ]
 
 { #category : 'accessing' }
