@@ -45,6 +45,12 @@ LDAPEntryModel >> initialize [
 	leaves := OrderedCollection new.
 ]
 
+{ #category : 'testing' }
+LDAPEntryModel >> isEmpty [
+
+	^ leaves isEmpty and: [ branches isEmpty ]
+]
+
 { #category : 'accessing' }
 LDAPEntryModel >> leaves [
 

@@ -29,9 +29,7 @@ LDAPEditor >> clipboardText: aString [
 
 	clipboard = aString ifTrue: [ ^self ].
 	clipboard := aString.
-	self announcer announce: (aString 
-		ifNil: [ LDAPClipboardCleared new ] 
-		ifNotNil: [ LDAPClipboardChanged new text: aString ])
+	self announcer announce: (LDAPClipboardChanged new text: aString)
 ]
 
 { #category : 'searching' }
@@ -41,6 +39,8 @@ LDAPEditor >> invalidateName: aDN [
 	aCachedEntry := cache at: aDN.
 	aCachedEntry invalidate.
 	self isConnected ifTrue: [ aCachedEntry update: self ].
+	
+	clipboard ifNotNil: [ :s | (LDAPName is: s under: aDN) ifTrue: [ self clipboardText: nil ] ]. 
 ]
 
 { #category : 'searching' }
@@ -98,7 +98,7 @@ LDAPEditor >> onModifiedNameEntry: aRequest [
 	].
 	
 	main invalidatePage: aRequest name.
-	self inform: 'Success on modyfying attributes in ', aRequest name
+	self inform: 'Success on modyfying name for ', aRequest name
 
 ]
 

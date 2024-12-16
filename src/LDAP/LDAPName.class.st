@@ -28,6 +28,13 @@ LDAPName class >> firstName: aDN [
 ]
 
 { #category : 'helper' }
+LDAPName class >> is: aFirstString under: aSecondString [
+"check if a name ends with another"
+	
+	^ aFirstString endsWith: aSecondString caseSensitive: false
+]
+
+{ #category : 'helper' }
 LDAPName class >> parentOf: aDN [
 	
 	| firstEqual |

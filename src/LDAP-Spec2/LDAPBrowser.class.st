@@ -221,6 +221,10 @@ LDAPBrowser >> onConnect [
 	session connected: true.
 
 	self searchNamingContexts.
+	
+	"Announce to my subsribers"
+	self announcer announce: LDAPIsConnected new.
+
 ]
 
 { #category : 'callbacks' }
@@ -230,6 +234,9 @@ LDAPBrowser >> onDisconnect: anAnnouncement [
 	ex := anAnnouncement cause.
 	session connected: false.
 	main notify: (ex ifNil: [ 'disconnected' ] ifNotNil: [ ex className ] ).
+
+	"Forward to my subscribers"
+	self announcer announce: anAnnouncement.
 
 ]
 
