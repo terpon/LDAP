@@ -20,6 +20,18 @@ Class {
 	#tag : 'Presenters'
 }
 
+{ #category : 'accessing' }
+LDAPEntryToolbarPresenter class >> currentApplication [ 
+	^ LDAPEditor new
+]
+
+{ #category : 'examples' }
+LDAPEntryToolbarPresenter class >> example [
+	| model |
+	model := LDAPEntryPresenter sampleEntry.
+	^ (self on: model) open
+]
+
 { #category : 'actions' }
 LDAPEntryToolbarPresenter >> addAction [
 

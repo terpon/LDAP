@@ -23,12 +23,9 @@ LDAPEntryPresenter class >> currentApplication [
 { #category : 'examples' }
 LDAPEntryPresenter class >> example [
 	| result |
-	result := LDAPEntryModel new name: 'dc=example,dc=com'.
-	result populateFromResults: self sampleList.
-	result populateFromPartialAttributeList: self sampleElement.
+	result := self sampleEntry.
 	"result inspect."
 	^ self show: result
-
 ]
 
 { #category : 'examples' }
@@ -36,19 +33,32 @@ LDAPEntryPresenter class >> sampleElement [
 "Sample search result"
 	| entry list |
 	entry := LDAPSearchResultEntry new.
-	entry addElement: (LDAPString new content: 'cn=test4,dc=example,dc=com').
-	list := LDAPPartialAttributeList new addAll: { 
-				LDAPPartialAttribute new description: 'objectClass'; values: 'person'; yourself.
-				LDAPPartialAttribute new description: 'cn'; values: 'Haddock'; yourself.
-				LDAPPartialAttribute new description: 'sn'; values: { 'Haddock'. 'Capitaine' }; yourself 
-			 }; yourself.
+	entry addElement: (LDAPString new content: 'cn=hup,ou=people,dc=example,dc=com').
+	list := LDAPPartialAttributeList new attributes: {
+				 'objectClass' -> {'person'}.
+				 'cn' -> {'hup'}.
+				 'sn' -> {'hop'.'hip'.'hap'}.
+				 'description' -> {'chömp'}
+			}; yourself.
 	entry addElement: list.
 	^ entry
 
 ]
 
 { #category : 'examples' }
-LDAPEntryPresenter class >> sampleList [
+LDAPEntryPresenter class >> sampleEntry [
+	| single sub entry |
+	single := self sampleElement.
+	sub := self sampleSubList.
+	
+	entry := LDAPEntryModel new name: single name.
+	entry populateFromPartialAttributeList: single.
+	entry populateFromResults: sub.
+	^ entry
+]
+
+{ #category : 'examples' }
+LDAPEntryPresenter class >> sampleSubList [
 ^ {
 	  LDAPSearchResultEntry new addAll: { (LDAPString new content: 'cn=qux1,cn=bar55,dc=example,dc=com'). (LDAPPartialAttributeList new addAll: { (LDAPPartialAttribute new addAll: { (LDAPString new content: 'objectClass'). (BERSet new addElement: (LDAPString new content: 'person')) }; yourself). (LDAPPartialAttribute new addAll: { (LDAPString new content: 'cn'). (BERSet new addElement: (LDAPString new content: 'qux1')) }; yourself). }; yourself) }; yourself.
 	LDAPSearchResultEntry new addAll: { (LDAPString new content: 'cn=qux2,cn=bar55,dc=example,dc=com'). (LDAPPartialAttributeList new addAll: { (LDAPPartialAttribute new addAll: { (LDAPString new content: 'objectClass'). (BERSet new addElement: (LDAPString new content: 'person')) }; yourself). (LDAPPartialAttribute new addAll: { (LDAPString new content: 'cn'). (BERSet new addElement: (LDAPString new content: 'qux2')) }; yourself). }; yourself) }; yourself.

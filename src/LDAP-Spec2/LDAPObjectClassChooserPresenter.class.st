@@ -27,6 +27,12 @@ LDAPObjectClassChooserPresenter class >> example [
 		yourself.
 ]
 
+{ #category : 'examples' }
+LDAPObjectClassChooserPresenter class >> exampleDefault [
+
+	^ self new openDialog
+]
+
 { #category : 'testing' }
 LDAPObjectClassChooserPresenter >> checkOkTrigger [
 "At least one object class must be selected"
