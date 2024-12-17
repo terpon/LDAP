@@ -41,6 +41,11 @@ WONT
 ]
 
 { #category : 'instance creation' }
+LDAPConnection class >> socketClass [
+	^ SocketStream
+]
+
+{ #category : 'instance creation' }
 LDAPConnection class >> to: aHostname [
 	^ self to: aHostname port: 389
 ]
@@ -51,11 +56,6 @@ LDAPConnection class >> to: aHostname port: aPort [
 	obj := self new host: aHostname; port: aPort.
 	obj connect.
 	^ obj
-]
-
-{ #category : 'accessing' }
-LDAPConnection class >> workerClass [
-	^ LDAPWorker
 ]
 
 { #category : 'command execution' }
@@ -77,7 +77,7 @@ LDAPConnection >> announcer [
 { #category : 'running' }
 LDAPConnection >> connect [
 
-	worker := self class workerClass new connection: self. 
+	worker := LDAPWorker new connection: self. 
 	workerThread := worker start.
 ]
 
@@ -91,11 +91,12 @@ LDAPConnection >> defaultPort [
 LDAPConnection >> disconnect [
 
 	workerThread ifNil: [ ^ self ].
-	worker isRunning ifTrue: [ self unbind ].
-
+	worker isRunning ifTrue: [ 
+		self unbind.
+		worker stop.
+	].
 	"This will call releaseSocket and call onClosedSocket"
-	workerThread terminate.
-
+	workerThread ifNotNil: [ :thread | thread terminate ].
 ]
 
 { #category : 'accessing' }
@@ -108,6 +109,20 @@ LDAPConnection >> host [
 LDAPConnection >> host: anObject [
 
 	host := anObject
+]
+
+{ #category : 'initialization' }
+LDAPConnection >> initializeSocket [
+
+	| sockStream |
+	sockStream := self class socketClass openConnectionToHostNamed: host port: port.
+	sockStream 
+		binary;
+		shouldSignal: true;
+		timeout: 60;
+		autoFlush: false.
+		
+	^ sockStream
 ]
 
 { #category : 'testing' }

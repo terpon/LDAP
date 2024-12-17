@@ -9,15 +9,27 @@ Class {
 	#tag : 'Connection'
 }
 
-{ #category : 'accessing' }
-LDAPSConnection class >> workerClass [
-	^ LDAPSWorker
+{ #category : 'instance creation' }
+LDAPSConnection class >> socketClass [
+	^ ZdcSecureSocketStream
 ]
 
 { #category : 'accessing - defaults' }
 LDAPSConnection >> defaultPort [
 
 	^ 636
+]
+
+{ #category : 'initialization' }
+LDAPSConnection >> initializeSocket [
+
+	| sockStream |
+	sockStream := super initializeSocket.
+		
+	"SSL handshake"
+	sockStream connect.
+
+	^ sockStream
 ]
 
 { #category : 'testing' }

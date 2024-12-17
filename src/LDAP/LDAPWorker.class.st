@@ -11,17 +11,13 @@ Class {
 		'lock',
 		'targets',
 		'running',
-		'exception'
+		'exception',
+		'connected'
 	],
 	#category : 'LDAP-Internal',
 	#package : 'LDAP',
 	#tag : 'Internal'
 }
-
-{ #category : 'instance creation' }
-LDAPWorker class >> socketClass [
-	^ SocketStream
-]
 
 { #category : 'dispatching' }
 LDAPWorker >> abandon: aCommand [
@@ -95,6 +91,7 @@ LDAPWorker >> initialize [
 	
 	nextMessageId := 0.
 	lock := Semaphore forMutualExclusion.
+	connected := Semaphore new.
 	"looks like if we use the WVD here we wont see exceptions thrown.. hrmmm"
 	"targets := WeakValueDictionary new."
 	targets := Dictionary new.
@@ -106,17 +103,12 @@ LDAPWorker >> initializeSocket [
 
 	exception := nil.
 	lock critical: [
-		sockStream := [ self class socketClass openConnectionToHostNamed: connection host port: connection port ]
+		sockStream := [ connection initializeSocket ]
 			on: NetworkError do: [ :ex | exception := ex. nil ].
 		sockStream ifNil: [ ^ self ].
-		sockStream 
-			binary;
-			shouldSignal: true;
-			timeout: 60;
-			autoFlush: false.
-		self postConnect.
 	].
 
+	connected signalAll.
 	connection onNewSocket.
 ]
 
@@ -171,11 +163,6 @@ LDAPWorker >> nextMessageId [
 ]
 
 { #category : 'private - running' }
-LDAPWorker >> postConnect [ 
-"Nothing in base class"
-]
-
-{ #category : 'private - running' }
 LDAPWorker >> readMessage [
 	[ [ [ 
 		|  message  |
@@ -211,6 +198,7 @@ LDAPWorker >> releaseSocket [
 		sockStream := nil.
 	].
 
+	connected signalAll.
 	connection onClosedSocket: exception
 ]
 
@@ -237,6 +225,8 @@ LDAPWorker >> send: aCommand [
 { #category : 'private - running' }
 LDAPWorker >> start [
 	| process |
+	connected consumeAllSignals.
+
 	process := [self listenLoop] newProcess.
 	process name: ('LDAP listener on: {1}:{2}' format: { connection host . connection port }).
 	process priority: Processor highIOPriority.
@@ -245,8 +235,8 @@ LDAPWorker >> start [
 	process resume.
 	
 	"Wait a bit so that the thread has a chance to connect"
-	(Delay forMilliseconds: 10) wait.
-
+	connected wait.
+	
 	^ process
 ]
 
