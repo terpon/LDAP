@@ -107,5 +107,5 @@ LDAPCachedEntry >> update: anApplication [
 		[ anApplication isConnected and: [ state atEnd not ] ] whileTrue: [
 			state := state nextFor: entry on: anApplication.
 		]
-	] forkAt: Processor userBackgroundPriority named: 'LDAP update ', entry name
+	] forkAt: LDAPBrowser requestPriority named: 'LDAP update ', entry name
 ]

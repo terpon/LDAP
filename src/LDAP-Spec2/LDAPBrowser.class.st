@@ -34,6 +34,14 @@ LDAPBrowser class >> openConnectionDialog [
 	^ aLDAPBrowser mainPresenter openConnectionDialog
 ]
 
+{ #category : 'accessing - defaults' }
+LDAPBrowser class >> requestPriority [
+
+"Using Processor userBackgroundPriority result in processes stuck too often"
+
+	^ Processor userSchedulingPriority + 1
+]
+
 { #category : 'accessing' }
 LDAPBrowser class >> start [
 <example>
@@ -69,7 +77,7 @@ LDAPBrowser >> connectTo: aServerInfo [
 	bind := aServerInfo newBindRequest.
 	
 	connection requestOnConnect: bind.
-	connection connect.
+	[ connection connect ] fork.
 	"Following actions in onConnect if connection and bind successful"
 ]
 

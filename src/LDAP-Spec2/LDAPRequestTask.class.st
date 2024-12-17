@@ -65,7 +65,7 @@ LDAPRequestTask >> sendRequestTo: aConnection [
 { #category : 'running' }
 LDAPRequestTask >> startOn: aConnection [
 
-	^ [ self sendRequestTo: aConnection ] forkAt: Processor userBackgroundPriority named: 'LDAP task for ', self request className
+	^ [ self sendRequestTo: aConnection ] forkAt: LDAPBrowser requestPriority named: 'LDAP task for ', self request className
 
 ]
 

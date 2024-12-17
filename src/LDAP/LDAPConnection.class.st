@@ -115,7 +115,7 @@ LDAPConnection >> host: anObject [
 LDAPConnection >> initializeSocket [
 
 	| sockStream |
-	sockStream := self class socketClass openConnectionToHostNamed: host port: port.
+	sockStream := self class socketClass openConnectionToHostNamed: self host port: self port.
 	sockStream 
 		binary;
 		shouldSignal: true;
