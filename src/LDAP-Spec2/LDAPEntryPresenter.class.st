@@ -8,7 +8,8 @@ Class {
 	#classTraits : 'SpTActivable classTrait',
 	#instVars : [
 		'table',
-		'name'
+		'name',
+		'initialized'
 	],
 	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
@@ -156,6 +157,9 @@ LDAPEntryPresenter >> initializePresenters [
 			displayColor: [ :i | self colorFor: i ];
 			evaluated: [ :each | each content ]);
 		yourself.
+
+	"Model can be updated from other process before this is called"
+	initialized := true.
 ]
 
 { #category : 'initialization' }
@@ -171,17 +175,21 @@ LDAPEntryPresenter >> initializeWindow: aSpWindowPresenter [
 { #category : 'initialization' }
 LDAPEntryPresenter >> modelChanged [ 
 	
-	| model |
+	| model dn |
+	initialized ifNil: [ ^ self ].
 	model := self model ifNil: [ ^ self reset ].
 	
 	table items: model attributes.
-	name text: model name; help: model name.
+	
+	dn := application formattedTextFor: model name.
+	name text: dn; help: dn.
 
 ]
 
 { #category : 'initialization' }
 LDAPEntryPresenter >> reset [
 
+	initialized ifNil: [ ^ self ].
 	table items: #().
 	name text: ''; help: ''.
 
