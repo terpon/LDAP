@@ -8,8 +8,7 @@ Class {
 	#classTraits : 'SpTActivable classTrait',
 	#instVars : [
 		'table',
-		'name',
-		'initialized'
+		'name'
 	],
 	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
@@ -158,8 +157,6 @@ LDAPEntryPresenter >> initializePresenters [
 			evaluated: [ :each | each content ]);
 		yourself.
 
-	"Model can be updated from other process before this is called"
-	initialized := true.
 ]
 
 { #category : 'initialization' }
@@ -176,8 +173,9 @@ LDAPEntryPresenter >> initializeWindow: aSpWindowPresenter [
 LDAPEntryPresenter >> modelChanged [ 
 	
 	| model dn |
-	initialized ifNil: [ ^ self ].
 	model := self model ifNil: [ ^ self reset ].
+	"Model can change in other processes and must be blocked while building the widget"
+	model allowChange.
 	
 	table items: model attributes.
 	
@@ -189,7 +187,6 @@ LDAPEntryPresenter >> modelChanged [
 { #category : 'initialization' }
 LDAPEntryPresenter >> reset [
 
-	initialized ifNil: [ ^ self ].
 	table items: #().
 	name text: ''; help: ''.
 
@@ -200,4 +197,18 @@ LDAPEntryPresenter >> selectedItem [
 	"Return selected item."
 	
 	^ table selectedItem
+]
+
+{ #category : 'transmission' }
+LDAPEntryPresenter >> setModel: aModel [
+
+	self model ifNotNil: [ :m | m disallowChange ].
+	super setModel: aModel.
+]
+
+{ #category : 'initialization' }
+LDAPEntryPresenter >> setModelBeforeInitialization: aModel [
+
+	self model ifNotNil: [ :m | m disallowChange ].
+	super setModelBeforeInitialization: aModel.
 ]
