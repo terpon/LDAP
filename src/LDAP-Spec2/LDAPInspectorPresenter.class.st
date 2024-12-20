@@ -132,9 +132,9 @@ LDAPInspectorPresenter >> initializeWindow: aSpWindowPresenter [
 
 	super initializeWindow: aSpWindowPresenter.
 
-	aSpWindowPresenter title: self titleForWindow.
-	aSpWindowPresenter initialExtent: (600@480).
-	aSpWindowPresenter whenClosedDo: [ application disconnect ].
+	aSpWindowPresenter title: self titleForWindow;
+		initialExtent: (600@480);
+		whenClosedDo: [ application disconnect ].
 ]
 
 { #category : 'initialization' }

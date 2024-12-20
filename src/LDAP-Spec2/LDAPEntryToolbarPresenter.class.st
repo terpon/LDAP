@@ -119,7 +119,7 @@ LDAPEntryToolbarPresenter >> deleteAction [
 	aDN := entry name.
 	^ SpConfirmDialog new
 		  title: 'Confirm delete entry';
-		  label: 'About to delete ', aDN;
+		  label: (Text fromString: 'About to delete '), (application formattedTextFor: aDN);
 		  acceptLabel: 'Delete';
 		  cancelLabel: 'Cancel';
 		  onAccept: [ application sendDeleteEntry: aDN ];
@@ -253,9 +253,9 @@ LDAPEntryToolbarPresenter >> pasteAction [
 
 	^ SpConfirmDialog new
 		  title: 'Confirm paste entry';
-		  label: (String streamContents: [ :stream |
-				stream nextPutAll: 'About to move '; nextPutAll: aDN; cr;
-					nextPutAll: 'under '; nextPutAll: underDN
+		  label: (Text streamContents: [ :stream |
+				stream nextPutAll: 'About to move '; nextPutAll: (application formattedTextFor: aDN); cr;
+					nextPutAll: 'under '; nextPutAll: (application formattedTextFor: underDN)
 			]);
 		  acceptLabel: 'Move';
 		  cancelLabel: 'Cancel';
