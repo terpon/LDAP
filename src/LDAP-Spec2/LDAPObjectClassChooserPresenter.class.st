@@ -19,9 +19,12 @@ Class {
 { #category : 'examples' }
 LDAPObjectClassChooserPresenter class >> example [
 
-	| classes |
+	| classes selected presenter |
 	classes := LDAPSchema default structuralClasses select: [ :c | c hasAttribute: 'ou' ].
-	^ (self on: classes) openDialog 
+	selected := #( 'applicationProcess' 'document1' 'groupofnames').
+	presenter := self on: classes.
+	presenter selectItems: selected.
+	^ presenter openDialog 
 		okAction: [ :dialog | dialog inform: (dialog presenter selectedItems collect: #name) ];
 		cancelAction: [ :dialog | dialog inform: 'Cancelled' ];
 		yourself.
@@ -150,6 +153,17 @@ LDAPObjectClassChooserPresenter >> schema [
 LDAPObjectClassChooserPresenter >> schema: anObject [
 
 	schema := anObject
+]
+
+{ #category : 'api - selection' }
+LDAPObjectClassChooserPresenter >> selectItems: aCollection [
+
+	| oc |
+	oc := aCollection collect: [ :each | each isString ifFalse: [ each ] 
+				ifTrue: [ self schema objectClass: each ifAbsent: [ nil ] ] ].
+	oc := oc reject: #isNil.
+	classes selectItems: oc.
+	self updateAttributes
 ]
 
 { #category : 'api - selection' }
