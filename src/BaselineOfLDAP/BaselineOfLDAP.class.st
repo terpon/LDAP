@@ -29,11 +29,16 @@ BaselineOfLDAP >> groups: spec [
 	"groups"
 	spec
 		group: 'Core' with: #('LDAP' );
-		group: 'AD' with: #('Core' 'LDAP-ActiveDirectory');
-		group: 'Schema' with: #('Core' 'LDAP-Schema');
-		group: 'UI' with: #('Core' 'LDAP-Spec2');
-		group: 'Tests' with: #('LDAP-Tests' 'LDAP-Schema' 'LDAP-UI-Tests');
-		group: 'All' with: #('Core' 'Tests' 'AD' 'UI' 'Schema') 
+		group: 'AD' with: #('LDAP-ActiveDirectory');
+		group: 'Schema' with: #('LDAP-Schema');
+		group: 'UI' with: #('LDAP-Spec2');
+		group: 'Tests' with: #('LDAP-Tests' 'LDAP-Schema-Tests' 'LDAP-UI-Tests');
+		group: 'All' with: #('Core' 'AD' 'UI' 'Schema' 'Tests').
+		
+	"aliases"
+	spec 
+		group: 'all' with: #('All');
+		group: 'default' with: #('Core')
 ]
 
 { #category : 'accessing' }
@@ -44,6 +49,8 @@ BaselineOfLDAP >> packages: spec [
 		package: 'LDAP-Schema' with: [ spec requires: #('LDAP' 'PetitParser2Core') ];
 		package: 'LDAP-Spec2' with: [ spec requires: #('LDAP' 'LDAP-Schema') ];
 		package: 'LDAP-ActiveDirectory' with: [ spec requires: #('LDAP') ];
+		
+		"Tests"
 		package: 'LDAP-Tests' with: [ spec requires: #('LDAP') ];
 		package: 'LDAP-Schema-Tests' with: [ spec requires: #('LDAP-Schema') ];
 		package: 'LDAP-UI-Tests' with: [ spec requires: #('LDAP-Spec2') ]
