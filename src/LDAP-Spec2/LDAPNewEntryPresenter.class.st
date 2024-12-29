@@ -3,10 +3,10 @@ I am the presenter opened when a new entry is created. Attributes for that entry
 "
 Class {
 	#name : 'LDAPNewEntryPresenter',
-	#superclass : 'LDAPAttributePresenter',
-	#category : 'LDAP-Spec2-Windows',
+	#superclass : 'LDAPAttributeTablePresenter',
+	#category : 'LDAP-Spec2-Attributes',
 	#package : 'LDAP-Spec2',
-	#tag : 'Windows'
+	#tag : 'Attributes'
 }
 
 { #category : 'examples' }
@@ -124,6 +124,12 @@ LDAPNewEntryPresenter >> defaultLayout [
 		yourself
 ]
 
+{ #category : 'accessing - model' }
+LDAPNewEntryPresenter >> filledAttributes [
+	
+	^ self attributes select: [ :element | element isValid ]
+]
+
 { #category : 'initialization' }
 LDAPNewEntryPresenter >> initializePresenters [ 
 
@@ -133,8 +139,8 @@ LDAPNewEntryPresenter >> initializePresenters [
 	
 	table 
 		addColumn: self checkColumn;
-		addColumn: self descriptionColumn beEditable;
-		addColumn: self contentColumn beEditable.
+		addColumn: self descriptionColumn;
+		addColumn: self contentColumn.
 
 ]
 

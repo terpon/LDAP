@@ -3,16 +3,16 @@ I am the presenter opened for editing attributes in an entry.
 "
 Class {
 	#name : 'LDAPEditEntryPresenter',
-	#superclass : 'LDAPAttributePresenter',
+	#superclass : 'LDAPAttributeTablePresenter',
 	#instVars : [
 		'name',
 		'rdn',
 		'clear',
 		'checked'
 	],
-	#category : 'LDAP-Spec2-Windows',
+	#category : 'LDAP-Spec2-Attributes',
 	#package : 'LDAP-Spec2',
-	#tag : 'Windows'
+	#tag : 'Attributes'
 }
 
 { #category : 'examples' }

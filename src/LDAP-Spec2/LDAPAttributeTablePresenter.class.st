@@ -2,7 +2,7 @@
 I am a presenter to edit attributes.
 "
 Class {
-	#name : 'LDAPAttributePresenter',
+	#name : 'LDAPAttributeTablePresenter',
 	#superclass : 'SpPresenter',
 	#instVars : [
 		'parent',
@@ -12,37 +12,53 @@ Class {
 		'parentLabel',
 		'toolbar'
 	],
-	#category : 'LDAP-Spec2-Windows',
+	#category : 'LDAP-Spec2-Attributes',
 	#package : 'LDAP-Spec2',
-	#tag : 'Windows'
+	#tag : 'Attributes'
 }
 
 { #category : 'accessing' }
-LDAPAttributePresenter class >> currentApplication [ 
+LDAPAttributeTablePresenter class >> currentApplication [ 
 	^ LDAPBrowser new
 ]
 
+{ #category : 'initialization' }
+LDAPAttributeTablePresenter >> actionsColumn [
+
+	^ SpColumnViewColumn new
+			title: 'Actions';
+			width: 60;
+			setup: [ :aPresenter | | presenter |
+				(presenter := aPresenter newPresenter)
+					layout: SpBoxLayout newHorizontal hAlignCenter;
+					yourself ];
+			bind: [ :aPresenter :anAttribute |
+				anAttribute addActions: aPresenter
+			];
+			yourself
+]
+
 { #category : 'adding' }
-LDAPAttributePresenter >> addNewElement [
+LDAPAttributeTablePresenter >> addNewElement [
 
 	self subclassResponsibility.
 ]
 
 { #category : 'accessing - model' }
-LDAPAttributePresenter >> attributes [
+LDAPAttributeTablePresenter >> attributes [
 	
 	^ attributes ifNil: [ attributes := #() ]
 ]
 
 { #category : 'accessing - model' }
-LDAPAttributePresenter >> attributes: aCollection [
+LDAPAttributeTablePresenter >> attributes: aCollection [
 	
 	attributes := aCollection.
 	self updatePresenter
 ]
 
 { #category : 'helper' }
-LDAPAttributePresenter >> attributesAsDictionary: aCollection [
+LDAPAttributeTablePresenter >> attributesAsDictionary: aCollection [
 	
 	| dictionary |
 	dictionary := Dictionary new.
@@ -57,14 +73,14 @@ LDAPAttributePresenter >> attributesAsDictionary: aCollection [
 ]
 
 { #category : 'private' }
-LDAPAttributePresenter >> boldFor: anAttribute [
+LDAPAttributeTablePresenter >> boldFor: anAttribute [
 
 	self subclassResponsibility.	
 	^ false 
 ]
 
 { #category : 'initialization' }
-LDAPAttributePresenter >> checkColumn [ 
+LDAPAttributeTablePresenter >> checkColumn [ 
 
 	^ SpCheckBoxTableColumn new
 			beNotExpandable; width: 20;
@@ -75,80 +91,86 @@ LDAPAttributePresenter >> checkColumn [
 ]
 
 { #category : 'testing' }
-LDAPAttributePresenter >> checkOkTrigger [
+LDAPAttributeTablePresenter >> checkOkTrigger [
 
 	self subclassResponsibility.
 	^ true
 ]
 
 { #category : 'private - accessing' }
-LDAPAttributePresenter >> checkStateChanged: aBoolean for: anAttribute [
+LDAPAttributeTablePresenter >> checkStateChanged: aBoolean for: anAttribute [
 
 	self subclassResponsibility.
 ]
 
 { #category : 'private - accessing' }
-LDAPAttributePresenter >> checkStateFor: anAttribute [
+LDAPAttributeTablePresenter >> checkStateFor: anAttribute [
 
 	self subclassResponsibility.
 	^ false
 ]
 
 { #category : 'private' }
-LDAPAttributePresenter >> colorFor: anAttribute [
+LDAPAttributeTablePresenter >> colorFor: anAttribute [
 
 	self subclassResponsibility.	
 	^ application defaultColor 
 ]
 
 { #category : 'private - accessing' }
-LDAPAttributePresenter >> content: aString for: anAttribute [
+LDAPAttributeTablePresenter >> content: aString for: anAttribute [
 
 	anAttribute content: aString.
 
 ]
 
 { #category : 'initialization' }
-LDAPAttributePresenter >> contentColumn [ 
+LDAPAttributeTablePresenter >> contentColumn [
 
-	^ SpStringTableColumn new
-			title: 'Value'; 
-			displayBold: [ :each | self boldFor: each ];
-			displayColor: [ :each | self colorFor: each ];
-			evaluated: [ :each | each content ];
-			onTextChanged: [ :each :value | self content: value for: each ];
-			onAcceptEdition: [ table refresh ];
+	^ SpColumnViewColumn new
+			title: 'Values';
+			setup: [ :aPresenter | | presenter |
+				(presenter := aPresenter newPresenter
+					layout: SpBoxLayout newHorizontal hAlignCenter)
+					yourself ];
+			bind: [ :aPresenter :anAttribute |
+				anAttribute addContentPresenter: aPresenter
+			];
 			yourself
 ]
 
 { #category : 'private - accessing' }
-LDAPAttributePresenter >> description: aString for: anAttribute [
+LDAPAttributeTablePresenter >> description: aString for: anAttribute [
 
 	anAttribute description: aString.
 
 ]
 
 { #category : 'initialization' }
-LDAPAttributePresenter >> descriptionColumn [ 
+LDAPAttributeTablePresenter >> descriptionColumn [ 
 	
-	^ SpStringTableColumn new
-			title: 'Attribute';
-			displayBold: [ :each | self boldFor: each ];
-			displayColor: [ :each | self colorFor: each ];
-			evaluated: [ :each | each description ];
-			onTextChanged: [ :each :value | self description: value for: each ];
-			onAcceptEdition: [ table refresh ];
+	^ SpColumnViewColumn new 
+			title: 'Attribute'; 
+			setup: [ :aPresenter |
+				| presenter |
+				(presenter := aPresenter newPresenter)
+					layout: (SpBoxLayout newHorizontal
+						spacing: 3;
+						add: presenter newImage expand: false;
+						add: presenter newLabel;
+						yourself);
+					yourself ];
+			bind: [ :aPresenter :anAttribute | 
+				| image label |
+				image := aPresenter layout children first.
+				image image: anAttribute icon.
+				label := aPresenter layout children second.
+				label label: anAttribute description ];
 			yourself
 ]
 
-{ #category : 'accessing - model' }
-LDAPAttributePresenter >> filledAttributes [
-	
-	^ self attributes select: [ :element | element isValid ]
-]
-
 { #category : 'initialization' }
-LDAPAttributePresenter >> initializeDialogWindow: aDialogWindowPresenter [
+LDAPAttributeTablePresenter >> initializeDialogWindow: aDialogWindowPresenter [
 	 "Override OK button to add check"
 	
 	aDialogWindowPresenter
@@ -162,7 +184,7 @@ LDAPAttributePresenter >> initializeDialogWindow: aDialogWindowPresenter [
 ]
 
 { #category : 'initialization' }
-LDAPAttributePresenter >> initializePresenters [ 
+LDAPAttributeTablePresenter >> initializePresenters [ 
 
 	parentLabel := self newLabel label: 'Parent DN: '.
 	parent := self newTextInput beNotEditable.
@@ -179,26 +201,26 @@ LDAPAttributePresenter >> initializePresenters [
 ]
 
 { #category : 'accessing' }
-LDAPAttributePresenter >> name [
+LDAPAttributeTablePresenter >> name [
 
 	^ self subclassResponsibility
 ]
 
 { #category : 'accessing - model' }
-LDAPAttributePresenter >> setModel: aCollection [
+LDAPAttributeTablePresenter >> setModel: aCollection [
 
 	self attributes: aCollection
 ]
 
 { #category : 'accessing - model' }
-LDAPAttributePresenter >> setModelBeforeInitialization: aCollection [
+LDAPAttributeTablePresenter >> setModelBeforeInitialization: aCollection [
 
 	attributes := aCollection
 
 ]
 
 { #category : 'initialization' }
-LDAPAttributePresenter >> updatePresenter [
+LDAPAttributeTablePresenter >> updatePresenter [
  
 	table items: self attributes
 ]
