@@ -175,9 +175,9 @@ LDAPWorker >> readMessage [
 				"wait for another loop"
 				^ self.
 		].
-	] on: NetworkError do:[ :ex| 
-				"Transcript cr; show: ex description; cr."
-				"send disconnect announcement"
+	] on: NetworkError, SocketError do:[ :ex| 
+				"send disconnect announcement, try to reconnect on next loop"
+				Transcript cr; show: ex description; cr.
 				^ self.
 		].
 	] on: Exception do: [ :ex |
