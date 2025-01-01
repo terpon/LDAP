@@ -66,7 +66,7 @@ LDAPSchema >> build [
 	self logger reset.
 	self pullAttributesProperties.
 	self pullClassesProperties.
-	structuralClasses := (objectClasses values asSet select: #isStructural) sorted.
+	structuralClasses := objectClasses values asSet select: #isStructural.
 	self logger report; reset.
 ]
 
@@ -96,6 +96,12 @@ LDAPSchema >> logger: anObject [
 LDAPSchema >> objectClass: aString ifAbsent: aBlock [
 
 	^ objectClasses at: aString asLowercase ifAbsent: aBlock
+]
+
+{ #category : 'accessing' }
+LDAPSchema >> objectClass: aString ifPresent: aPresentBlock ifAbsent: aBlock [
+
+	^ objectClasses at: aString asLowercase ifPresent: aPresentBlock ifAbsent: aBlock
 ]
 
 { #category : 'parsing' }
@@ -214,6 +220,12 @@ LDAPSchema >> references: aType [
 				ifTrue: [ stream nextPut: class ] 
 		] 
 	]
+]
+
+{ #category : 'enumerating' }
+LDAPSchema >> rejectKnownClasses: aCollection [
+
+	^ aCollection reject: [ :each | objectClasses includesKey: each ]
 ]
 
 { #category : 'accessing' }
