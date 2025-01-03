@@ -268,14 +268,9 @@ LDAPBrowser >> onDisconnect: anAnnouncement [
 { #category : 'callbacks' }
 LDAPBrowser >> onNamingContexts: aCommand [
 
-	| roots subSchema searchResult |
+	| searchResult |
 	searchResult := aCommand responses first asDictionary.
-	searchResult inspect.
-	subSchema := searchResult at: 'subschemasubentry' ifPresent: [ :c | c first ] ifAbsent: [ nil ].
-	session subSchema: subSchema.
-	
-	roots := searchResult at: 'namingcontexts' ifAbsent: [ #() ].
-	session roots: roots.
+	session directorySpecificEntry: searchResult.
 ]
 
 { #category : 'enumerating' }
@@ -340,7 +335,7 @@ LDAPBrowser >> searchNamingContexts [
 	^ self sendRequest: request
 		onSuccessDo: [ :command | self onNamingContexts: command ]
 		onFailureDo: [ :command | 
-			session roots: #().
+			session resetDSE.
 			self reportError: command. ].
 
 ]

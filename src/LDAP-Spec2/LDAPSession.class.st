@@ -7,9 +7,8 @@ Class {
 	#instVars : [
 		'server',
 		'connected',
-		'roots',
 		'currentRoot',
-		'subSchema'
+		'directorySpecificEntry'
 	],
 	#category : 'LDAP-Spec2-Models',
 	#package : 'LDAP-Spec2',
@@ -52,6 +51,15 @@ LDAPSession >> currentRoot: anObject [
 	self valueChanged 
 ]
 
+{ #category : 'accessing' }
+LDAPSession >> directorySpecificEntry: anObject [
+
+	directorySpecificEntry = anObject ifTrue: [ ^ self ].
+
+	directorySpecificEntry := anObject.
+	self valueChanged 
+]
+
 { #category : 'initialization' }
 LDAPSession >> initialize [ 
 
@@ -64,24 +72,20 @@ LDAPSession >> initialize [
 LDAPSession >> reset [
 "Initialize"
 	connected := false.
-	roots := #().
 	currentRoot := ''.
-	subSchema := nil.
+	self resetDSE.
 
+]
+
+{ #category : 'initialization' }
+LDAPSession >> resetDSE [
+"Initialize"
+	directorySpecificEntry := Dictionary new.
 ]
 
 { #category : 'accessing' }
 LDAPSession >> roots [
-	^ roots
-]
-
-{ #category : 'accessing' }
-LDAPSession >> roots: anObject [
-
-	roots = anObject ifTrue: [ ^ self ].
-
-	roots := anObject.
-	self valueChanged 
+	^ directorySpecificEntry at: 'namingcontexts' ifAbsent: [ #() ]
 ]
 
 { #category : 'accessing' }
@@ -98,13 +102,6 @@ LDAPSession >> server: anObject [
 ]
 
 { #category : 'accessing' }
-LDAPSession >> subSchema [
-
-	^ subSchema
-]
-
-{ #category : 'accessing' }
-LDAPSession >> subSchema: anObject [
-
-	subSchema := anObject
+LDAPSession >> subSchema [ 
+	^ directorySpecificEntry at: 'subschemasubentry' ifPresent: [ :c | c first ] ifAbsent: [ nil ]
 ]

@@ -225,7 +225,7 @@ LDAPSearchRequestTest >> testRootSubSchema [
 		          scope: LDAPBaseObjectScope new;
 		          attributes: { '*' . '+' }.
 	responses := self requestAndAssertSuccess: search.
-	responses inspect.
+	"responses inspect."
 ]
 
 { #category : 'tests' }
