@@ -5,13 +5,13 @@ Class {
 	#name : 'LDAPModifyEntryPresenter',
 	#superclass : 'SpPresenter',
 	#instVars : [
-		'attributes',
+		'name',
+		'parentLabel',
 		'parent',
 		'table',
 		'dropRDN',
-		'underDN',
-		'parentLabel',
-		'underLabel'
+		'underLabel',
+		'underDN'
 	],
 	#category : 'LDAP-Spec2-Windows',
 	#package : 'LDAP-Spec2',
@@ -20,23 +20,14 @@ Class {
 
 { #category : 'examples' }
 LDAPModifyEntryPresenter class >> example [
-	| aModel aPresenter aDialog |
-	aModel := {
-		LDAPLeafEntryAttribute newFromPair: #( 'cn' 'föô' ).
-	}.
-	aPresenter := self on: aModel.
-	aPresenter parent: 'dc=example,dc=com'.
+	| aPresenter aDialog |
+	aPresenter := self on: 'cn=föô,dc=example,dc=com'.
 	aDialog := aPresenter openDialog 
 		okAction: [ :dialog | dialog presenter modifyRequest inspect ];
 		cancelAction: [ :dialog | dialog inform: 'Cancelled' ];
 		yourself.
 	^ aPresenter
 
-]
-
-{ #category : 'accessing' }
-LDAPModifyEntryPresenter >> attributes [
-	^ attributes ifNil: [ #() ]
 ]
 
 { #category : 'layout' }
@@ -77,6 +68,14 @@ LDAPModifyEntryPresenter >> initializePresenters [
 		yourself.
 ]
 
+{ #category : 'initialization' }
+LDAPModifyEntryPresenter >> initializeWindow: aWindowPresenter [
+	
+	super initializeWindow: aWindowPresenter.
+	
+	aWindowPresenter title: 'Modify Entry DN'
+]
+
 { #category : 'converting' }
 LDAPModifyEntryPresenter >> modifyRequest [
 	| request |
@@ -92,12 +91,7 @@ LDAPModifyEntryPresenter >> modifyRequest [
 { #category : 'accessing' }
 LDAPModifyEntryPresenter >> name [
 	"return the original name"
-	^ String streamContents: [ :out |
-		attributes 
-			do: [ :element | out nextPutAll: element description; nextPut: $=; nextPutAll: element content ] 
-			separatedBy: [ out nextPut: $+ ].
-		parent text ifNotEmpty: [ :string | out nextPut: $,; nextPutAll: string ]
-	]
+	^ name
 ]
 
 { #category : 'accessing' }
@@ -110,27 +104,28 @@ LDAPModifyEntryPresenter >> newRelativeName [
 	]
 ]
 
-{ #category : 'accessing' }
-LDAPModifyEntryPresenter >> parent: aString [ 
-	parent text: aString
-]
-
 { #category : 'initialization' }
-LDAPModifyEntryPresenter >> setModel: aCollection [
+LDAPModifyEntryPresenter >> setModel: aString [
 
-	attributes := aCollection.
+	self setModelBeforeInitialization: aString.
 	self updatePresenter.
 ]
 
 { #category : 'initialization' }
-LDAPModifyEntryPresenter >> setModelBeforeInitialization: aCollection [
+LDAPModifyEntryPresenter >> setModelBeforeInitialization: aString [
 
-	attributes := aCollection
+	name := aString.
 
 ]
 
 { #category : 'initialization' }
 LDAPModifyEntryPresenter >> updatePresenter [
  
-	table items: (self attributes collect: #copy)
+	| aDN elements parentDN |
+	aDN := name ifNil: [ '' ] .
+	parentDN := (LDAPName parentOf: aDN).
+	parent text: parentDN.
+
+	elements := LDAPLeafEntryAttribute arrayFromRelativeNameIn: aDN.
+	table items: elements
 ]

@@ -217,15 +217,12 @@ LDAPEntryToolbarPresenter >> initializePresenters [
 { #category : 'actions' }
 LDAPEntryToolbarPresenter >> modifyAction [
 
-	| aPresenter elements aDN |
+	| aPresenter aDN |
 	entry ifNil: [ ^self ].
 	modify isEnabled ifFalse: [ ^self ].
 
 	aDN := entry name.
-	elements := entry leaves select: #isKey.
-
-	aPresenter := LDAPModifyEntryPresenter newApplication: application model: elements.
-	aPresenter parent: (LDAPName parentOf: aDN).
+	aPresenter := LDAPModifyEntryPresenter newApplication: application model: aDN.
 
 	^ aPresenter openDialog
 		okAction: [ :dialog | application sendModifyName: dialog presenter modifyRequest ];
