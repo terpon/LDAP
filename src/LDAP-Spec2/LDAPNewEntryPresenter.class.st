@@ -4,6 +4,9 @@ I am the presenter opened when a new entry is created. Attributes for that entry
 Class {
 	#name : 'LDAPNewEntryPresenter',
 	#superclass : 'LDAPAttributeTablePresenter',
+	#instVars : [
+		'help'
+	],
 	#category : 'LDAP-Spec2-Attributes',
 	#package : 'LDAP-Spec2',
 	#tag : 'Attributes'
@@ -28,85 +31,38 @@ LDAPNewEntryPresenter class >> example [
 
 ]
 
-{ #category : 'adding' }
-LDAPNewEntryPresenter >> addNewElement [
-
-	attributes := self attributes copyWith: LDAPLeafEntryAttribute new.
-	self updatePresenter.
-]
-
 { #category : 'accessing - model' }
 LDAPNewEntryPresenter >> addRequest [
 
-	| name lines attrs |
-	lines := self attributes select: [ :element | element isValid ].
-	attrs := self attributesAsDictionary: lines.		
+	| name attrs |
+	attrs := self attributesAsDictionary: self asAttributes.		
 	name := self name.
 	
 	^ LDAPAddRequest new name: name; attributes: attrs
 ]
 
-{ #category : 'private' }
-LDAPNewEntryPresenter >> boldFor: anAttribute [
-
-	^ anAttribute isKey
-]
-
 { #category : 'testing' }
 LDAPNewEntryPresenter >> checkOkTrigger [
 "At least one attribute must be checked and to two identical descriptions"
-	| bag |
-	table refresh.
-	bag := self attributes reject: #isEmpty.
-
-	bag detect: [ :element | element isKey and: [ element content isEmpty] ]
+	| rdn |
+	rdn := lines select: #isKey.
+	rdn ifEmpty: [ self inform: 'No attributes selected for Relative Distinguished Name'. ^ false ].
+	
+	rdn detect: [ :element | element content isEmpty ]
 		ifFound: [ :element | self inform: 'Attribute ''', element description, ''' for RDN has no value'. ^ false ].
 	
-	"Ignore attributes with no content"	
-	bag := bag reject: [ :element | element content isEmpty ].
-	bag detect: [ :element | element description isEmpty ]
-		ifFound: [ :element | self inform: 'Attribute value ''', element content, ''' has no name'. ^ false ].
-		
-	bag := bag select: #isKey.
-	bag ifEmpty: [ self inform: 'No attributes selected for Relative Distinguished Name'. ^ false ].
-	
-	bag := bag asBag collect: #description.
-	bag associationsDo: [ :a | a value > 1 
-		ifTrue: [ self inform: 'Multiple attributes with type ''', a key, ''' used for RDN'. ^ false ] ].
-	^ true
-]
+	(rdn collect: #description) asBag keysAndValuesDo: [ :description :count | count > 1 
+		ifTrue: [ self inform: 'Multiple attributes with type ''', description, ''' used for RDN'. ^ false ] ].
 
-{ #category : 'private - accessing' }
-LDAPNewEntryPresenter >> checkStateChanged: aBoolean for: anAttribute [
-
-	| index class |
-	aBoolean = anAttribute isKey ifTrue: [ ^self ].
-	
-	index := table items identityIndexOf: anAttribute ifAbsent: [ self inform: 'no such attribute ', anAttribute asString. ^ self ].
-	
-	class := aBoolean ifFalse: [ LDAPLeafEntryAttribute ] ifTrue: [ LDAPKeyEntryAttribute ]. 
-	table items at: index put: (class copy: anAttribute).
-	table refresh.
-]
-
-{ #category : 'private - accessing' }
-LDAPNewEntryPresenter >> checkStateFor: anAttribute [
-
-	^ anAttribute isKey
+	^ super checkOkTrigger
 ]
 
 { #category : 'private' }
 LDAPNewEntryPresenter >> colorFor: anAttribute [
 
-	(anAttribute description isEmpty and: [ anAttribute content isNotEmpty ]) ifTrue: [ ^ application errorColor ].
-	
-	anAttribute isKey ifFalse: [ ^ application defaultColor ].
-	
-	anAttribute content isEmpty ifTrue: [ ^ application errorColor ].
-
-	((self attributes count: [ :a | a isKey and: [a description = anAttribute description] ]) > 1) ifTrue: [ ^ application errorColor ].
-	
-	^ application emphasisColor
+"	((self attributes count: [ :a | a isKey and: [a description = anAttribute description] ]) > 1) ifTrue: [ ^ application errorColor ].
+	"
+	^ super colorFor: anAttribute 
 	
 ]
 
@@ -119,15 +75,17 @@ LDAPNewEntryPresenter >> defaultLayout [
 			add: parent; 
 			yourself) expand: false;
 		add: table;
-		add: toolbar expand: false;
 		add: help expand: false;
 		yourself
 ]
 
-{ #category : 'accessing - model' }
-LDAPNewEntryPresenter >> filledAttributes [
-	
-	^ self attributes select: [ :element | element isValid ]
+{ #category : 'private' }
+LDAPNewEntryPresenter >> iconFor: anAttribute [
+
+	anAttribute isSpecial ifTrue: [ ^ anAttribute icon ].
+	anAttribute isRequired ifTrue: [ ^ self iconNamed: #testGreen ].
+	anAttribute isKnown ifTrue: [ ^ self iconNamed: #testYellow ].
+	^ self iconNamed: #testNotRun
 ]
 
 { #category : 'initialization' }
@@ -135,12 +93,14 @@ LDAPNewEntryPresenter >> initializePresenters [
 
 	super initializePresenters.
 	
-	help text: 'Check the attributes to be used as relative distinguished name'.
+	help := self newText beNotEditable; beWrapWord; withoutScrollBars;
+		text: 'Check the attributes to be used as relative distinguished name'.
 	
 	table 
-		addColumn: self checkColumn;
+		addColumn: self keyColumn;
 		addColumn: self descriptionColumn;
-		addColumn: self contentColumn.
+		addColumn: self contentColumn;
+		addColumns: self actionsColumns.
 
 ]
 
@@ -150,19 +110,30 @@ LDAPNewEntryPresenter >> initializeWindow: aWindowPresenter [
 	| height |
 	super initializeWindow: aWindowPresenter.
 	
-	height := self attributes size min: 20 max: 8.
-	height := StandardFonts defaultFont lineGrid * (height + 7) * 1.5.
+	height := self numberOfLines min: 20 max: 8.
+	height := StandardFonts defaultFont lineGrid * (height + 8) * 1.5.
 	
 	aWindowPresenter 
 		title: 'Attributes for a new entry';
-		initialExtent: 400 @ height
+		initialExtent: 450 @ height
 ]
 
-{ #category : 'accessing - model' }
+{ #category : 'ui building' }
+LDAPNewEntryPresenter >> keyColumn [
+
+	^ SpColumnViewColumn new
+			width: 23;
+			setup: [ :aPresenter | aPresenter newPresenter layout: SpBoxLayout newLeftToRight; yourself ];
+			bind: [ :aPresenter :anAttribute | anAttribute keyCheckbox: aPresenter for: self ];
+			yourself
+
+]
+
+{ #category : 'accessing' }
 LDAPNewEntryPresenter >> name [
 
 	^ String streamContents: [ :out |
-		(self attributes select: [ :element | element isValid and: [ element isKey ] ])
+		(self asAttributes select: #isKey)
 			do: [ :element | out nextPutAll: element description; nextPut: $=; nextPutAll: element content ] 
 			separatedBy: [ out nextPut: $+ ].
 		parent text ifNotEmpty: [ :string | out nextPut: $,; nextPutAll: string ]

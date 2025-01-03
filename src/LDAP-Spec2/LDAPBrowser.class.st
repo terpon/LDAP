@@ -270,7 +270,7 @@ LDAPBrowser >> onNamingContexts: aCommand [
 
 	| roots subSchema searchResult |
 	searchResult := aCommand responses first asDictionary.
-	
+	searchResult inspect.
 	subSchema := searchResult at: 'subschemasubentry' ifPresent: [ :c | c first ] ifAbsent: [ nil ].
 	session subSchema: subSchema.
 	

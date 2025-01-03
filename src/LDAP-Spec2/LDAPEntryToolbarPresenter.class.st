@@ -48,7 +48,7 @@ LDAPEntryToolbarPresenter >> addAction [
 	^ aPresenter openDialog
 		okAction: [ :dialog | | presenter |
 			presenter := dialog presenter.
-			application lastAddedAttributes: presenter filledAttributes.
+			application lastAddedAttributes: presenter asAttributes.
 			application sendAddEntry: presenter addRequest
 		];
 		cancelAction: [ :dialog | dialog inform: 'Cancelled add entry in ' , aDN ];

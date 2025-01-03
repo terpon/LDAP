@@ -6,9 +6,7 @@ Class {
 	#superclass : 'LDAPAttributeTablePresenter',
 	#instVars : [
 		'name',
-		'rdn',
-		'clear',
-		'checked'
+		'startAttributes'
 	],
 	#category : 'LDAP-Spec2-Attributes',
 	#package : 'LDAP-Spec2',
@@ -23,6 +21,9 @@ LDAPEditEntryPresenter class >> example [
 		LDAPKeyEntryAttribute newFromPair: #( 'cn' 'foo' ).
 		LDAPLeafEntryAttribute newFromPair: #( 'sn' 'bar' ).
 		LDAPLeafEntryAttribute newFromPair: #( 'sn' 'nox' ).
+		LDAPLeafEntryAttribute newFromPair: #( 'description' 'line 1' ).
+		LDAPLeafEntryAttribute newFromPair: #( 'description' 'line 2' ).
+		LDAPLeafEntryAttribute newFromPair: #( 'description' 'line 3' ).
 	}.
 	aPresenter := self on: aModel.
 	aPresenter name: 'cn=foo,dc=example,dc=com'.
@@ -34,64 +35,11 @@ LDAPEditEntryPresenter class >> example [
 
 ]
 
-{ #category : 'adding' }
-LDAPEditEntryPresenter >> addNewElement [
+{ #category : 'private - updating' }
+LDAPEditEntryPresenter >> buildLinesFrom: aCollection [
 
-	table items: (table items copyWith: LDAPLeafEntryAttribute new).
-	checked := checked copyWith: false.
-]
-
-{ #category : 'private' }
-LDAPEditEntryPresenter >> boldFor: anAttribute [
-
-	^ false
-]
-
-{ #category : 'testing' }
-LDAPEditEntryPresenter >> checkOkTrigger [
-"At least one attribute must be checked and to two identical descriptions"
-	| bag |
-	table refresh.
-
-	"Ignore attributes with no content"	
-	bag := self attributes reject: [ :element | element content isEmpty ].
-	bag detect: [ :element | element description isEmpty ]
-		ifFound: [ :element | self inform: 'Attribute value ''', element content, ''' has no name'. ^ false ].
-		
-	^ true
-]
-
-{ #category : 'private - accessing' }
-LDAPEditEntryPresenter >> checkStateChanged: aBoolean for: anAttribute [
-
-	| index |
-	index := table items identityIndexOf: anAttribute ifAbsent: [ self inform: 'no such attribute ', anAttribute asString. ^ self ].
-	checked at: index put: aBoolean.
-	
-	aBoolean ifTrue: [ clear enable ] 
-		ifFalse: [ clear enabled: (checked anySatisfy: [ :each | each ]) ].
-	
-	
-]
-
-{ #category : 'private - accessing' }
-LDAPEditEntryPresenter >> checkStateFor: anAttribute [
-
-	| index |
-	index := table items identityIndexOf: anAttribute ifAbsent: [ ^false ].
-	^ checked at: index
-]
-
-{ #category : 'private' }
-LDAPEditEntryPresenter >> colorFor: anAttribute [
-
-	| index |
-	(rdn items identityIncludes: anAttribute) ifTrue: [ ^ application emphasisColor ].
-	
-	index := table items identityIndexOf: anAttribute ifAbsent: [ ^ application errorColor ].
-	(checked at: index) ifTrue: [ ^ application disabledColor ].
-	
-	^ application defaultColor 
+	super buildLinesFrom: aCollection.
+	lines select: #isKey thenDo: [ :line | line beNotDeletable ].
 ]
 
 { #category : 'layout' }
@@ -102,22 +50,14 @@ LDAPEditEntryPresenter >> defaultLayout [
 			add: parentLabel expand: false; 
 			add: parent; 
 			yourself) expand: false;
-		add: rdn expand: false;
 		add: table expand: true;
-		add: toolbar expand: false;
-		add: help expand: false;
 		yourself
 ]
 
-{ #category : 'callbacks' }
-LDAPEditEntryPresenter >> deleteSelectedElements [
+{ #category : 'private' }
+LDAPEditEntryPresenter >> iconFor: anAttribute [
 
-	| attrs |
-	clear isEnabled ifFalse: [ ^self ].
-	attrs := table items withIndexSelect: [ :element :index | (checked at: index) not ].
-	checked := Array new: attrs size withAll: false.
-	table items: attrs.
-
+	^ anAttribute icon
 ]
 
 { #category : 'initialization' }
@@ -125,26 +65,10 @@ LDAPEditEntryPresenter >> initializePresenters [
 
 	super initializePresenters.
 	
-	help text: 'Check the attributes to enable the delete button'.
-	rdn := self newTable hideColumnHeaders; withoutScrollBars; propagateNaturalHeight: true;
-		isResizable: true;
+	table 
 		addColumn: self descriptionColumn;
 		addColumn: self contentColumn;
-		yourself.
-	
-	table 
-		addColumn: self descriptionColumn beEditable;
-		addColumn: self contentColumn beEditable;
-		addColumn: self checkColumn.
-
-	clear := self newToolbarButton disable;
-		label: 'clear';
-		icon: (self iconNamed: #smallCancel);
-		help: 'Delete selected attributes';
-	   	action: [ self deleteSelectedElements ];
-	   	yourself.
-	toolbar add: clear.
-
+		addColumns: self actionsColumns.
 ]
 
 { #category : 'initialization' }
@@ -153,23 +77,22 @@ LDAPEditEntryPresenter >> initializeWindow: aWindowPresenter [
 	| height |
 	super initializeWindow: aWindowPresenter.
 	
-	height := self attributes size min: 20 max: 8.
+	height := self numberOfLines min: 20 max: 8.
 	height := StandardFonts defaultFont lineGrid * (height + 10) * 1.5.
 	
 	aWindowPresenter 
 		title: 'Edit Attributes';
-		initialExtent: 400 @ height
+		initialExtent: 420 @ height
 ]
 
 { #category : 'accessing - model' }
 LDAPEditEntryPresenter >> modifyRequest [
 
-	| oldAttrs newAttrs request oldDescriptions newDescriptions addedAttributes |
+	| newAttrs request oldDescriptions newDescriptions addedAttributes |
 	request := LDAPModifyRequest new name: self name.
-	oldAttrs := self attributesAsDictionary: self attributes.
-	newAttrs := self attributesAsDictionary: (rdn items, (table items select: [:i | i isValid])).
+	newAttrs := self attributesAsDictionary: self asAttributes.
 	
-	oldDescriptions := oldAttrs keys.
+	oldDescriptions := startAttributes keys.
 	newDescriptions := newAttrs keys.
 	
 	(oldDescriptions difference: newDescriptions) do: [:description | 
@@ -179,7 +102,7 @@ LDAPEditEntryPresenter >> modifyRequest [
 		request description: description add: (newAttrs at: description) 
 	].
 	(newDescriptions difference: addedAttributes) reject: [ :description |
-		(oldAttrs at: description) = (newAttrs at: description) 		
+		(startAttributes at: description) = (newAttrs at: description) 		
 	] thenDo: [:description | 
 		request set: description to: (newAttrs at: description) 
 	].
@@ -201,15 +124,18 @@ LDAPEditEntryPresenter >> name: aString [
 	self updatePresenter.
 ]
 
-{ #category : 'initialization' }
-LDAPEditEntryPresenter >> updatePresenter [
- 
-	| rdnAttributes otherAttributes |
-	rdnAttributes := self attributes select: #isKey.
-	rdn items: rdnAttributes.
+{ #category : 'private' }
+LDAPEditEntryPresenter >> newLineFrom: aLine [
 
-	"Pass a copy of the attributes, we want to compare them for creating the request"
-	otherAttributes := (self attributes difference: rdnAttributes) collect: #copy.
-	checked := Array new: otherAttributes size withAll: false.
-	table items: otherAttributes.
+	| line |
+	line := aLine copy.
+	line isSpecial ifFalse: [ line isKey: false ].
+	^ line
+]
+
+{ #category : 'accessing - model' }
+LDAPEditEntryPresenter >> setModelBeforeInitialization: aCollection [
+
+	startAttributes := self attributesAsDictionary: aCollection.
+	super setModelBeforeInitialization: aCollection.
 ]

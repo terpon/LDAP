@@ -7,10 +7,10 @@ Class {
 	#instVars : [
 		'parent',
 		'table',
-		'attributes',
-		'help',
+		'lines',
+		'customAttributeType',
 		'parentLabel',
-		'toolbar'
+		'schema'
 	],
 	#category : 'LDAP-Spec2-Attributes',
 	#package : 'LDAP-Spec2',
@@ -22,39 +22,41 @@ LDAPAttributeTablePresenter class >> currentApplication [
 	^ LDAPBrowser new
 ]
 
-{ #category : 'initialization' }
-LDAPAttributeTablePresenter >> actionsColumn [
+{ #category : 'ui building' }
+LDAPAttributeTablePresenter >> actionsColumns [
 
-	^ SpColumnViewColumn new
-			title: 'Actions';
-			width: 60;
-			setup: [ :aPresenter | | presenter |
-				(presenter := aPresenter newPresenter)
-					layout: SpBoxLayout newHorizontal hAlignCenter;
-					yourself ];
-			bind: [ :aPresenter :anAttribute |
-				anAttribute addActions: aPresenter
-			];
-			yourself
+	^ { self buttonColumn bind: [ :aPresenter :anAttribute | anAttribute configButton: aPresenter for: self ]
+		.self buttonColumn bind: [ :aPresenter :anAttribute | anAttribute addButton: aPresenter for: self ]
+		.self buttonColumn bind: [ :aPresenter :anAttribute | anAttribute deleteButton: aPresenter for: self ]
+		}
 ]
 
-{ #category : 'adding' }
-LDAPAttributeTablePresenter >> addNewElement [
+{ #category : 'events' }
+LDAPAttributeTablePresenter >> addActionOn: aLine [
 
-	self subclassResponsibility.
-]
-
-{ #category : 'accessing - model' }
-LDAPAttributeTablePresenter >> attributes [
-	
-	^ attributes ifNil: [ attributes := #() ]
-]
-
-{ #category : 'accessing - model' }
-LDAPAttributeTablePresenter >> attributes: aCollection [
-	
-	attributes := aCollection.
+	| index attribute |
+	index := lines identityIndexOf: aLine.
+	attribute := self newLineFrom: aLine.
+	lines add: attribute afterIndex: index.
 	self updatePresenter
+]
+
+{ #category : 'events' }
+LDAPAttributeTablePresenter >> addCustomAttribute: aString [ 
+
+	| attribute |
+	customAttributeType := aString.
+	attribute := LDAPCustomAttributeTableLine new description: aString; content: ''; yourself.
+	lines add: attribute beforeIndex: lines size.
+	self updateAttributes 
+]
+
+{ #category : 'converting' }
+LDAPAttributeTablePresenter >> asAttributes [
+
+	| valid |
+	valid := lines select: #isValid.
+	^ valid collect: #entryAttribute
 ]
 
 { #category : 'helper' }
@@ -72,85 +74,95 @@ LDAPAttributeTablePresenter >> attributesAsDictionary: aCollection [
 
 ]
 
-{ #category : 'private' }
-LDAPAttributeTablePresenter >> boldFor: anAttribute [
+{ #category : 'private - updating' }
+LDAPAttributeTablePresenter >> buildLinesFrom: aCollection [
 
-	self subclassResponsibility.	
-	^ false 
+	| sorter |
+	sorter := LDAPAttributeLineSorter new schema: self schema; attributes: aCollection.
+	lines := sorter lines.
 ]
 
-{ #category : 'initialization' }
-LDAPAttributeTablePresenter >> checkColumn [ 
+{ #category : 'ui building' }
+LDAPAttributeTablePresenter >> buttonColumn [
 
-	^ SpCheckBoxTableColumn new
-			beNotExpandable; width: 20;
-			onActivation: [ :each | self checkStateChanged: true for: each ];
-			onDeactivation: [ :each | self checkStateChanged: false for: each ];
-			evaluated: [ :each | self checkStateFor: each ];
+	^ SpColumnViewColumn new
+			width: 28;
+			setup: [ :aPresenter | aPresenter newPresenter layout: SpBoxLayout newLeftToRight; yourself ];
 			yourself
 ]
 
 { #category : 'testing' }
 LDAPAttributeTablePresenter >> checkOkTrigger [
+"Check all required attributes have a content"
+	| required |
+	required := lines select: #isRequired.
+	required detect: [ :element | element content isEmpty ]
+		ifFound: [ :element | self inform: 'Required Attribute ''', element description, ''' has no value'. ^ false ].
 
-	self subclassResponsibility.
 	^ true
-]
-
-{ #category : 'private - accessing' }
-LDAPAttributeTablePresenter >> checkStateChanged: aBoolean for: anAttribute [
-
-	self subclassResponsibility.
-]
-
-{ #category : 'private - accessing' }
-LDAPAttributeTablePresenter >> checkStateFor: anAttribute [
-
-	self subclassResponsibility.
-	^ false
 ]
 
 { #category : 'private' }
 LDAPAttributeTablePresenter >> colorFor: anAttribute [
 
-	self subclassResponsibility.	
-	^ application defaultColor 
+	(anAttribute isRequired and: [ anAttribute isValid not ]) ifTrue: [ ^ application errorColor ].
+	anAttribute isKnown ifFalse: [ ^ application disabledColor ].
+	anAttribute isKey ifTrue: [ ^ application emphasisColor ].
+	^ application defaultColor
 ]
 
-{ #category : 'private - accessing' }
-LDAPAttributeTablePresenter >> content: aString for: anAttribute [
-
-	anAttribute content: aString.
-
-]
-
-{ #category : 'initialization' }
+{ #category : 'ui building' }
 LDAPAttributeTablePresenter >> contentColumn [
 
 	^ SpColumnViewColumn new
 			title: 'Values';
+			beExpandable;
 			setup: [ :aPresenter | | presenter |
-				(presenter := aPresenter newPresenter
-					layout: SpBoxLayout newHorizontal hAlignCenter)
-					yourself ];
+				(presenter := aPresenter newPresenter)
+					layout: SpBoxLayout newLeftToRight;
+					yourself
+			];
 			bind: [ :aPresenter :anAttribute |
 				anAttribute addContentPresenter: aPresenter
 			];
 			yourself
 ]
 
-{ #category : 'private - accessing' }
-LDAPAttributeTablePresenter >> description: aString for: anAttribute [
+{ #category : 'accessing' }
+LDAPAttributeTablePresenter >> customAttributeType [
 
-	anAttribute description: aString.
-
+	^ customAttributeType ifNil: ['']
 ]
 
-{ #category : 'initialization' }
+{ #category : 'events' }
+LDAPAttributeTablePresenter >> deleteActionOn: aLine [
+
+	(self shouldRemove: aLine)
+		ifTrue: [| index |
+			index := lines identityIndexOf: aLine.
+			lines removeAt: index.
+		] 
+		ifFalse: [ aLine content: '' ].
+	self updatePresenter
+]
+
+{ #category : 'events' }
+LDAPAttributeTablePresenter >> deleteObjectClassActionOn: aLine [
+
+	| index |
+	index := lines identityIndexOf: aLine.
+	lines removeAt: index.
+	"We need to remove attributes no more needed"
+	lines := lines reject: [ :each | each content isEmpty ].
+	self updateAttributes
+]
+
+{ #category : 'ui building' }
 LDAPAttributeTablePresenter >> descriptionColumn [ 
 	
 	^ SpColumnViewColumn new 
 			title: 'Attribute'; 
+			beExpandable;
 			setup: [ :aPresenter |
 				| presenter |
 				(presenter := aPresenter newPresenter)
@@ -161,12 +173,28 @@ LDAPAttributeTablePresenter >> descriptionColumn [
 						yourself);
 					yourself ];
 			bind: [ :aPresenter :anAttribute | 
-				| image label |
-				image := aPresenter layout children first.
-				image image: anAttribute icon.
-				label := aPresenter layout children second.
-				label label: anAttribute description ];
+				aPresenter layout children first 
+					image: (self iconFor: anAttribute);
+					help: (self iconTipFor: anAttribute).
+				aPresenter layout children second 
+					label: anAttribute description;
+					displayColor: [ self colorFor: anAttribute ];
+					displayBold: [ anAttribute bold ]
+				];
 			yourself
+]
+
+{ #category : 'private' }
+LDAPAttributeTablePresenter >> iconFor: anAttribute [
+
+	self subclassResponsibility.
+	^ self iconNamed: #blank
+]
+
+{ #category : 'private' }
+LDAPAttributeTablePresenter >> iconTipFor: anAttribute [
+
+	^ anAttribute help
 ]
 
 { #category : 'initialization' }
@@ -188,16 +216,7 @@ LDAPAttributeTablePresenter >> initializePresenters [
 
 	parentLabel := self newLabel label: 'Parent DN: '.
 	parent := self newTextInput beNotEditable.
-	help := self newText beNotEditable; beWrapWord; withoutScrollBars;
-		text: 'Check the attributes to be used as relative distinguished name'.
-	toolbar := self newToolbar beIcons;
-		add: (self newToolbarButton label: 'add';
-				  			icon: (self iconNamed: #smallAdd);
-				     		help: 'Add a new attribute line';
-				       	action: [ self addNewElement ];
-				        	yourself); yourself.
-
-	table := self newTable isResizable: true; yourself.
+	table := self newColumnView isResizable: true; yourself.
 ]
 
 { #category : 'accessing' }
@@ -206,21 +225,97 @@ LDAPAttributeTablePresenter >> name [
 	^ self subclassResponsibility
 ]
 
+{ #category : 'private' }
+LDAPAttributeTablePresenter >> newLineFrom: aLine [
+
+	^ aLine copy
+]
+
+{ #category : 'accessing' }
+LDAPAttributeTablePresenter >> numberOfLines [
+
+	^ lines ifNotNil: [ lines size ] ifNil: [ 0 ]
+]
+
+{ #category : 'events' }
+LDAPAttributeTablePresenter >> promptCustomAttribute [
+
+	SpRequestDialog new
+		title: 'Add Custom Attribute';
+		label: 'Enter the name of the new attribute';
+		text: self customAttributeType;
+		acceptLabel: 'Add';
+		cancelLabel: 'Cancel';
+		validateAnswer: [ :text | text isNotEmpty ];
+		onAccept: [ :dialog | self addCustomAttribute: dialog presenter text ];
+		openDialog
+]
+
+{ #category : 'accessing' }
+LDAPAttributeTablePresenter >> schema [
+
+	^ schema ifNil: [ LDAPSchema default ]
+]
+
+{ #category : 'accessing' }
+LDAPAttributeTablePresenter >> schema: anObject [
+
+	schema := anObject
+]
+
+{ #category : 'events' }
+LDAPAttributeTablePresenter >> selectObjectClass: aLine [
+
+	| presenter |
+	presenter := LDAPObjectClassChooserPresenter on: self schema structuralClasses.
+
+	presenter selectItem: aLine content.
+
+	^ presenter openDialog 
+		okAction: [ :dialog | | selection |
+			selection := dialog presenter selectedItem.
+			aLine objectClass: selection.
+			self updateAttributes
+		];
+		cancelAction: [ :dialog | dialog inform: 'Cancelled Object Classes selection' ];
+		yourself.
+]
+
 { #category : 'accessing - model' }
 LDAPAttributeTablePresenter >> setModel: aCollection [
 
-	self attributes: aCollection
+	self setModelBeforeInitialization: aCollection.
+	self updatePresenter
 ]
 
 { #category : 'accessing - model' }
 LDAPAttributeTablePresenter >> setModelBeforeInitialization: aCollection [
 
-	attributes := aCollection
+	self buildLinesFrom: aCollection
+]
 
+{ #category : 'private - updating' }
+LDAPAttributeTablePresenter >> shouldRemove: aLine [
+
+	| count |
+	aLine isKnown ifFalse: [ ^ true ].
+	count := lines count: [ :line | line description sameAs: aLine description ].
+	^ count > 1
+]
+
+{ #category : 'private - updating' }
+LDAPAttributeTablePresenter >> updateAttributes [ 
+
+	| attributes keep |
+	"Remove special and known attributes not valid to avoid clutter"
+	keep := lines select: [ :line | line isValid or: [ (line isSpecial | line isKnown) not ] ].
+	attributes := keep collect: #entryAttribute.
+	self buildLinesFrom: attributes.
+	self updatePresenter
 ]
 
 { #category : 'initialization' }
 LDAPAttributeTablePresenter >> updatePresenter [
  
-	table items: self attributes
+	table items: lines
 ]

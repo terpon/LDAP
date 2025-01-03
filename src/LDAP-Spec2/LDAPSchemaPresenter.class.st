@@ -73,5 +73,5 @@ LDAPSchemaPresenter >> modelChanged [
 
 	| model |
 	model := self model ifNil: [ LDAPSchema default ].
-	list items: model structuralClasses.
+	list items: model structuralClasses sorted.
 ]

@@ -19,13 +19,12 @@ Class {
 { #category : 'examples' }
 LDAPObjectClassChooserPresenter class >> example [
 
-	| classes selected presenter |
+	| classes presenter |
 	classes := LDAPSchema default structuralClasses select: [ :c | c hasAttribute: 'ou' ].
-	selected := #( 'applicationProcess' 'document1' 'groupofnames').
 	presenter := self on: classes.
-	presenter selectItems: selected.
+	presenter selectItem: 'groupofnames'.
 	^ presenter openDialog 
-		okAction: [ :dialog | dialog inform: (dialog presenter selectedItems collect: #name) ];
+		okAction: [ :dialog | dialog inform: (dialog presenter selectedItem name) ];
 		cancelAction: [ :dialog | dialog inform: 'Cancelled' ];
 		yourself.
 ]
@@ -33,13 +32,19 @@ LDAPObjectClassChooserPresenter class >> example [
 { #category : 'examples' }
 LDAPObjectClassChooserPresenter class >> exampleDefault [
 
+	^ (self on: LDAPSchema default structuralClasses) openDialog
+]
+
+{ #category : 'examples' }
+LDAPObjectClassChooserPresenter class >> exampleEmpty [
+
 	^ self new openDialog
 ]
 
 { #category : 'testing' }
 LDAPObjectClassChooserPresenter >> checkOkTrigger [
-"At least one object class must be selected"
-	self selectedItems ifEmpty: [ self inform: 'At least one Object Class must be selected'. ^ false ].
+"One object class must be selected"
+	self selectedItem ifNil: [ self inform: 'No Object Class selected'. ^ false ].
 		
 	^ true
 ]
@@ -47,11 +52,7 @@ LDAPObjectClassChooserPresenter >> checkOkTrigger [
 { #category : 'initialization' }
 LDAPObjectClassChooserPresenter >> connectPresenters [
 
-	classes 
-		onActivation: [ :i | self updateAttributes ];
-		onDeactivation: [ :i | self updateAttributes ];
-		whenSelectionChangedDo: [ :selection | self updateDescription: selection selectedItem ].
-		
+	classes whenSelectionChangedDo: [ :selection | self updateAttributes ].
 	mustAttributes whenSelectionChangedDo: [ :selection | self updateDescription: selection selectedItem ].
 	mayAttributes whenSelectionChangedDo: [ :selection | self updateDescription: selection selectedItem ].
 
@@ -100,9 +101,8 @@ LDAPObjectClassChooserPresenter >> initializeDialogWindow: aDialogWindowPresente
 { #category : 'initialization' }
 LDAPObjectClassChooserPresenter >> initializePresenters [
 
-	classes := (self instantiate: SpFilteringSelectableListPresenter)
+	classes := (self instantiate: SpFilteringListPresenter)
 		display: [ :item | item displayName ];
-		items: self model;
 		yourself.
 
 	mustAttributes := self newList
@@ -126,21 +126,12 @@ LDAPObjectClassChooserPresenter >> initializeWindow: aWindowPresenter [
 		initialExtent: 550 @ 500
 ]
 
-{ #category : 'accessing' }
-LDAPObjectClassChooserPresenter >> model [
-	
-	| model |
-	super model ifNotNil: [ :m | ^m ].
-	
-	model := self schema structuralClasses.
-	self model: model.
-	^ model
-]
-
 { #category : 'initialization' }
 LDAPObjectClassChooserPresenter >> modelChanged [ 
 
-	classes items: self model.
+	| list |
+	list := self model ifNil: [ #() ] ifNotNil: [ :m | m sorted ].
+	classes items: list.
 ]
 
 { #category : 'accessing' }
@@ -156,35 +147,29 @@ LDAPObjectClassChooserPresenter >> schema: anObject [
 ]
 
 { #category : 'api - selection' }
-LDAPObjectClassChooserPresenter >> selectItems: aCollection [
+LDAPObjectClassChooserPresenter >> selectItem: aName [
 
 	| oc |
-	oc := aCollection collect: [ :each | each isString ifFalse: [ each ] 
-				ifTrue: [ self schema objectClass: each ifAbsent: [ nil ] ] ].
-	oc := oc reject: #isNil.
-	classes selectItems: oc.
+	oc := aName isString ifFalse: [ aName ] ifTrue: [ self schema objectClass: aName ifAbsent: [ nil ] ].
+	classes selectItem: oc.
 	self updateAttributes
 ]
 
 { #category : 'api - selection' }
-LDAPObjectClassChooserPresenter >> selectedItems [
+LDAPObjectClassChooserPresenter >> selectedItem [
 
-	^ classes selectedItems reject: #isNil
+	^ classes selectedItem
 ]
 
 { #category : 'updating' }
 LDAPObjectClassChooserPresenter >> updateAttributes [
 
-	self updateAttributes: self selectedItems
-]
-
-{ #category : 'updating' }
-LDAPObjectClassChooserPresenter >> updateAttributes: aCollection [
-
-	| attributes |
-	attributes := LDAPObjectClass attributesFrom: aCollection.
-	mustAttributes items: attributes first sorted.
-	mayAttributes items: attributes second sorted.
+	| oc |
+	oc := self selectedItem ifNil: [ ^self ].
+	mustAttributes items: (oc must reject: [ :each | each oid = '2.5.4.0']) sorted.
+	mayAttributes items: oc may sorted.
+	
+	self updateDescription: oc.
 ]
 
 { #category : 'updating' }

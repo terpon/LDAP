@@ -32,6 +32,19 @@ LDAPNamedObject >> displayName [
 	]
 ]
 
+{ #category : 'accessing' }
+LDAPNamedObject >> keys [
+"Returns all the ways the object can be referenced"
+	^ self names copyWith: self oid asString
+]
+
+{ #category : 'enumerating' }
+LDAPNamedObject >> keysDo: aBlock [
+
+	self names do: aBlock.
+	aBlock value: self oid.
+]
+
 { #category : 'converting' }
 LDAPNamedObject >> name [
 
