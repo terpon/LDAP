@@ -34,9 +34,8 @@ LDAPObjectClassTableLine >> addButton: aPresenter for: aDialog [
 { #category : 'adding' }
 LDAPObjectClassTableLine >> addContentPresenter: aPresenter [
 
-	| content |
-	content := aPresenter newLabel label: self content.
-	aPresenter layout add: content.
+	contentPresenter := aPresenter newLabel label: self content.
+	aPresenter layout add: contentPresenter.
 	^ self
 ]
 

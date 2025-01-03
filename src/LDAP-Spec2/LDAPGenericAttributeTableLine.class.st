@@ -4,8 +4,9 @@ Class {
 	#instVars : [
 		'description',
 		'content',
-		'canDelete',
-		'isKey'
+		'isKey',
+		'canBeDeleted',
+		'canBeModified'
 	],
 	#category : 'LDAP-Spec2-Attributes',
 	#package : 'LDAP-Spec2',
@@ -16,25 +17,9 @@ Class {
 LDAPGenericAttributeTableLine class >> empty: anAttributeType [
 
 	^ self new 
-		beNotDeletable;
 		description: anAttributeType name;
 		content: '';
 		yourself
-]
-
-{ #category : 'adding' }
-LDAPGenericAttributeTableLine >> addActions: aPresenter for: aDialog [
-	
-	addButton := (self newAddButton: aPresenter)
-				action: [ aDialog addActionOn: self ];
-				yourself.
-	
-	deleteButton := (self newDeleteButton: aPresenter)
-				enabled: self canDelete;
-				action: [ aDialog deleteActionOn: self ];
-				yourself.
-
-	^ super addActions: aPresenter for: aDialog 
 ]
 
 { #category : 'ui building' }
@@ -50,10 +35,10 @@ LDAPGenericAttributeTableLine >> addButton: aPresenter for: aDialog [
 { #category : 'adding' }
 LDAPGenericAttributeTableLine >> addContentPresenter: aPresenter [
 
-	| text |
-	text := aPresenter newTextInput text: self content;
+	contentPresenter := aPresenter newTextInput text: self content;
+		editable: self canBeModified;
 		whenTextChangedDo: [ :t | self content: t ].
-	aPresenter layout add: text expand: true.
+	aPresenter layout add: contentPresenter expand: true.
 	^ self
 ]
 
@@ -63,31 +48,41 @@ LDAPGenericAttributeTableLine >> attribute: anObject [
 	description := anObject description.
 	content := anObject content.
 	isKey := anObject isKey.
+	self updatePresenters
 ]
 
 { #category : 'accessing' }
-LDAPGenericAttributeTableLine >> beDeletable [
+LDAPGenericAttributeTableLine >> beProtected [ 
 
-	self canDelete: true
+	self canBeDeleted: false.
+	self canBeModified: false.
+	^ self
 ]
 
 { #category : 'accessing' }
-LDAPGenericAttributeTableLine >> beNotDeletable [
+LDAPGenericAttributeTableLine >> canBeDeleted [
 
-	self canDelete: false
+	^ (canBeDeleted ifNil: [ true ]) and: [ self isValid ]
 ]
 
 { #category : 'accessing' }
-LDAPGenericAttributeTableLine >> canDelete [
+LDAPGenericAttributeTableLine >> canBeDeleted: anObject [
 
-	^ canDelete ifNil: [ true ]
+	canBeDeleted := anObject.
+	self updatePresenters.
 ]
 
 { #category : 'accessing' }
-LDAPGenericAttributeTableLine >> canDelete: aBoolean [
+LDAPGenericAttributeTableLine >> canBeModified [
 
-	canDelete := aBoolean.
-	deleteButton ifNotNil: [ :button | button enabled: aBoolean ]
+	^ canBeModified ifNil: [ true ]
+]
+
+{ #category : 'accessing' }
+LDAPGenericAttributeTableLine >> canBeModified: aBoolean [
+
+	canBeModified := aBoolean.
+	self updatePresenters.
 ]
 
 { #category : 'accessing' }
@@ -100,14 +95,14 @@ LDAPGenericAttributeTableLine >> content [
 LDAPGenericAttributeTableLine >> content: anObject [
 
 	content := anObject.
-	addButton ifNotNil: [ :button | button enabled: content isNotEmpty ]
+	self updatePresenters
 ]
 
 { #category : 'ui building' }
 LDAPGenericAttributeTableLine >> deleteButton: aPresenter for: aDialog [
 	
 	deleteButton := (self newDeleteButton: aPresenter)
-				enabled: self canDelete;
+				enabled: self canBeDeleted;
 				action: [ aDialog deleteActionOn: self ];
 				yourself.
 
@@ -123,7 +118,8 @@ LDAPGenericAttributeTableLine >> description [
 { #category : 'accessing' }
 LDAPGenericAttributeTableLine >> description: anObject [
 
-	description := anObject
+	description := anObject.
+	self updatePresenters
 ]
 
 { #category : 'converting' }
@@ -159,7 +155,8 @@ LDAPGenericAttributeTableLine >> isKey [
 { #category : 'accessing' }
 LDAPGenericAttributeTableLine >> isKey: anObject [
 
-	isKey := anObject
+	isKey := anObject.
+	self updatePresenters
 ]
 
 { #category : 'testing' }
@@ -190,4 +187,12 @@ LDAPGenericAttributeTableLine >> keyCheckbox: aPresenter for: aDialog [
 LDAPGenericAttributeTableLine >> sameTypeAs: anObject [
 
 	^ self description sameAs: anObject description
+]
+
+{ #category : 'updating - presenters' }
+LDAPGenericAttributeTableLine >> updatePresenters [
+
+	addButton ifNotNil: [ :button | button enabled: self isValid ].
+	deleteButton ifNotNil: [ :button | button enabled: self canBeDeleted ].
+	contentPresenter ifNotNil: [ :presenter | presenter editable: self canBeModified ].
 ]

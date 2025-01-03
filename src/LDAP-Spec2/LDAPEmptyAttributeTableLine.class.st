@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'configButton',
 		'addButton',
-		'deleteButton'
+		'deleteButton',
+		'contentPresenter'
 	],
 	#category : 'LDAP-Spec2-Attributes',
 	#package : 'LDAP-Spec2',
@@ -15,16 +16,6 @@ Class {
 LDAPEmptyAttributeTableLine class >> canDeleteLast [
 
 	^ true
-]
-
-{ #category : 'ui building' }
-LDAPEmptyAttributeTableLine >> addActions: aPresenter for: aDialog [
-
-	self setButton: configButton in: aPresenter.
-	self setButton: addButton in: aPresenter.
-	self setButton: deleteButton in: aPresenter.
-
-	^ self
 ]
 
 { #category : 'ui building' }
@@ -165,4 +156,10 @@ LDAPEmptyAttributeTableLine >> sameTypeAs: anObject [
 LDAPEmptyAttributeTableLine >> setButton: aButton in: aPresenter [
 	
 	aButton ifNotNil: [ aPresenter layout add: aButton expand: false ]
+]
+
+{ #category : 'updating - presenters' }
+LDAPEmptyAttributeTableLine >> updatePresenters [
+
+	"Nothing"
 ]

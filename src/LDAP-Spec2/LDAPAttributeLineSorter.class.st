@@ -72,7 +72,7 @@ LDAPAttributeLineSorter >> mayLinesOn: aStream [
 	types := mayAttributes keys sorted asOrderedCollection.
 	(mayAttributes reject: #isEmpty) keysAndValuesDo: [ :aDescription :aCollection |
 		types remove: aDescription.
-		aCollection do: [ :each | aStream nextPut: (LDAPAllowedAttributeTableLine new attribute: each; beDeletable) ] 
+		aCollection do: [ :each | aStream nextPut: (LDAPAllowedAttributeTableLine new attribute: each) ] 
 	].
 	types do: [ :aDescription | aStream nextPut: (LDAPAllowedAttributeTableLine empty: aDescription) ].
 ]
@@ -88,7 +88,7 @@ LDAPAttributeLineSorter >> mustLinesOn: aStream [
 			ifEmpty: [ aStream nextPut: (LDAPRequiredAttributeTableLine empty: aDescription) ] 
 			ifNotEmpty: [ | canBeDeleted |
 				canBeDeleted := aCollection size > 1.
-				aCollection do: [ :each | aStream nextPut: (LDAPRequiredAttributeTableLine new attribute: each; canDelete: canBeDeleted) ] ] 
+				aCollection do: [ :each | aStream nextPut: (LDAPRequiredAttributeTableLine new attribute: each; canBeDeleted: canBeDeleted) ] ] 
 	]
 ]
 

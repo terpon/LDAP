@@ -38,6 +38,7 @@ LDAPAttributeTablePresenter >> addActionOn: aLine [
 	index := lines identityIndexOf: aLine.
 	attribute := self newLineFrom: aLine.
 	lines add: attribute afterIndex: index.
+	self allowDeleteOn: aLine.
 	self updatePresenter
 ]
 
@@ -49,6 +50,13 @@ LDAPAttributeTablePresenter >> addCustomAttribute: aString [
 	attribute := LDAPCustomAttributeTableLine new description: aString; content: ''; yourself.
 	lines add: attribute beforeIndex: lines size.
 	self updateAttributes 
+]
+
+{ #category : 'private - updating' }
+LDAPAttributeTablePresenter >> allowDeleteOn: aLine [
+
+	aLine isSpecial ifTrue: [ ^self ].
+	aLine canBeDeleted: true; updatePresenters
 ]
 
 { #category : 'converting' }
@@ -72,6 +80,13 @@ LDAPAttributeTablePresenter >> attributesAsDictionary: aCollection [
 	].
 	^ dictionary 
 
+]
+
+{ #category : 'private - updating' }
+LDAPAttributeTablePresenter >> blockDeleteOn: aLine [
+
+	aLine isSpecial ifTrue: [ ^self ].
+	aLine canBeDeleted: false; updatePresenters
 ]
 
 { #category : 'private - updating' }
@@ -142,7 +157,10 @@ LDAPAttributeTablePresenter >> deleteActionOn: aLine [
 			index := lines identityIndexOf: aLine.
 			lines removeAt: index.
 		] 
-		ifFalse: [ aLine content: '' ].
+		ifFalse: [ 
+			aLine content: ''.
+			self blockDeleteOn: aLine.
+		].
 	self updatePresenter
 ]
 

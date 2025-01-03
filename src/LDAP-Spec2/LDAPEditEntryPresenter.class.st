@@ -36,10 +36,17 @@ LDAPEditEntryPresenter class >> example [
 ]
 
 { #category : 'private - updating' }
+LDAPEditEntryPresenter >> allowDeleteOn: aLine [
+
+	aLine isKey ifTrue: [ ^self ].
+	^ super allowDeleteOn: aLine
+]
+
+{ #category : 'private - updating' }
 LDAPEditEntryPresenter >> buildLinesFrom: aCollection [
 
 	super buildLinesFrom: aCollection.
-	lines select: #isKey thenDo: [ :line | line beNotDeletable ].
+	lines select: #isKey thenDo: [ :line | line beProtected ].
 ]
 
 { #category : 'layout' }
@@ -128,8 +135,11 @@ LDAPEditEntryPresenter >> name: aString [
 LDAPEditEntryPresenter >> newLineFrom: aLine [
 
 	| line |
-	line := aLine copy.
-	line isSpecial ifFalse: [ line isKey: false ].
+	"A copy should be editable, so create a new line"
+	line := aLine isSpecial
+				ifFalse: [ aLine class new description: aLine description; content: aLine content; yourself ]
+				ifTrue: [ aLine copy ].
+
 	^ line
 ]
 
