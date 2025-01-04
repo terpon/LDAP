@@ -14,7 +14,7 @@ LDAPEditorPresenter class >> currentApplication [
 	^ LDAPEditor new
 ]
 
-{ #category : 'callbacks' }
+{ #category : 'updating - presenters' }
 LDAPEditorPresenter >> invalidatePage: aDN [
 
 	| page |
@@ -29,4 +29,12 @@ LDAPEditorPresenter >> newEntryPresenterOn: anEntry [
 	presenter := LDAPEntryEditorPresenter newApplication: application model: anEntry.
 	^ presenter
 	
+]
+
+{ #category : 'updating - presenters' }
+LDAPEditorPresenter >> updatePage: aDN [
+
+	| page |
+	page := miller pages detect: [ :p | p model name = aDN ] ifNone: [ ^self ].
+	page updatePresenter.
 ]

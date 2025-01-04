@@ -5,7 +5,6 @@ Class {
 	#name : 'LDAPEditor',
 	#superclass : 'LDAPBrowser',
 	#instVars : [
-		'lastAddedAttributes',
 		'clipboard'
 	],
 	#category : 'LDAP-Spec2-Applications',
@@ -19,17 +18,43 @@ LDAPEditor class >> mainPresenterClass [
 	^ LDAPEditorPresenter
 ]
 
-{ #category : 'accessing' }
-LDAPEditor >> clipboardText [
-	^ clipboard 
+{ #category : 'clipboard handling' }
+LDAPEditor >> clipboard [
+
+	^ clipboard ifNil: [ clipboard := LDAPClipboardNull new ]
 ]
 
-{ #category : 'accessing' }
-LDAPEditor >> clipboardText: aString [
+{ #category : 'private - clipboard handling' }
+LDAPEditor >> clipboard: aClipboardContent [
+	
+	(aClipboardContent = self clipboard) ifTrue: [ ^self ].
+	clipboard := aClipboardContent.
+	self announcer announce: (LDAPClipboardChanged new content: aClipboardContent)
+]
 
-	clipboard = aString ifTrue: [ ^self ].
-	clipboard := aString.
-	self announcer announce: (LDAPClipboardChanged new text: aString)
+{ #category : 'clipboard handling' }
+LDAPEditor >> clipboardClear [
+	
+	self clipboard: LDAPClipboardNull new.
+]
+
+{ #category : 'clipboard handling' }
+LDAPEditor >> clipboardCopy: anEntry [
+	
+	| copy attributes aDN |
+	aDN := anEntry name.
+	attributes := anEntry leaves collect: #copy.
+
+	copy := LDAPClipboardCopyAttributes new name: aDN; attributes: attributes; yourself.
+	self clipboard: copy
+]
+
+{ #category : 'clipboard handling' }
+LDAPEditor >> clipboardCut: anEntry [
+	
+	| cut |
+	cut := LDAPClipboardMoveEntry new name: anEntry name.
+	self clipboard: cut
 ]
 
 { #category : 'searching' }
@@ -40,7 +65,7 @@ LDAPEditor >> invalidateName: aDN [
 	aCachedEntry invalidate.
 	self isConnected ifTrue: [ aCachedEntry update: self ].
 	
-	clipboard ifNotNil: [ :s | (LDAPName is: s under: aDN) ifTrue: [ self clipboardText: nil ] ]. 
+	(self clipboard isValidOnInvalidateName: aDN) ifFalse: [ self clipboardClear ].
 ]
 
 { #category : 'searching' }
@@ -49,20 +74,6 @@ LDAPEditor >> invalidateParent: aDN [
 	| parentDN |
 	parentDN := LDAPName parentOf: aDN.
 	self invalidateName: parentDN
-]
-
-{ #category : 'accessing' }
-LDAPEditor >> lastAddedAttributes [
-
-	^ lastAddedAttributes ifNil: [ 
-			lastAddedAttributes := { LDAPLeafEntryAttribute new description: 'objectClass' } 
-		]
-]
-
-{ #category : 'accessing' }
-LDAPEditor >> lastAddedAttributes: aCollection [
-
-	lastAddedAttributes := aCollection
 ]
 
 { #category : 'callbacks' }
@@ -100,6 +111,22 @@ LDAPEditor >> onModifiedNameEntry: aRequest [
 	main invalidatePage: aRequest name.
 	self inform: 'Success on modyfying name for ', aRequest name
 
+]
+
+{ #category : 'ui - dialogs' }
+LDAPEditor >> openNewEntryDialogUnder: aDN with: aCollection [
+	
+	| aPresenter |
+	aPresenter := LDAPNewEntryPresenter newApplication: self model: aCollection.
+	aPresenter parent: aDN.
+
+	^ aPresenter openDialog
+		okAction: [ :dialog | | presenter |
+			presenter := dialog presenter.
+			self sendAddEntry: presenter addRequest
+		];
+		cancelAction: [ :dialog | dialog inform: 'Cancelled adding new entry in ' , aDN ];
+		yourself
 ]
 
 { #category : 'dispatching' }

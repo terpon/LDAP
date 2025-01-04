@@ -35,30 +35,16 @@ LDAPEntryToolbarPresenter class >> example [
 { #category : 'actions' }
 LDAPEntryToolbarPresenter >> addAction [
 
-	| aPresenter elements aDN |
 	entry ifNil: [ ^self ].
 	new isEnabled ifFalse: [ ^self ].
 	
-	aDN := entry name.
-	elements := application lastAddedAttributes copyWith: LDAPLeafEntryAttribute new.
-
-	aPresenter := LDAPNewEntryPresenter newApplication: application model: elements.
-	aPresenter parent: aDN.
-
-	^ aPresenter openDialog
-		okAction: [ :dialog | | presenter |
-			presenter := dialog presenter.
-			application lastAddedAttributes: presenter asAttributes.
-			application sendAddEntry: presenter addRequest
-		];
-		cancelAction: [ :dialog | dialog inform: 'Cancelled add entry in ' , aDN ];
-		yourself
+	^ application openNewEntryDialogUnder: entry name with: #()
 ]
 
 { #category : 'updating' }
 LDAPEntryToolbarPresenter >> clipboardChanged: anAnnouncement [
 
-	self updatePaste: anAnnouncement text.
+	self updatePaste: anAnnouncement content.
 ]
 
 { #category : 'initialization' }
@@ -81,15 +67,11 @@ LDAPEntryToolbarPresenter >> connectPresenters [
 { #category : 'actions' }
 LDAPEntryToolbarPresenter >> copyAction [
 
-	| attributes aDN |
 	entry ifNil: [ ^self ].
 	copy isEnabled ifFalse: [ ^self ].
 	
-	aDN := entry name.
-	attributes := entry leaves collect: #copy.
-
-	application lastAddedAttributes: attributes.
-	self inform: aDN, ' attributes saved as template'
+	application clipboardCopy: entry.
+	self inform: entry name, ' attributes saved in clipboard'
 ]
 
 { #category : 'actions' }
@@ -98,7 +80,7 @@ LDAPEntryToolbarPresenter >> cutAction [
 	entry ifNil: [ ^self ].
 	cut isEnabled ifFalse: [ ^self ].
 
-	application clipboardText: entry name.
+	application clipboardCut: entry.
 	self inform: entry name, ' copied to clipboard'
 ]
 
@@ -176,16 +158,17 @@ LDAPEntryToolbarPresenter >> initializePresenters [
 	copy := self newToolbarButton
 		label: 'Copy';
 		icon: (self iconNamed: #smallCopy);
-		help: 'Save current entry attributes as template for new entries';
+		help: 'Copy current entry attributes';
 		yourself.
 	cut := self newToolbarButton
 		label: 'Cut';
 		icon: (self iconNamed: #smallCut);
-		help: 'Cut current entry and all chidren';
+		help: 'Cut current entry name in clipboard';
 		yourself.
 	paste := self newToolbarButton
 		label: 'Paste';
 		icon: (self iconNamed: #smallPaste);
+		help: 'Create or move clipboard entry under current entry';
 		yourself.
 	delete := self newToolbarButton
 		label: 'Delete';
@@ -205,8 +188,8 @@ LDAPEntryToolbarPresenter >> initializePresenters [
 	toolBar := self newToolbar
 		           beIcons;
 		           addItemLeft: new;
-		           addItemLeft: copy;
 		           addItemLeft: delete;
+		           addItemLeft: copy;
 		           addItemLeft: cut;
 		           addItemLeft: paste;
 		           addItemRight: edit;
@@ -233,32 +216,14 @@ LDAPEntryToolbarPresenter >> modifyAction [
 { #category : 'actions' }
 LDAPEntryToolbarPresenter >> pasteAction [
 
-	| underDN aDN aRequest |
+	| command |
 	entry ifNil: [ ^self ].
 	paste isEnabled ifFalse: [ ^self ].
 
-	aDN := application clipboardText.
-	aDN isEmptyOrNil ifTrue: [ ^self ].
-	(aDN = entry name) ifTrue: [ ^self ].
-
-	underDN := entry name.
-	aRequest := LDAPModifyNameRequest new
-		name: aDN;
-		newRelativeName: (LDAPName firstName: aDN);
-		underName: underDN;
-		yourself.
-
-	^ SpConfirmDialog new
-		  title: 'Confirm paste entry';
-		  label: (Text streamContents: [ :stream |
-				stream nextPutAll: 'About to move '; nextPutAll: (application formattedTextFor: aDN); cr;
-					nextPutAll: 'under '; nextPutAll: (application formattedTextFor: underDN)
-			]);
-		  acceptLabel: 'Move';
-		  cancelLabel: 'Cancel';
-		  onAccept: [ application sendModifyName: aRequest ];
-		  onCancel: [ :d | application inform: 'Cancelled move entry ' , aDN ];
-		  openDialog
+	command := application clipboard.
+	(command canBePastedAt: entry name) ifFalse: [ ^self ].
+	
+	^ command pasteAt: entry name in: application
 ]
 
 { #category : 'accessing - model' }
@@ -283,22 +248,16 @@ LDAPEntryToolbarPresenter >> updateDelete [
 ]
 
 { #category : 'updating' }
-LDAPEntryToolbarPresenter >> updatePaste: dn [
+LDAPEntryToolbarPresenter >> updatePaste: anObject [
 
 	| current |
 	paste disable.
-	paste help: 'Move saved entry under current entry'.
-	paste withAdapterDo: [ :anAdapter | anAdapter setBalloonText: paste help ].
 
-	dn isEmptyOrNil ifTrue: [ ^self ].
+	anObject ifNil: [ ^self ].
 	current := entry ifNil: [ ^self ] ifNotNil: [ :e | e name ].
-	(LDAPName is: current under: dn) ifTrue: [ ^self ].
+	(anObject canBePastedAt: current) ifFalse: [ ^self ].
 	
 	paste enable.
-	paste help: 'Move saved entry under current entry', String cr, dn.
-	"Does not update help with morphic"	
-	paste withAdapterDo: [ :anAdapter | anAdapter setBalloonText: paste help ]
-
 ]
 
 { #category : 'initialization' }
@@ -313,6 +272,6 @@ LDAPEntryToolbarPresenter >> updatePresenter [
 	modify enable.
 	edit enable.	
 
-	self updatePaste: application clipboardText.
+	self updatePaste: application clipboard.
 	self updateDelete.
 ]

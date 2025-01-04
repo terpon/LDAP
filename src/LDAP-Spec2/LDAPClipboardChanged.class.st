@@ -2,21 +2,21 @@ Class {
 	#name : 'LDAPClipboardChanged',
 	#superclass : 'Announcement',
 	#instVars : [
-		'text'
+		'content'
 	],
-	#category : 'LDAP-Spec2-Applications',
+	#category : 'LDAP-Spec2-Announcements',
 	#package : 'LDAP-Spec2',
-	#tag : 'Applications'
+	#tag : 'Announcements'
 }
 
 { #category : 'accessing' }
-LDAPClipboardChanged >> text [
+LDAPClipboardChanged >> content [
 
-	^ text
+	^ content
 ]
 
 { #category : 'accessing' }
-LDAPClipboardChanged >> text: anObject [
+LDAPClipboardChanged >> content: anObject [
 
-	text := anObject
+	content := anObject
 ]
