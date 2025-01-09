@@ -26,8 +26,8 @@ LDAPServerInfo class >> defaultPortForSSL: aBoolean [
 LDAPServerInfo >> = anObject [
 
 	(self hostname = anObject hostname) ifFalse:  [ ^ false ].
-	(self port = anObject port) ifFalse:  [ ^ false ].
 	(self isSSL = anObject isSSL) ifFalse:  [ ^ false ].
+	(self port = anObject port) ifFalse:  [ (self isPortDefault = anObject isPortDefault) ifFalse: [^false] ].
 	(self username = anObject username) ifFalse:  [ ^ false ].
 	(self password = anObject password) ifFalse:  [ ^ false ].
 
