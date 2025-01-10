@@ -11,9 +11,9 @@ Class {
 		'port',
 		'ssl'
 	],
-	#category : 'LDAP-Spec2-Models',
+	#category : 'LDAP-Spec2-Servers',
 	#package : 'LDAP-Spec2',
-	#tag : 'Models'
+	#tag : 'Servers'
 }
 
 { #category : 'accessing - defaults' }

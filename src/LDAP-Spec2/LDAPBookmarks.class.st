@@ -8,9 +8,9 @@ Class {
 		'bookmarks',
 		'preferences'
 	],
-	#category : 'LDAP-Spec2-Applications',
+	#category : 'LDAP-Spec2-Servers',
 	#package : 'LDAP-Spec2',
-	#tag : 'Applications'
+	#tag : 'Servers'
 }
 
 { #category : 'instance creation' }

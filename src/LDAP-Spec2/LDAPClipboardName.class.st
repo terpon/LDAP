@@ -1,3 +1,6 @@
+"
+I am an abstract clipboard paste command. Subclass me if you need a DN to access.
+"
 Class {
 	#name : 'LDAPClipboardName',
 	#superclass : 'LDAPClipboardNull',
@@ -16,7 +19,7 @@ LDAPClipboardName >> = anObject [
 	^ self name = anObject name
 ]
 
-{ #category : 'accessing' }
+{ #category : 'testing' }
 LDAPClipboardName >> canBePastedAt: aName [
 
 	self subclassResponsibility.

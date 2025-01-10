@@ -1,3 +1,6 @@
+"
+I am a clipboard paste action who will open a move dialog (ModifyDN)
+"
 Class {
 	#name : 'LDAPClipboardMoveEntry',
 	#superclass : 'LDAPClipboardName',
@@ -6,7 +9,7 @@ Class {
 	#tag : 'Applications'
 }
 
-{ #category : 'accessing' }
+{ #category : 'testing' }
 LDAPClipboardMoveEntry >> canBePastedAt: aName [
 
 "The entry cannot be moved under itself"
@@ -22,7 +25,7 @@ LDAPClipboardMoveEntry >> isValidOnInvalidateName: aName [
 	^ (LDAPName is: name under: aName) not
 ]
 
-{ #category : 'accessing' }
+{ #category : 'clipboard handling' }
 LDAPClipboardMoveEntry >> pasteAt: aName in: anApplication [
 
 	| underDN newRDN aRequest |

@@ -15,9 +15,9 @@ Class {
 		'hostname',
 		'acceptBlock'
 	],
-	#category : 'LDAP-Spec2-Windows',
+	#category : 'LDAP-Spec2-Servers',
 	#package : 'LDAP-Spec2',
-	#tag : 'Windows'
+	#tag : 'Servers'
 }
 
 { #category : 'examples' }

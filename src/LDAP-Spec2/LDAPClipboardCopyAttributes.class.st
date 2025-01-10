@@ -31,7 +31,7 @@ LDAPClipboardCopyAttributes >> attributes: anObject [
 	attributes := anObject
 ]
 
-{ #category : 'accessing' }
+{ #category : 'testing' }
 LDAPClipboardCopyAttributes >> canBePastedAt: aName [
 
 "Maybe schema or server will forbid it, but a subentry can always be created"

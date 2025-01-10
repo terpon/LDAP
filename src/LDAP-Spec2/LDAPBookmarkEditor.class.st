@@ -1,3 +1,6 @@
+"
+I am the main presenter of the Server Bookmarks application
+"
 Class {
 	#name : 'LDAPBookmarkEditor',
 	#superclass : 'SpPresenter',
@@ -11,9 +14,9 @@ Class {
 		'delete',
 		'connect'
 	],
-	#category : 'LDAP-Spec2-Windows',
+	#category : 'LDAP-Spec2-Servers',
 	#package : 'LDAP-Spec2',
-	#tag : 'Windows'
+	#tag : 'Servers'
 }
 
 { #category : 'examples' }

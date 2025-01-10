@@ -1,3 +1,6 @@
+"
+I am announced whenever the LDAPEditor clipboard content is changed.
+"
 Class {
 	#name : 'LDAPClipboardChanged',
 	#superclass : 'Announcement',
