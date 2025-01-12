@@ -13,17 +13,6 @@ Class {
 	#tag : 'Servers'
 }
 
-{ #category : 'instance creation' }
-LDAPBookmarks class >> new: aClass on: aServerInfo [
-
-	| application |
-	application:= aClass new.
-	application start.
-	application connectTo: aServerInfo.
-	^ application
-
-]
-
 { #category : 'examples' }
 LDAPBookmarks class >> start [
 <example>
@@ -64,14 +53,26 @@ LDAPBookmarks >> load [
 { #category : 'instance creation' }
 LDAPBookmarks >> newBrowser: aServerInfo [
 
-	^ self class new: LDAPBrowser on: aServerInfo
+	^ self open: LDAPBrowser on: aServerInfo
 
 ]
 
 { #category : 'instance creation' }
 LDAPBookmarks >> newEditor: aServerInfo [
 
-	^ self class new: LDAPEditor on: aServerInfo
+	^ self open: LDAPEditor on: aServerInfo
+
+]
+
+{ #category : 'private - factory' }
+LDAPBookmarks >> open: aClass on: aServerInfo [
+
+	| application |
+	aServerInfo hostname ifEmpty: [ ^self inform: 'No hostname defined' ].
+	application:= aClass new.
+	application start.
+	application connectTo: aServerInfo.
+	^ application
 
 ]
 

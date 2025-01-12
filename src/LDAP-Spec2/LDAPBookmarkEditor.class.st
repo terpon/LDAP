@@ -10,19 +10,21 @@ Class {
 		'list',
 		'serverInfo',
 		'name',
-		'save',
-		'delete',
-		'connect'
+		'toolbar'
 	],
 	#category : 'LDAP-Spec2-Servers',
 	#package : 'LDAP-Spec2',
 	#tag : 'Servers'
 }
 
+{ #category : 'accessing' }
+LDAPBookmarkEditor class >> currentApplication [ 
+
+	^ LDAPBookmarks new
+]
+
 { #category : 'examples' }
 LDAPBookmarkEditor class >> example [
-
-	<sampleInstance>
 	| example |
 	example := self new onBookmarksChangeDo: [ :b | b inspect ].
 	example open;
@@ -65,49 +67,33 @@ LDAPBookmarkEditor >> confirmSavePassword: aContinuationBlock [
 		  openDialog
 ]
 
-{ #category : 'callbacks' }
-LDAPBookmarkEditor >> connectCurrent [
-
-	serverInfo serverInfo hostname ifEmpty: [ ^self inform: 'No hostname defined' ].
-	application newBrowser: serverInfo serverInfo copy.
-]
-
 { #category : 'initialization' }
 LDAPBookmarkEditor >> connectPresenters [ 
 
 	super connectPresenters.
-	save action: [ self saveCurrent ].
-	delete action: [ self deleteCurrent ].
-	connect action: [ self connectCurrent ].
-	
-	list whenSelectionChangedDo: [ :selection | self updateCurrent ].
+	toolbar saveButton action: [ self saveCurrent ].
+	toolbar deleteButton action: [ self deleteCurrent ].
+	toolbar connectDefaultAction: [ application newBrowser: serverInfo serverInfo copy ].
+	toolbar addConnect: 'Open Browser' action: [ application newBrowser: serverInfo serverInfo copy ].
+	toolbar addConnect: 'Open Editor' action: [ application newEditor: serverInfo serverInfo copy ].
 
+	list whenSelectionChangedDo: [ :selection | self updateCurrent ].
 ]
 
 { #category : 'layout' }
 LDAPBookmarkEditor >> defaultLayout [
 
-	| entries buttons bookmark |
+	| entries bookmark |
 	entries := SpBoxLayout newTopToBottom
 		add: list;
 		yourself.
 
-	buttons := SpBoxLayout newLeftToRight 
-		add:  (SpBoxLayout newLeftToRight spacing: 5;
-			add: save expand: false;
-			add: delete expand: false;
-			yourself);
-		add: (SpBoxLayout newLeftToRight hAlignEnd;
-			add: connect expand: false;
-			yourself); 
-		yourself.
-	
 	bookmark := SpBoxLayout newTopToBottom
 		spacing: 5;
 		add: (SpBoxLayout newLeftToRight vAlignCenter; add: 'Name: ' expand: false; 
 			add: name; yourself) expand: false;
 		add: serverInfo;
-		add: buttons expand: false;
+		add: toolbar expand: false;
 		yourself.
 		
 	^ SpPanedLayout newLeftToRight
@@ -154,17 +140,7 @@ LDAPBookmarkEditor >> initializePresenters [
 		yourself.
 	serverInfo := (self instantiate: LDAPConnectionPresenter).
 	name := self newTextInput placeholder: 'Friendly name of the server connection info'.
-	save := self newButton 
-		label: 'Save'; icon: (self iconNamed: #smallSave);
-		help: 'Save or Replace the entry to the preference file';
-		action: [ self saveCurrent ].
-	delete := self newButton
-		label: 'Delete'; icon: (self iconNamed: #smallDelete);
-		help: 'Delete current entry from the preference file';
-		action: [ self deleteCurrent ].
-	connect := self newButton
-		label: 'Connect';
-		help: 'Open a browser window with current server information'.
+	toolbar := (self instantiate: LDAPBookmarksToolbarPresenter).
 ]
 
 { #category : 'initialization' }
