@@ -8,15 +8,53 @@ Class {
 		'bookmarks',
 		'preferences'
 	],
+	#classVars : [
+		'StoreLocation'
+	],
 	#category : 'LDAP-Spec2-Servers',
 	#package : 'LDAP-Spec2',
 	#tag : 'Servers'
 }
 
+{ #category : 'configuration' }
+LDAPBookmarks class >> defaultPreferences [
+
+	^ FileLocator preferences / 'ldap-pharo' / 'bookmarks.ston'
+]
+
+{ #category : 'settings' }
+LDAPBookmarks class >> settingsOn: aBuilder [
+	(aBuilder group: #LDAPBookmarks )
+		parent: #LDAP;
+		label: 'Server Bookmarks';
+		description: 'Settings for the LDAP Server Bookmarks';
+		noOrdering;
+		with: [
+			(aBuilder setting: #storeFile)
+				target: self;
+				type: #FilePathEncoder;
+				default: self defaultPreferences;
+				label: 'Location of default bookmarks file';
+				description: 'Default is ''{preferences}/ldap-pharo/bookmarks.ston''. The password are stored in plain text'.
+		].
+]
+
 { #category : 'examples' }
 LDAPBookmarks class >> start [
 <example>
 	^ self new start
+]
+
+{ #category : 'accessing' }
+LDAPBookmarks class >> storeFile [
+
+	^ StoreLocation ifNil: [ StoreLocation := self defaultPreferences ]
+]
+
+{ #category : 'accessing' }
+LDAPBookmarks class >> storeFile: aString [
+
+	StoreLocation := aString asFileLocatorOrReference
 ]
 
 { #category : 'accessing' }
@@ -29,11 +67,6 @@ LDAPBookmarks >> bookmarks [
 LDAPBookmarks >> bookmarks: aCollection [
 
 	bookmarks := aCollection
-]
-
-{ #category : 'configuration' }
-LDAPBookmarks >> defaultPreferences [
-	^ FileLocator preferences / 'ldap-pharo' / 'bookmarks.ston'
 ]
 
 { #category : 'accessing - file' }
@@ -79,7 +112,7 @@ LDAPBookmarks >> open: aClass on: aServerInfo [
 { #category : 'accessing' }
 LDAPBookmarks >> preferences [
 
-	^ preferences ifNil: [ preferences := self defaultPreferences ]
+	^ preferences ifNil: [ preferences := self class storeFile ]
 ]
 
 { #category : 'accessing' }

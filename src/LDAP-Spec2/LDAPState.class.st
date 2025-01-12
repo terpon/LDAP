@@ -55,6 +55,7 @@ LDAPState class >> settingsOn: aBuilder [
 				target: self;
 				description: 'When enabled a LDAP submenu is add to the World Menu and the Menu Bar.' .
 		].
+	LDAPBookmarks settingsOn: aBuilder.
 ]
 
 { #category : 'world menu' }
@@ -90,4 +91,11 @@ LDAPState class >> worldMenuOn: aBuilder [
 						order: 99.
 					aBuilder	withSeparatorAfter ].
 		].
+]
+
+{ #category : 'keymaps' }
+LDAPState >> openSettings [
+<script: 'self openSettings'>
+
+	^ self class openSettings
 ]
