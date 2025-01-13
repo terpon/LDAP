@@ -12,6 +12,17 @@ Class {
 }
 
 { #category : 'reporting' }
+LDAPSchemaLogger >> duplicate: aString in: aType [ 
+
+	(String streamContents: [ :stream | 
+		stream nextPutAll: 'Duplicate ';
+			nextPutAll: aType asString;
+			nextPutAll: ': ';
+			nextPutAll: aString asString
+	]) traceCr
+]
+
+{ #category : 'reporting' }
 LDAPSchemaLogger >> missingAttribute: aString for: aMember in: anObject [ 
 
 	(String streamContents: [ :stream | 

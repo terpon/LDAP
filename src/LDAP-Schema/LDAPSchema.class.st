@@ -5,12 +5,10 @@ Class {
 	#name : 'LDAPSchema',
 	#superclass : 'Object',
 	#instVars : [
-		'objects',
 		'objectClasses',
 		'structuralClasses',
 		'attributeSyntaxes',
-		'attributeTypes',
-		'logger'
+		'attributeTypes'
 	],
 	#classVars : [
 		'DefaultSchema'
@@ -29,7 +27,7 @@ LDAPSchema class >> default [
 { #category : 'class initialization' }
 LDAPSchema class >> initialize [ 
 
-	DefaultSchema := self new
+	DefaultSchema := LDAPSchemaBuilder new
 		parseSyntaxes: LDAPSyntax defaultObjects;
 		parseTypes: LDAPAttributeType defaultObjects;
 		parseClasses: LDAPObjectClass defaultObjects;
@@ -40,7 +38,6 @@ LDAPSchema class >> initialize [
 { #category : 'adding' }
 LDAPSchema >> addObjectClass: anObject [
 
-	objects add: anObject.
 	objectClasses at: anObject oid put: anObject.
 	anObject names do: [ :name | objectClasses at: name asLowercase put: anObject ].
 ]
@@ -48,48 +45,23 @@ LDAPSchema >> addObjectClass: anObject [
 { #category : 'adding' }
 LDAPSchema >> addSyntax: anObject [
 
-	objects add: anObject.
 	attributeSyntaxes at: anObject oid put: anObject.
 ]
 
 { #category : 'adding' }
 LDAPSchema >> addType: anObject [
 
-	objects add: anObject.
 	attributeTypes at: anObject oid put: anObject.
 	anObject names do: [ :name | attributeTypes at: name asLowercase put: anObject ].
-]
-
-{ #category : 'building' }
-LDAPSchema >> build [
-"Replace names and OIDs with actual objects"
-	self logger reset.
-	self pullAttributesProperties.
-	self pullClassesProperties.
-	structuralClasses := objectClasses values asSet select: #isStructural.
-	self logger report; reset.
 ]
 
 { #category : 'initialization' }
 LDAPSchema >> initialize [ 
 	super initialize.
 	
-	objects := Set new.
 	objectClasses := Dictionary new.
 	attributeSyntaxes := Dictionary new.
 	attributeTypes := Dictionary new.
-]
-
-{ #category : 'accessing' }
-LDAPSchema >> logger [
-
-	^ logger ifNil: [ logger := LDAPSchemaLogger new ]
-]
-
-{ #category : 'accessing' }
-LDAPSchema >> logger: anObject [
-
-	logger := anObject
 ]
 
 { #category : 'accessing' }
@@ -102,98 +74,6 @@ LDAPSchema >> objectClass: aString ifAbsent: aBlock [
 LDAPSchema >> objectClass: aString ifPresent: aPresentBlock ifAbsent: aBlock [
 
 	^ objectClasses at: aString asLowercase ifPresent: aPresentBlock ifAbsent: aBlock
-]
-
-{ #category : 'parsing' }
-LDAPSchema >> parseClasses: aCollection [
-
-	| parser |
-	parser := LDAPObjectClassParser new.
-	aCollection do: [ :string |
-		self addObjectClass: (parser parse: string)
-	]
-]
-
-{ #category : 'parsing' }
-LDAPSchema >> parseSyntaxes: aCollection [
-
-	| parser |
-	parser := LDAPSyntaxParser new.
-	aCollection do: [ :string |
-		self addSyntax: (parser parse: string)
-	]
-]
-
-{ #category : 'parsing' }
-LDAPSchema >> parseTypes: aCollection [
-
-	| parser |
-	parser := LDAPTypeParser new.
-	aCollection do: [ :string |
-		self addType: (parser parse: string)
-	]
-]
-
-{ #category : 'building' }
-LDAPSchema >> pullAttributes: aCollection for: aString in: anObject [
-"Replace names and OIDs with actual objects"
-
-	| set |
-	set := aCollection collect: [ :name | self type: name 
-		ifAbsent: [ logger missingAttribute: name for: aString in: anObject. LDAPAttributeType unknownNamed: name ]
-	].
-	^ set asSet asArray
-]
-
-{ #category : 'building' }
-LDAPSchema >> pullAttributesProperties [
-"Replace names and OIDs with actual objects"
-
-	| set |
-	set := attributeTypes values asSet.
-	"First fix all sups"
-	set do: [ :type | type superior ifNotNil: [ :sup | 
-			type superior: (self type: sup 
-				ifAbsent: [ logger missingAttribute: sup for: 'sup' in: type. sup ]) ] 
-	].
-	set do: [ :type | type pullProperties ].
-	"Now syntax are there"
-	set do: [ :type | type syntax: (self syntax: type syntax 
-		ifAbsent: [ logger missingSyntax: type syntax in: type.  ]) 
-	].
-	
-
-]
-
-{ #category : 'building' }
-LDAPSchema >> pullClasses: aCollection for: aString in: anObject [
-"Replace names and OIDs with actual objects"
-
-	| set |
-	set := aCollection collect: [ :name | self objectClass: name 
-		ifAbsent: [ logger missingClass: name in: anObject. LDAPObjectClass unknownNamed: name ]
-	].
-	^ set asSet asArray
-]
-
-{ #category : 'building' }
-LDAPSchema >> pullClassesProperties [
-	"Replace names and OIDs with actual objects"
-
-	| set |
-	set := objectClasses values asSet.
-	"First fix all sups"
-	set do: [ :class |
-		class superiors: (self pullClasses: class superiors for: 'superiors' in: class).
-		class containment: (self pullClasses: class containment for: 'containment' in: class).
-	].
-	set do: [ :class | class pullProperties ].
-	"Now all attributes are populated"
-	set do: [ :class |
-		class must: (self pullAttributes: class must for: 'must' in: class).
-		class may: (self pullAttributes: class may for: 'may' in: class).
-		class naming: (self pullAttributes: class naming for: 'naming' in: class).
-	].
 ]
 
 { #category : 'enumerating' }
@@ -243,7 +123,13 @@ LDAPSchema >> rejectKnownClasses: aCollection [
 { #category : 'accessing' }
 LDAPSchema >> structuralClasses [
 
-	^ structuralClasses
+	^ structuralClasses ifNil: [ #() ]
+]
+
+{ #category : 'accessing' }
+LDAPSchema >> structuralClasses: aCollection [
+
+	structuralClasses := aCollection
 ]
 
 { #category : 'accessing' }

@@ -7,12 +7,20 @@ Class {
 	#instVars : [
 		'attributes',
 		'syntaxes',
-		'classes'
+		'classes',
+		'duplicates'
 	],
 	#category : 'LDAP-Schema-Utilities',
 	#package : 'LDAP-Schema',
 	#tag : 'Utilities'
 }
+
+{ #category : 'reporting' }
+LDAPSchemaInspectLogger >> duplicate: aString in: aType [ 
+
+	duplicates ifNil: [ duplicates := OrderedCollection new ].
+	duplicates addLast: { ('Duplicate ', aType) . aString }
+]
 
 { #category : 'reporting' }
 LDAPSchemaInspectLogger >> missingAttribute: aString for: aMember in: anObject [ 
@@ -45,7 +53,7 @@ LDAPSchemaInspectLogger >> report [
 			syntaxes keysAndValuesDo: [ :syntax :elements | stream nextPut: { 'Missing syntax'. syntax . elements asArray } ].
 			classes keysAndValuesDo: [ :class :elements | stream nextPut: { 'Missing objectClass'. class . elements asArray } ].
 			attributes keysAndValuesDo: [ :attr :elements | stream nextPut: { 'Missing attribute'. attr . elements asArray } ].
-	
+			duplicates do: [ :pair | stream nextPut: pair ]
 		]) ifNotEmpty: [ :logs | logs inspect; yourself ].
 ]
 

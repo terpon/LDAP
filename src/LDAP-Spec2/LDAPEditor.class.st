@@ -145,7 +145,7 @@ LDAPEditor >> onSubSchema: aCommand [
 	syntaxes := searchResult at: 'ldapsyntaxes' ifAbsent: [ #() ].
 	types := searchResult at: 'attributetypes' ifAbsent: [ #() ].
 	classes := searchResult at: 'objectclasses' ifAbsent: [ #() ].
-	schema := LDAPSchema new
+	schema := LDAPSchemaBuilder new
 		parseSyntaxes: syntaxes;
 		parseTypes: types;
 		parseClasses: classes;
