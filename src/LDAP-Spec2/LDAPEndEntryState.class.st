@@ -4,9 +4,9 @@ I am an end state for the cached entry. I will not be updated unless I am invali
 Class {
 	#name : 'LDAPEndEntryState',
 	#superclass : 'LDAPEntryState',
-	#category : 'LDAP-Spec2-Tasks',
+	#category : 'LDAP-Spec2-Cache',
 	#package : 'LDAP-Spec2',
-	#tag : 'Tasks'
+	#tag : 'Cache'
 }
 
 { #category : 'testing' }

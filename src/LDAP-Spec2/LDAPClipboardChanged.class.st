@@ -7,9 +7,9 @@ Class {
 	#instVars : [
 		'content'
 	],
-	#category : 'LDAP-Spec2-Announcements',
+	#category : 'LDAP-Spec2-Clipboard',
 	#package : 'LDAP-Spec2',
-	#tag : 'Announcements'
+	#tag : 'Clipboard'
 }
 
 { #category : 'accessing' }

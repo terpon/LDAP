@@ -10,9 +10,9 @@ Class {
 		'currentRoot',
 		'directorySpecificEntry'
 	],
-	#category : 'LDAP-Spec2-Models',
+	#category : 'LDAP-Spec2-Applications',
 	#package : 'LDAP-Spec2',
-	#tag : 'Models'
+	#tag : 'Applications'
 }
 
 { #category : 'accessing' }

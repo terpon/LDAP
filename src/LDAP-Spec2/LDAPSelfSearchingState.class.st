@@ -4,9 +4,9 @@ I am the state when the entry sub entries are still valid but the entry attribut
 Class {
 	#name : 'LDAPSelfSearchingState',
 	#superclass : 'LDAPAsyncEntryState',
-	#category : 'LDAP-Spec2-Tasks',
+	#category : 'LDAP-Spec2-Cache',
 	#package : 'LDAP-Spec2',
-	#tag : 'Tasks'
+	#tag : 'Cache'
 }
 
 { #category : 'running' }

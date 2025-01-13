@@ -11,9 +11,9 @@ Class {
 		'mustAttributes',
 		'mayAttributes'
 	],
-	#category : 'LDAP-Spec2-Presenters',
+	#category : 'LDAP-Spec2-Schema',
 	#package : 'LDAP-Spec2',
-	#tag : 'Presenters'
+	#tag : 'Schema'
 }
 
 { #category : 'examples' }

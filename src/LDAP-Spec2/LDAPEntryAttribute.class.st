@@ -8,9 +8,9 @@ I respond to `description` and `value` messages for display.
 Class {
 	#name : 'LDAPEntryAttribute',
 	#superclass : 'Object',
-	#category : 'LDAP-Spec2-Models',
+	#category : 'LDAP-Spec2-Entries',
 	#package : 'LDAP-Spec2',
-	#tag : 'Models'
+	#tag : 'Entries'
 }
 
 { #category : 'comparing' }

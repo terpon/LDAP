@@ -14,9 +14,9 @@ Class {
 		'clearAll',
 		'position'
 	],
-	#category : 'LDAP-Spec2-Windows',
+	#category : 'LDAP-Spec2-Errors',
 	#package : 'LDAP-Spec2',
-	#tag : 'Windows'
+	#tag : 'Errors'
 }
 
 { #category : 'accessing' }

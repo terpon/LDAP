@@ -13,9 +13,9 @@ Class {
 		'underLabel',
 		'underDN'
 	],
-	#category : 'LDAP-Spec2-Windows',
+	#category : 'LDAP-Spec2-Entries',
 	#package : 'LDAP-Spec2',
-	#tag : 'Windows'
+	#tag : 'Entries'
 }
 
 { #category : 'examples' }

@@ -4,9 +4,9 @@ I am a leaf attribute of the entry but also part of the RDN
 Class {
 	#name : 'LDAPKeyEntryAttribute',
 	#superclass : 'LDAPLeafEntryAttribute',
-	#category : 'LDAP-Spec2-Models',
+	#category : 'LDAP-Spec2-Entries',
 	#package : 'LDAP-Spec2',
-	#tag : 'Models'
+	#tag : 'Entries'
 }
 
 { #category : 'testing' }

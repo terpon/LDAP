@@ -4,9 +4,9 @@ I am a clipboard paste action who will open a move dialog (ModifyDN)
 Class {
 	#name : 'LDAPClipboardMoveEntry',
 	#superclass : 'LDAPClipboardName',
-	#category : 'LDAP-Spec2-Applications',
+	#category : 'LDAP-Spec2-Clipboard',
 	#package : 'LDAP-Spec2',
-	#tag : 'Applications'
+	#tag : 'Clipboard'
 }
 
 { #category : 'testing' }

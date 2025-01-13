@@ -10,9 +10,9 @@ Class {
 		'state',
 		'updateProcess'
 	],
-	#category : 'LDAP-Spec2-Tasks',
+	#category : 'LDAP-Spec2-Cache',
 	#package : 'LDAP-Spec2',
-	#tag : 'Tasks'
+	#tag : 'Cache'
 }
 
 { #category : 'instance creation' }

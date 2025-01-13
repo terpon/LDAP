@@ -4,9 +4,9 @@ I am the state when the entry needs to be refreshed.
 Class {
 	#name : 'LDAPInvalidatedEntryState',
 	#superclass : 'LDAPEntryState',
-	#category : 'LDAP-Spec2-Tasks',
+	#category : 'LDAP-Spec2-Cache',
 	#package : 'LDAP-Spec2',
-	#tag : 'Tasks'
+	#tag : 'Cache'
 }
 
 { #category : 'testing' }

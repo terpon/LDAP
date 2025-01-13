@@ -10,9 +10,9 @@ Class {
 		'lock',
 		'position'
 	],
-	#category : 'LDAP-Spec2-Models',
+	#category : 'LDAP-Spec2-Errors',
 	#package : 'LDAP-Spec2',
-	#tag : 'Models'
+	#tag : 'Errors'
 }
 
 { #category : 'private - sizing' }

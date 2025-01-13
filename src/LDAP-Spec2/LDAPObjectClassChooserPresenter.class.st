@@ -11,9 +11,9 @@ Class {
 		'mayAttributes',
 		'description'
 	],
-	#category : 'LDAP-Spec2-Windows',
+	#category : 'LDAP-Spec2-Schema',
 	#package : 'LDAP-Spec2',
-	#tag : 'Windows'
+	#tag : 'Schema'
 }
 
 { #category : 'examples' }

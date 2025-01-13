@@ -4,9 +4,9 @@ I am the state when the entry is first added to the cache. I’ll load first ths
 Class {
 	#name : 'LDAPSubSearchingState',
 	#superclass : 'LDAPAsyncEntryState',
-	#category : 'LDAP-Spec2-Tasks',
+	#category : 'LDAP-Spec2-Cache',
 	#package : 'LDAP-Spec2',
-	#tag : 'Tasks'
+	#tag : 'Cache'
 }
 
 { #category : 'private - changes' }

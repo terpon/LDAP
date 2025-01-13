@@ -10,9 +10,9 @@ Class {
 		'table',
 		'name'
 	],
-	#category : 'LDAP-Spec2-Presenters',
+	#category : 'LDAP-Spec2-Entries',
 	#package : 'LDAP-Spec2',
-	#tag : 'Presenters'
+	#tag : 'Entries'
 }
 
 { #category : 'accessing' }

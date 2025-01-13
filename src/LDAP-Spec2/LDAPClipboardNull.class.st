@@ -4,9 +4,9 @@ I am a Null Object content for the LDAP editor clipboard
 Class {
 	#name : 'LDAPClipboardNull',
 	#superclass : 'Object',
-	#category : 'LDAP-Spec2-Applications',
+	#category : 'LDAP-Spec2-Clipboard',
 	#package : 'LDAP-Spec2',
-	#tag : 'Applications'
+	#tag : 'Clipboard'
 }
 
 { #category : 'comparing' }

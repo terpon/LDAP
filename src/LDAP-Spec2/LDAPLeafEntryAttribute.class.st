@@ -10,9 +10,9 @@ Class {
 		'description',
 		'content'
 	],
-	#category : 'LDAP-Spec2-Models',
+	#category : 'LDAP-Spec2-Entries',
 	#package : 'LDAP-Spec2',
-	#tag : 'Models'
+	#tag : 'Entries'
 }
 
 { #category : 'instance creation' }

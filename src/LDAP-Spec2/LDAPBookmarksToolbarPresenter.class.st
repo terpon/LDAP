@@ -14,9 +14,9 @@ Class {
 		'connectMenu',
 		'connectButton'
 	],
-	#category : 'LDAP-Spec2-Servers',
+	#category : 'LDAP-Spec2-Presenters',
 	#package : 'LDAP-Spec2',
-	#tag : 'Servers'
+	#tag : 'Presenters'
 }
 
 { #category : 'examples' }

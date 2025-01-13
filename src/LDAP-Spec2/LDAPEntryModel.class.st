@@ -14,9 +14,9 @@ Class {
 		'leaves',
 		'blockChange'
 	],
-	#category : 'LDAP-Spec2-Models',
+	#category : 'LDAP-Spec2-Entries',
 	#package : 'LDAP-Spec2',
-	#tag : 'Models'
+	#tag : 'Entries'
 }
 
 { #category : 'updating' }
