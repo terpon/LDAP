@@ -16,6 +16,11 @@ Class {
 	#tag : 'Schema'
 }
 
+{ #category : 'accessing' }
+LDAPObjectClassChooserPresenter class >> currentApplication [ 
+	^ LDAPEditor new
+]
+
 { #category : 'examples' }
 LDAPObjectClassChooserPresenter class >> example [
 

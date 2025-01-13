@@ -19,7 +19,7 @@ Class {
 
 { #category : 'accessing' }
 LDAPAttributeTablePresenter class >> currentApplication [ 
-	^ LDAPBrowser new
+	^ LDAPEditor new
 ]
 
 { #category : 'ui building' }
