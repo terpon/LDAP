@@ -33,8 +33,7 @@ LDAPObject >> checkSupport: aCollection in: aDictionary [
 	aDictionary keys asSet removeAllFoundIn: aCollection; ifNotEmpty: [ :set |
 		| extra |
 		extra := String streamContents: [ :s | set printElementsOn: s ].
-		"self error: 'Extensions not supported: ', extra"
-		('Extensions not supported: ', extra) traceCr.
+		(self name, ': Extensions not supported: ', extra) traceCr.
 	].
 ]
 

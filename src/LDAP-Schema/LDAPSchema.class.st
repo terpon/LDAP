@@ -166,6 +166,17 @@ LDAPSchema >> pullAttributesProperties [
 ]
 
 { #category : 'building' }
+LDAPSchema >> pullClasses: aCollection for: aString in: anObject [
+"Replace names and OIDs with actual objects"
+
+	| set |
+	set := aCollection collect: [ :name | self objectClass: name 
+		ifAbsent: [ logger missingClass: name in: anObject. LDAPObjectClass unknownNamed: name ]
+	].
+	^ set asSet asArray
+]
+
+{ #category : 'building' }
 LDAPSchema >> pullClassesProperties [
 	"Replace names and OIDs with actual objects"
 
@@ -173,15 +184,16 @@ LDAPSchema >> pullClassesProperties [
 	set := objectClasses values asSet.
 	"First fix all sups"
 	set do: [ :class |
-		class superiors: (class superiors collect: [ :sup |
-				 self objectClass: sup ifAbsent: [
-					 logger missingClass: sup in: class.
-					 sup ] ]) ].
+		class superiors: (self pullClasses: class superiors for: 'superiors' in: class).
+		class containment: (self pullClasses: class containment for: 'containment' in: class).
+	].
 	set do: [ :class | class pullProperties ].
 	"Now all attributes are populated"
 	set do: [ :class |
 		class must: (self pullAttributes: class must for: 'must' in: class).
-		class may: (self pullAttributes: class may for: 'may' in: class) ]
+		class may: (self pullAttributes: class may for: 'may' in: class).
+		class naming: (self pullAttributes: class naming for: 'naming' in: class).
+	].
 ]
 
 { #category : 'enumerating' }

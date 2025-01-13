@@ -196,12 +196,6 @@ LDAPAttributeType class >> defaultObjects [
 	     '( 2.16.840.1.113730.3.1.216 NAME ''userPKCS12'' DESC ''RFC2798: personal identity information, a PKCS #12 PFX'' SYNTAX 1.3.6.1.4.1.1466.115.121.1.5 )' )
 ]
 
-{ #category : 'instance creation' }
-LDAPAttributeType class >> unknownNamed: aString [
-
-	^ self new names: { aString }; oid: 'UNKNOWN'; yourself 
-]
-
 { #category : 'accessing' }
 LDAPAttributeType >> canBeModified [
 
@@ -244,7 +238,7 @@ LDAPAttributeType >> extensions: aDictionary [
 			ifTrue: [ 
 				value = 'VALUES' ifTrue: [ hasOrderedValues := true ] ifFalse: [ hasOrderedSiblings := true ]
 			] 
-			ifFalse: [ self error: 'Unknown extension value for X-ORDERED: ', value ] 
+			ifFalse: [ (self name, ': Unknown extension value for X-ORDERED: ', value) traceCr. ] 
 	] ].
 ]
 

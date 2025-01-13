@@ -8,7 +8,10 @@ Class {
 		'must',
 		'may',
 		'kind',
-		'superiors'
+		'superiors',
+		'containment',
+		'naming',
+		'isLeaf'
 	],
 	#category : 'LDAP-Schema-Schema',
 	#package : 'LDAP-Schema',
@@ -95,10 +98,26 @@ LDAPObjectClass class >> defaultObjects [
 	     '( 2.16.840.1.113730.3.2.2 NAME ''inetOrgPerson'' DESC ''RFC2798: Internet Organizational Person'' SUP organizationalPerson STRUCTURAL MAY ( audio $ businessCategory $ carLicense $ departmentNumber $ displayName $ employeeNumber $ employeeType $ givenName $ homePhone $ homePostalAddress $ initials $ jpegPhoto $ labeledURI $ mail $ manager $ mobile $ o $ pager $ photo $ roomNumber $ secretary $ uid $ userCertificate $ x500uniqueIdentifier $ preferredLanguage $ userSMIMECertificate $ userPKCS12 ) )' )
 ]
 
+{ #category : 'accessing' }
+LDAPObjectClass >> containment [
+
+	^ containment ifNil: [ #() ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> containment: anObject [
+
+	containment := anObject
+]
+
 { #category : 'accessing - extension' }
 LDAPObjectClass >> extensions: aDictionary [
-	"No extensions managed here"
-	self checkSupport: #() in: aDictionary.
+
+	self checkSupport: #( 'X-NDS_NAMING' 'X-NDS_NOT_CONTAINER' 'X-NDS_CONTAINMENT' ) in: aDictionary.
+
+	aDictionary at: 'X-NDS_NOT_CONTAINER' ifPresent: [ isLeaf := true ].
+	naming := aDictionary at: 'X-NDS_NAMING' ifAbsent: [ nil ].
+	containment := aDictionary at: 'X-NDS_CONTAINMENT' ifAbsent: [ nil ].
 
 ]
 
@@ -118,6 +137,18 @@ LDAPObjectClass >> hasAttribute: aString [
 LDAPObjectClass >> hasRequiredAttribute: aString [
 
 	^ self must anySatisfy: [ :attr | attr sameAs: aString ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> isLeaf [
+
+	^ isLeaf ifNil: [ false ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> isLeaf: aBoolean [
+
+	isLeaf := aBoolean
 ]
 
 { #category : 'testing' }
@@ -160,6 +191,18 @@ LDAPObjectClass >> must [
 LDAPObjectClass >> must: anObject [
 
 	must := anObject
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> naming [
+
+	^ naming ifNil: [ #() ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> naming: anObject [
+
+	naming := anObject
 ]
 
 { #category : 'building' }

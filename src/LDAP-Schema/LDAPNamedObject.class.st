@@ -12,6 +12,12 @@ Class {
 	#tag : 'Schema'
 }
 
+{ #category : 'instance creation' }
+LDAPNamedObject class >> unknownNamed: aString [
+
+	^ self new names: { aString }; oid: 'UNKNOWN'; yourself 
+]
+
 { #category : 'comparing' }
 LDAPNamedObject >> <= anObject [
 
