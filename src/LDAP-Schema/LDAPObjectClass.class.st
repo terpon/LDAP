@@ -205,31 +205,6 @@ LDAPObjectClass >> naming: anObject [
 	naming := anObject
 ]
 
-{ #category : 'building' }
-LDAPObjectClass >> pullMay [
-	"Must be called after pullMust"
-	| pulled |
-	pulled := (superiors collect: #pullMay) flattened asSet.
-	pulled addAll: self may;
-		removeAllFoundIn: self must.
-	^ may := pulled asArray
-]
-
-{ #category : 'building' }
-LDAPObjectClass >> pullMust [
-
-	| supMust |
-	supMust := (superiors collect: #pullMust) flattened asSet.
-	supMust addAll: self must.
-	^ must := supMust asArray
-]
-
-{ #category : 'building' }
-LDAPObjectClass >> pullProperties [
-
-	self pullMust; pullMay.
-]
-
 { #category : 'accessing' }
 LDAPObjectClass >> superiors [
 

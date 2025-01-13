@@ -304,43 +304,6 @@ LDAPAttributeType >> ordering: anObject [
 	ordering := anObject
 ]
 
-{ #category : 'building' }
-LDAPAttributeType >> pullEquality [
-
-	equality ifNotNil: [ ^ equality ].
-	superior ifNil: [ ^ nil ].
-	^ equality := superior pullEquality
-]
-
-{ #category : 'building' }
-LDAPAttributeType >> pullOrdering [
-
-	ordering ifNotNil: [ ^ ordering ].
-	superior ifNil: [ ^ nil ].
-	^ ordering := superior pullOrdering
-]
-
-{ #category : 'building' }
-LDAPAttributeType >> pullProperties [
-
-	self pullSyntax; pullEquality; pullOrdering; pullSubstring.
-]
-
-{ #category : 'building' }
-LDAPAttributeType >> pullSubstring [
-
-	substr ifNotNil: [ ^ substr ].
-	superior ifNil: [ ^ nil ].
-	^ substr := superior pullSubstring
-]
-
-{ #category : 'building' }
-LDAPAttributeType >> pullSyntax [
-	
-	syntax ifNotNil: [ ^ { syntax. syntaxLength } ].
-	^ superior pullSyntax bind: [ :s :sl | syntax := s. syntaxLength := sl. { s. sl } ]
-]
-
 { #category : 'accessing' }
 LDAPAttributeType >> singleValue: anObject [
 
