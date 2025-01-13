@@ -14,6 +14,20 @@ LDAPEditorPresenter class >> currentApplication [
 	^ LDAPEditor new
 ]
 
+{ #category : 'initialization' }
+LDAPEditorPresenter >> initializePresenters [ 
+
+	super initializePresenters.
+	
+	statusBar toolbar 	addItemLeft: (self newToolbarButton 
+			label: 'schema';
+  			icon: (self iconNamed: #database);
+     		help: 'Show current schema';
+       	action: [ self openSchema ];
+        	yourself).
+
+]
+
 { #category : 'updating - presenters' }
 LDAPEditorPresenter >> invalidatePage: aDN [
 
@@ -29,6 +43,12 @@ LDAPEditorPresenter >> newEntryPresenterOn: anEntry [
 	presenter := LDAPEntryEditorPresenter newApplication: application model: anEntry.
 	^ presenter
 	
+]
+
+{ #category : 'ui - dialogs' }
+LDAPEditorPresenter >> openSchema [
+
+	^ application openSchema
 ]
 
 { #category : 'updating - presenters' }

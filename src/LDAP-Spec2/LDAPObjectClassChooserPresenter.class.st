@@ -137,13 +137,7 @@ LDAPObjectClassChooserPresenter >> modelChanged [
 { #category : 'accessing' }
 LDAPObjectClassChooserPresenter >> schema [
 
-	^ schema ifNil: [ LDAPSchema default ]
-]
-
-{ #category : 'accessing' }
-LDAPObjectClassChooserPresenter >> schema: anObject [
-
-	schema := anObject
+	^ application schema
 ]
 
 { #category : 'api - selection' }

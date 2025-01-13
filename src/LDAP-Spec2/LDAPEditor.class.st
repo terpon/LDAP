@@ -5,7 +5,8 @@ Class {
 	#name : 'LDAPEditor',
 	#superclass : 'LDAPBrowser',
 	#instVars : [
-		'clipboard'
+		'clipboard',
+		'schema'
 	],
 	#category : 'LDAP-Spec2-Applications',
 	#package : 'LDAP-Spec2',
@@ -113,6 +114,44 @@ LDAPEditor >> onModifiedNameEntry: aRequest [
 
 ]
 
+{ #category : 'callbacks' }
+LDAPEditor >> onNamingContexts: aCommand [
+
+	| search dn |
+	super onNamingContexts: aCommand.
+	dn := session subSchema ifNil: [ ^self ]. "No schema to load"
+	
+	self isConnected ifFalse: [ ^ self ].
+	
+	search := LDAPSearchRequest new
+		          base: dn;
+		          scope: LDAPBaseObjectScope new;
+		          attributes: { '*' . '+' }.
+		
+	^ self sendRequest: search
+		onSuccessDo: [ :command | self onSubSchema: command ]
+		onFailureDo: [ :command | 
+			schema := nil.
+			self reportError: command. ].
+
+]
+
+{ #category : 'callbacks' }
+LDAPEditor >> onSubSchema: aCommand [
+
+	| searchResult syntaxes types classes |
+	main notify: 'schema retrieved'.
+	searchResult := aCommand responses first asDictionary.
+	syntaxes := searchResult at: 'ldapsyntaxes' ifAbsent: [ #() ].
+	types := searchResult at: 'attributetypes' ifAbsent: [ #() ].
+	classes := searchResult at: 'objectclasses' ifAbsent: [ #() ].
+	schema := LDAPSchema new
+		parseSyntaxes: syntaxes;
+		parseTypes: types;
+		parseClasses: classes;
+		build.
+]
+
 { #category : 'ui - dialogs' }
 LDAPEditor >> openNewEntryDialogUnder: aDN with: aCollection [
 	
@@ -127,6 +166,18 @@ LDAPEditor >> openNewEntryDialogUnder: aDN with: aCollection [
 		];
 		cancelAction: [ :dialog | dialog inform: 'Cancelled adding new entry in ' , aDN ];
 		yourself
+]
+
+{ #category : 'ui - dialogs' }
+LDAPEditor >> openSchema [
+	
+	^ (LDAPSchemaPresenter on: self schema) openDialog
+]
+
+{ #category : 'accessing' }
+LDAPEditor >> schema [
+
+	^ schema ifNil: [ LDAPSchema default ]
 ]
 
 { #category : 'dispatching' }

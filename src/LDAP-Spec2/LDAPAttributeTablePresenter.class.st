@@ -272,20 +272,14 @@ LDAPAttributeTablePresenter >> promptCustomAttribute [
 { #category : 'accessing' }
 LDAPAttributeTablePresenter >> schema [
 
-	^ schema ifNil: [ LDAPSchema default ]
-]
-
-{ #category : 'accessing' }
-LDAPAttributeTablePresenter >> schema: anObject [
-
-	schema := anObject
+	^ application schema
 ]
 
 { #category : 'events' }
 LDAPAttributeTablePresenter >> selectObjectClass: aLine [
 
 	| presenter |
-	presenter := LDAPObjectClassChooserPresenter on: self schema structuralClasses.
+	presenter := LDAPObjectClassChooserPresenter newApplication: application model: self schema structuralClasses.
 
 	presenter selectItem: aLine content.
 

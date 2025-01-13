@@ -242,7 +242,7 @@ LDAPBrowser >> mainPresenter [
 { #category : 'callbacks' }
 LDAPBrowser >> onConnect [
 
-	main notify: ''.
+	main notify: 'connected'.
 	session connected: true.
 
 	self searchNamingContexts.
@@ -269,6 +269,7 @@ LDAPBrowser >> onDisconnect: anAnnouncement [
 LDAPBrowser >> onNamingContexts: aCommand [
 
 	| searchResult |
+	main notify: 'naming contexts retrieved'.
 	searchResult := aCommand responses first asDictionary.
 	session directorySpecificEntry: searchResult.
 ]

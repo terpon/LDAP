@@ -7,7 +7,7 @@ Class {
 	#instVars : [
 		'connected',
 		'message',
-		'disconnect',
+		'toolbar',
 		'disconnectAction'
 	],
 	#category : 'LDAP-Spec2-Presenters',
@@ -45,9 +45,9 @@ LDAPStatusBarPresenter >> connected: aBoolean [
 LDAPStatusBarPresenter >> defaultLayout [ 
 	^ SpBoxLayout newLeftToRight 
 		spacing: 3; vAlignCenter;
-		add: #connected expand: false;
-		add: #message;
-		add: #disconnect expand: false;
+		add: connected expand: false;
+		add: message;
+		add: toolbar expand: false;
 		yourself
 ]
 
@@ -72,8 +72,8 @@ LDAPStatusBarPresenter >> initializePresenters [
 		
 	message := self newTextInput beNotEditable.
 
-	disconnect := 	self newToolbar beIcons;
-		add: (self newToolbarButton 
+	toolbar := 	self newToolbar beIcons;
+		addItemRight: (self newToolbarButton 
 			label: 'disconnect';
   			icon: (self iconNamed: #smallQuit);
      		help: 'Disconnect from current server';
@@ -85,4 +85,10 @@ LDAPStatusBarPresenter >> initializePresenters [
 LDAPStatusBarPresenter >> onDisconnectDo: aBlock [
 
 	disconnectAction := aBlock.
+]
+
+{ #category : 'accessing' }
+LDAPStatusBarPresenter >> toolbar [
+
+	^ toolbar
 ]
