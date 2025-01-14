@@ -12,7 +12,8 @@ Class {
 		'targets',
 		'running',
 		'exception',
-		'connected'
+		'connected',
+		'listenProcess'
 	],
 	#category : 'LDAP-Internal',
 	#package : 'LDAP',
@@ -64,6 +65,7 @@ LDAPWorker >> connection: anObject [
 { #category : 'private - dispatching' }
 LDAPWorker >> dispatchMessage: aMessage [
 	| command id |
+	aMessage ifNil: [ ^self ].
 	id := aMessage id.
 
 	"this is an unsolicited notification -- as it is advisory, we can ignore it for now"
@@ -92,21 +94,18 @@ LDAPWorker >> initialize [
 	nextMessageId := 0.
 	lock := Semaphore forMutualExclusion.
 	connected := Semaphore new.
-	"looks like if we use the WVD here we wont see exceptions thrown.. hrmmm"
-	"targets := WeakValueDictionary new."
-	targets := Dictionary new.
+	targets := WeakValueDictionary new.
 	running := false.
 ]
 
 { #category : 'running' }
 LDAPWorker >> initializeSocket [
 
+	| newSocket |
 	exception := nil.
-	lock critical: [
-		sockStream := [ connection initializeSocket ]
-			on: NetworkError do: [ :ex | exception := ex. nil ].
-		sockStream ifNil: [ ^ self ].
-	].
+	newSocket := [ connection initializeSocket ] on: NetworkError do: [ :ex | exception := ex. nil ].
+	lock critical: [ sockStream := newSocket ].
+	newSocket ifNil: [ ^ self ].
 
 	connected signalAll.
 	connection onNewSocket.
@@ -116,21 +115,18 @@ LDAPWorker >> initializeSocket [
 LDAPWorker >> isCommandPending: aCommand [
 	| messageId |
 	messageId := aCommand message id.
-	lock critical: [
-		targets at: messageId ifPresent: [ ^ true ]
-	].
-	^  false 
-
+	^ lock critical: [ targets includesKey: messageId ]
 ]
 
 { #category : 'testing' }
 LDAPWorker >> isConnected [
-	 sockStream ifNil: [ ^ false ].	
-	^ sockStream isConnected
+
+	^ lock critical: [ sockStream ifNil: [ false ] ifNotNil: [ :s | s isConnected ] ]
 ]
 
 { #category : 'testing' }
 LDAPWorker >> isRunning [
+
 	^ self isConnected and: running
 ]
 
@@ -205,7 +201,7 @@ LDAPWorker >> releaseSocket [
 { #category : 'private - dispatching' }
 LDAPWorker >> removeTargetId: aMessageId [
 	lock critical: [
-		targets removeKey: aMessageId ifAbsent: [ "we ’re good" ]
+		targets removeKey: aMessageId ifAbsent: [ "we’re good" ]
 	]
 ]
 
@@ -224,34 +220,38 @@ LDAPWorker >> send: aCommand [
 
 { #category : 'private - running' }
 LDAPWorker >> start [
-	| process |
+
 	connected consumeAllSignals.
 
-	process := [self listenLoop] newProcess.
-	process name: ('LDAP listener on: {1}:{2}' format: { connection host . connection port }).
-	process priority: Processor highIOPriority.
+	listenProcess := [self listenLoop] newProcess.
+	listenProcess name: ('LDAP listener on: {1}:{2}' format: { connection host . connection port }).
+	listenProcess priority: Processor highIOPriority.
 
 	running := true.
-	process resume.
+	listenProcess resume.
 	
 	"Wait a bit so that the thread has a chance to connect"
 	connected wait.
 	
-	^ process
+	^ listenProcess
 ]
 
 { #category : 'private - running' }
 LDAPWorker >> stop [
+
+	listenProcess ifNil: [ ^ self ].
+
+	"This will call releaseSocket and call onClosedSocket"
+	listenProcess isTerminating ifFalse: [ listenProcess terminate ].
+	listenProcess := nil.
 	running := false.
-	self releaseSocket.
+
 ]
 
 { #category : 'private - running' }
 LDAPWorker >> waitForData [
 
 	"Check buffered stream first"
-	sockStream isDataAvailable ifTrue: [ ^ self ].
-
-	sockStream socket ifNil: [ ^ self ] ifNotNil: [ :s | s waitForDataFor: 5 ].
-
+	sockStream isDataAvailable ifTrue: [ ^self ].
+	sockStream socket ifNil: [ ^self ] ifNotNil: [ :s | s waitForDataFor: 5 ].
 ]

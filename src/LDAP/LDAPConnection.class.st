@@ -9,7 +9,6 @@ Class {
 		'host',
 		'port',
 		'worker',
-		'workerThread',
 		'connectRequest'
 	],
 	#category : 'LDAP-Connection',
@@ -78,7 +77,7 @@ LDAPConnection >> announcer [
 LDAPConnection >> connect [
 
 	worker := LDAPWorker new connection: self. 
-	workerThread := worker start.
+	^ worker start.
 ]
 
 { #category : 'accessing - defaults' }
@@ -90,13 +89,14 @@ LDAPConnection >> defaultPort [
 { #category : 'connecting' }
 LDAPConnection >> disconnect [
 
-	workerThread ifNil: [ ^ self ].
-	worker isRunning ifTrue: [ 
-		self unbind.
-		worker stop.
-	].
-	"This will call releaseSocket and call onClosedSocket"
-	workerThread ifNotNil: [ :thread | thread terminate ].
+	| unbind |
+	worker ifNil: [ ^self ].
+	worker isRunning ifFalse: [ ^self ].
+
+	unbind := self request: LDAPUnbindRequest new.
+	unbind ifNotNil: [ :command | command wait ].
+	worker stop.
+	worker := nil.
 ]
 
 { #category : 'accessing' }
@@ -127,7 +127,8 @@ LDAPConnection >> initializeSocket [
 
 { #category : 'testing' }
 LDAPConnection >> isConnected [
-	^ self isValid and: [ worker isConnected ]
+
+	^ worker isNotNil and: [ worker isConnected ]
 ]
 
 { #category : 'testing' }
@@ -135,19 +136,9 @@ LDAPConnection >> isSSL [
 	^ false
 ]
 
-{ #category : 'testing' }
-LDAPConnection >> isValid [
-	"Answers whether the connection looks still valid"
-	^ worker ifNotNil: [ :w | w isRunning ] ifNil: [ false ]
-]
-
 { #category : 'callbacks' }
 LDAPConnection >> onClosedSocket: anException [
 
-	(workerThread isNotNil and: [workerThread isTerminating]) ifTrue: [ 
-		worker := nil.
-		workerThread := nil.
-	].
 	self announcer announce: (LDAPIsDisconnected new cause: anException).
 
 ]
@@ -190,7 +181,6 @@ LDAPConnection >> postCopy [
 	
 	"Copy start as disconnected, remove reference to original worker"
 	worker := nil.
-	workerThread := nil.
 ]
 
 { #category : 'command execution' }
@@ -210,11 +200,6 @@ LDAPConnection >> requestOnConnect: aRequest [
 "Request to send on socket reconnection. Usually a bind request to authenticate the connection"
 
 	connectRequest := aRequest.
-]
-
-{ #category : 'binding' }
-LDAPConnection >> unbind [
-	^ self request: (LDAPUnbindRequest new)
 ]
 
 { #category : 'announcer' }
