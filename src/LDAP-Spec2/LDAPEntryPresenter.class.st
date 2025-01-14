@@ -172,16 +172,7 @@ LDAPEntryPresenter >> initializeWindow: aSpWindowPresenter [
 { #category : 'initialization' }
 LDAPEntryPresenter >> modelChanged [ 
 	
-	| model dn |
-	model := self model ifNil: [ ^ self reset ].
-	"Model can change in other processes and must be blocked while building the widget"
-	model allowChange.
-	
-	table items: model attributes.
-	
-	dn := application formattedTextFor: model name.
-	name text: dn; help: dn.
-
+	self defer: [ self updatePresenter ]
 ]
 
 { #category : 'initialization' }
@@ -211,4 +202,19 @@ LDAPEntryPresenter >> setModelBeforeInitialization: aModel [
 
 	self model ifNotNil: [ :m | m disallowChange ].
 	super setModelBeforeInitialization: aModel.
+]
+
+{ #category : 'updating' }
+LDAPEntryPresenter >> updatePresenter [ 
+	
+	| model dn |
+	model := self model ifNil: [ ^ self reset ].
+	"Model can change in other processes and must be blocked while building the widget"
+	model allowChange.
+	
+	table items: model attributes.
+	
+	dn := application formattedTextFor: model name.
+	name text: dn; help: dn.
+
 ]

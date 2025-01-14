@@ -41,19 +41,19 @@ LDAPEntryEditorPresenter >> initializePresenters [
 
 ]
 
-{ #category : 'initialization' }
-LDAPEntryEditorPresenter >> modelChanged [ 
-	
-	super modelChanged.
-	
-	toolBar entry: self model.
-	
-]
-
 { #category : 'transmission' }
 LDAPEntryEditorPresenter >> setModel: aModel [ 
 	
 	super setModel: aModel.
 	toolBar entry: aModel.
+	
+]
+
+{ #category : 'updating' }
+LDAPEntryEditorPresenter >> updatePresenter [ 
+
+	super updatePresenter.
+	
+	toolBar entry: self model.
 	
 ]

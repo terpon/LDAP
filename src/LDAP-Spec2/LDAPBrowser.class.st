@@ -131,7 +131,10 @@ LDAPBrowser >> disabledColor [
 LDAPBrowser >> disconnect [
 
 	session connected: false.
-	connection ifNotNil: [ connection disconnect ].
+	connection ifNil: [ ^self ].
+	
+	"Fork to avoid to block UI on slow servers"
+	[ connection disconnect ] forkAt: self class requestPriority named: 'LDAP disconnect'.
 
 ]
 

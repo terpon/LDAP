@@ -125,7 +125,7 @@ LDAPBookmarksToolbarPresenter >> initializePresenters [
 		help: 'Delete current entry from the preference file';
 		yourself.
 	close := self newToolbarButton
-		label: 'Cancel';
+		label: 'Close';
 		icon: (self iconNamed: #smallCancel);
 		help: 'Close current window';
 		yourself.

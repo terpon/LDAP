@@ -83,12 +83,12 @@ LDAPState class >> worldMenuOn: aBuilder [
 						order: 51.
 					aBuilder	withSeparatorAfter ].
 			(aBuilder group: #Settings)
-				order: 1;
+				order: 80;
 				with: [
-					(aBuilder item: #Settings)
+					(aBuilder item: #OpenSettings)
 						action: [ self openSettings ];
 						help: 'Open the Settings browser for LDAP';
-						order: 99.
+						order: 5.
 					aBuilder	withSeparatorAfter ].
 		].
 ]
