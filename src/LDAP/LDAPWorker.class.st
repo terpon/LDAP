@@ -167,8 +167,8 @@ LDAPWorker >> readMessage [
 		"Transcript show: '********* READ ONE OF:  ', message asString; cr."
 		self dispatchMessage: message.
 		
-	] on: ConnectionTimedOut do:[ :ex| 
-				"wait for another loop"
+	] on: ConnectionTimedOut, ConnectionClosed do:[ :ex| 
+				"wait for another loop if `running` is still true"
 				^ self.
 		].
 	] on: NetworkError, SocketError do:[ :ex| 
@@ -242,9 +242,9 @@ LDAPWorker >> stop [
 	listenProcess ifNil: [ ^ self ].
 
 	"This will call releaseSocket and call onClosedSocket"
+	running := false.
 	listenProcess isTerminating ifFalse: [ listenProcess terminate ].
 	listenProcess := nil.
-	running := false.
 
 ]
 
