@@ -8,7 +8,8 @@ Class {
 	#classTraits : 'SpTActivable classTrait',
 	#instVars : [
 		'table',
-		'name'
+		'name',
+		'allowModelChanges'
 	],
 	#category : 'LDAP-Spec2-Entries',
 	#package : 'LDAP-Spec2',
@@ -102,6 +103,12 @@ LDAPEntryPresenter >> activate [
 ]
 
 { #category : 'private' }
+LDAPEntryPresenter >> allowModelChanges [
+
+	^ allowModelChanges ifNil: [ allowModelChanges := false ]
+]
+
+{ #category : 'private' }
 LDAPEntryPresenter >> colorFor: anAttribute [
 
 	^ anAttribute isKey ifTrue: [ application emphasisColor ] ifFalse: [ application defaultColor ]
@@ -172,6 +179,7 @@ LDAPEntryPresenter >> initializeWindow: aSpWindowPresenter [
 { #category : 'initialization' }
 LDAPEntryPresenter >> modelChanged [ 
 	
+	self allowModelChanges ifFalse: [ ^self ].
 	self defer: [ self updatePresenter ]
 ]
 
@@ -208,10 +216,11 @@ LDAPEntryPresenter >> setModelBeforeInitialization: aModel [
 LDAPEntryPresenter >> updatePresenter [ 
 	
 	| model dn |
-	model := self model ifNil: [ ^ self reset ].
-	"Model can change in other processes and must be blocked while building the widget"
-	model allowChange.
+	"All presenters are created, we can allow model changes to enter here"
+	allowModelChanges := true.
 	
+	model := self model ifNil: [ ^ self reset ].
+
 	table items: model attributes.
 	
 	dn := application formattedTextFor: model name.

@@ -11,19 +11,12 @@ Class {
 	#instVars : [
 		'name',
 		'branches',
-		'leaves',
-		'blockChange'
+		'leaves'
 	],
 	#category : 'LDAP-Spec2-Entries',
 	#package : 'LDAP-Spec2',
 	#tag : 'Entries'
 }
-
-{ #category : 'updating' }
-LDAPEntryModel >> allowChange [
-
-	blockChange := false.
-]
 
 { #category : 'converting' }
 LDAPEntryModel >> asString [
@@ -43,12 +36,6 @@ LDAPEntryModel >> branches [
 	^ branches
 ]
 
-{ #category : 'updating' }
-LDAPEntryModel >> disallowChange [
-
-	blockChange := true.
-]
-
 { #category : 'initialization' }
 LDAPEntryModel >> initialize [ 
 
@@ -56,8 +43,6 @@ LDAPEntryModel >> initialize [
 	
 	branches := OrderedCollection new.
 	leaves := OrderedCollection new.
-	
-	self disallowChange.
 ]
 
 { #category : 'testing' }
@@ -107,11 +92,4 @@ LDAPEntryModel >> populateFromResults: aCollection [
 	elements := aCollection reject: #isReference.
 	branches := elements collect: [ :each | LDAPBranchEntryAttribute new name: each name ].
 	self valueChanged
-]
-
-{ #category : 'announcing' }
-LDAPEntryModel >> valueChanged [
-
-	blockChange ifTrue: [ ^self ].
-	super valueChanged
 ]
