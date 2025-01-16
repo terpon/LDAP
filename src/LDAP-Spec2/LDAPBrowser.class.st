@@ -179,7 +179,7 @@ LDAPBrowser >> errorPresenter [
 LDAPBrowser >> formattedTextFor: aDN [
 
 	| parts |
-	parts := LDAPName splitInThird: aDN root: (session currentRoot ifNil: ['']).
+	parts := LDAPName splitInThird: aDN root: session currentRoot.
 	parts second isEmpty & parts third isEmpty ifTrue: [ ^ aDN ].
 	^ Text streamContents: [ :stream |
 		stream nextPutAll: (Text string: parts first attribute: (TextColor color: self emphasisColor)).

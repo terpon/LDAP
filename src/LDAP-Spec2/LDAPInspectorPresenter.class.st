@@ -55,8 +55,6 @@ LDAPInspectorPresenter >> connectionAccept: aServerInformation [
 { #category : 'updating' }
 LDAPInspectorPresenter >> currentRoot: aDN [
 
-	(aDN = application currentRoot) ifTrue: [ ^ self ].
-
 	"this will trigger a modelChanged"
 	application currentRoot: aDN.
 
@@ -173,10 +171,14 @@ LDAPInspectorPresenter >> rootChanged [
 { #category : 'updating' }
 LDAPInspectorPresenter >> selectRoots [
 
-	| model |
+	| model savedDN roots |
 	model := self model ifNil: [ ^ #() ].
-	model server root ifNotEmpty: [ :rootDN | ^ { rootDN } ].
-	^ model roots
+	savedDN := model server root ifEmpty: [ ^ model roots ].
+
+	"Add first the saved/custom DN"
+	roots := OrderedCollection with: savedDN.
+	roots addAll: (model roots copyWithout: savedDN).
+	^ roots
 ]
 
 { #category : 'ui - dialogs' }
@@ -189,7 +191,7 @@ LDAPInspectorPresenter >> titleForWindow [
 
 	url := ZnUrl new scheme: server scheme; host: server hostname.
 	server isPortDefault ifFalse: [ url port: server port ].
-	session currentRoot isEmptyOrNil ifFalse: [ url addPathSegment: session currentRoot ].
+	session currentRoot ifNotEmpty: [ :root | url addPathSegment: root ].
 		
 	^ url printString
 ]
