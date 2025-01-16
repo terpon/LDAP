@@ -7,12 +7,10 @@ Class {
 	#name : 'LDAPInspectorPresenter',
 	#superclass : 'SpPresenterWithModel',
 	#instVars : [
-		'customRoot',
 		'dropRoot',
 		'miller',
 		'statusBar',
 		'connection',
-		'rootDialog',
 		'modelChanging'
 	],
 	#category : 'LDAP-Spec2-Entries',
@@ -28,12 +26,11 @@ LDAPInspectorPresenter class >> currentApplication [
 { #category : 'ui' }
 LDAPInspectorPresenter >> buildRootDropList: aCollection andSelect: anInteger [
 
-	| models |
-	models := aCollection collect: [ :each | { each. nil } ].
-	models addLast: { 'choose custom root DN…' . application iconNamed: #edit }.
-	dropRoot items: models.
+	| state |
+	dropRoot items: aCollection.
 	dropRoot selectIndex: anInteger.
-	dropRoot enabled: self model connected.
+	state := aCollection isNotEmpty and: [ self model ifNil: [ false ] ifNotNil: [ :m | m connected.] ].
+	dropRoot enabled: state.
 ]
 
 { #category : 'initialization' }
@@ -46,9 +43,9 @@ LDAPInspectorPresenter >> connectPresenters [
 ]
 
 { #category : 'callbacks' }
-LDAPInspectorPresenter >> connectionAccept: aModel [
+LDAPInspectorPresenter >> connectionAccept: aServerInformation [
 	| window |
-	application connectTo: aModel copy.
+	application connectTo: aServerInformation.
 	
 	window := self window.
 	window ifNil: [ self open ].
@@ -63,19 +60,6 @@ LDAPInspectorPresenter >> currentRoot: aDN [
 	"this will trigger a modelChanged"
 	application currentRoot: aDN.
 
-]
-
-{ #category : 'accessing' }
-LDAPInspectorPresenter >> customRoot [
-
-	^ customRoot ifNil: [ '' ] 
-]
-
-{ #category : 'accessing' }
-LDAPInspectorPresenter >> customRoot: aString [
-
-	customRoot := aString.
-	self currentRoot: aString.
 ]
 
 { #category : 'layout' }
@@ -96,15 +80,8 @@ LDAPInspectorPresenter >> initializePresenters [
 
 	modelChanging := false.
 	
-	rootDialog := application newRequest
-		title: 'Custom Naming Context';
-		label: 'Enter new root DN:';
-		onAccept: [ :d | self customRoot: d presenter text ];
-		onCancel: [ :d | self updateRoots ].
-
 	dropRoot := self newDropList
-	   display: [ :model | model first ];
-		displayIcon: [ :model | model second ];
+	   display: [ :dn | dn ];
 		whenSelectionChangedDo: [ self rootChanged ];
 		enabled: false;
 		yourself.
@@ -174,16 +151,6 @@ LDAPInspectorPresenter >> openConnectionDialog [
 		yourself
 ]
 
-{ #category : 'ui - dialogs' }
-LDAPInspectorPresenter >> openCustomRootDialog [
-
-	modelChanging ifTrue: [ ^ self ].
-	
-	self model connected ifFalse: [ ^ self ].
-	self customRoot ifNotEmpty: [ :string | rootDialog text: string ].
-	^ rootDialog openDialog
-]
-
 { #category : 'ui' }
 LDAPInspectorPresenter >> presenterFor: aString [
 
@@ -197,10 +164,7 @@ LDAPInspectorPresenter >> presenterFor: aString [
 LDAPInspectorPresenter >> rootChanged [
 
 	| item |
-	"Last item is '...' and means user gets to choose a DN"
-	(dropRoot selectedIndex = dropRoot listSize) ifTrue: [ ^ self openCustomRootDialog ].
-
-	item := dropRoot selectedItem ifNotNil: [ :i | i first ].
+	item := dropRoot selectedItem.
 	item isEmptyOrNil ifTrue: [ ^ self ].
 	
 	self currentRoot: item.
@@ -209,13 +173,10 @@ LDAPInspectorPresenter >> rootChanged [
 { #category : 'updating' }
 LDAPInspectorPresenter >> selectRoots [
 
-	| roots custom |
-	roots := self model roots copy asOrderedCollection.
-	custom := self customRoot.
-	custom ifEmpty: [ ^ roots ].
-	
-	(roots indexOf: custom) isZero ifTrue: [ roots addLast: custom ]. 
-	^ roots
+	| model |
+	model := self model ifNil: [ ^ #() ].
+	model server root ifNotEmpty: [ :rootDN | ^ { rootDN } ].
+	^ model roots
 ]
 
 { #category : 'ui - dialogs' }

@@ -74,8 +74,8 @@ LDAPBookmarkEditor >> connectPresenters [
 	toolbar saveButton action: [ self saveCurrent ].
 	toolbar deleteButton action: [ self deleteCurrent ].
 	toolbar connectDefaultAction: [ application newBrowser: serverInfo asServerInformation ].
-	toolbar addConnect: 'Open Browser' action: [ application newBrowser: serverInfo serverInfo copy ].
-	toolbar addConnect: 'Open Editor' action: [ application newEditor: serverInfo serverInfo copy ].
+	toolbar addConnect: 'Open Browser' action: [ application newBrowser: serverInfo asServerInformation ].
+	toolbar addConnect: 'Open Editor' action: [ application newEditor: serverInfo asServerInformation ].
 
 	list whenSelectionChangedDo: [ :selection | self updateCurrent ].
 ]

@@ -16,6 +16,14 @@ Class {
 }
 
 { #category : 'accessing' }
+LDAPSession >> clearDirectorySpecificEntry [
+
+	directorySpecificEntry ifEmpty: [ ^ self ].
+	directorySpecificEntry removeAll.
+	self valueChanged 
+]
+
+{ #category : 'accessing' }
 LDAPSession >> connected [
 
 	^ connected
@@ -67,13 +75,6 @@ LDAPSession >> reset [
 "Initialize"
 	connected := false.
 	currentRoot := ''.
-	self resetDSE.
-
-]
-
-{ #category : 'initialization' }
-LDAPSession >> resetDSE [
-"Initialize"
 	directorySpecificEntry := Dictionary new.
 ]
 

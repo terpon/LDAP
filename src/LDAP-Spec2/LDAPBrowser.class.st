@@ -248,11 +248,20 @@ LDAPBrowser >> onConnect [
 	main notify: 'connected'.
 	session connected: true.
 
-	self searchNamingContexts.
+	self requestDirectorySpecificEntry.
 	
 	"Announce to my subsribers"
 	self announcer announce: LDAPIsConnected new.
 
+]
+
+{ #category : 'callbacks' }
+LDAPBrowser >> onDirectorySpecificEntry: aCommand [
+
+	| searchResult |
+	main notify: 'directory specific entry retrieved'.
+	searchResult := aCommand responses first asDictionary.
+	session directorySpecificEntry: searchResult.
 ]
 
 { #category : 'callbacks' }
@@ -266,15 +275,6 @@ LDAPBrowser >> onDisconnect: anAnnouncement [
 	"Forward to my subscribers"
 	self announcer announce: anAnnouncement.
 
-]
-
-{ #category : 'callbacks' }
-LDAPBrowser >> onNamingContexts: aCommand [
-
-	| searchResult |
-	main notify: 'naming contexts retrieved'.
-	searchResult := aCommand responses first asDictionary.
-	session directorySpecificEntry: searchResult.
 ]
 
 { #category : 'enumerating' }
@@ -318,16 +318,9 @@ LDAPBrowser >> reportException: anError [
 	].
 ]
 
-{ #category : 'connecting' }
-LDAPBrowser >> reset [ 
-
-	self errorHandler removeAll.
-
-]
-
 { #category : 'searching' }
-LDAPBrowser >> searchNamingContexts [
-"Search advertized root DNs"
+LDAPBrowser >> requestDirectorySpecificEntry [
+"Search advertized root DNs and other server information"
 	| request |
 	self isConnected ifFalse: [ ^ self ].
 	
@@ -337,10 +330,17 @@ LDAPBrowser >> searchNamingContexts [
 		          attributes: { '*' . '+' }.
 		
 	^ self sendRequest: request
-		onSuccessDo: [ :command | self onNamingContexts: command ]
+		onSuccessDo: [ :command | self onDirectorySpecificEntry: command ]
 		onFailureDo: [ :command | 
-			session resetDSE.
+			session clearDirectorySpecificEntry.
 			self reportError: command. ].
+
+]
+
+{ #category : 'connecting' }
+LDAPBrowser >> reset [ 
+
+	self errorHandler removeAll.
 
 ]
 

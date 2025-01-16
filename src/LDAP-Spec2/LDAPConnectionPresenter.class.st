@@ -148,7 +148,7 @@ LDAPConnectionPresenter >> port [
 { #category : 'accessing' }
 LDAPConnectionPresenter >> rootName [
 
-	^ rootName
+	^ rootName text
 ]
 
 { #category : 'converting' }

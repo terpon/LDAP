@@ -94,6 +94,28 @@ LDAPEditor >> onDeletedEntry: aDN [
 ]
 
 { #category : 'callbacks' }
+LDAPEditor >> onDirectorySpecificEntry: aCommand [
+
+	| search dn |
+	super onDirectorySpecificEntry: aCommand.
+	dn := session subSchema ifNil: [ ^self ]. "No schema to load"
+	
+	self isConnected ifFalse: [ ^ self ].
+	
+	search := LDAPSearchRequest new
+		          base: dn;
+		          scope: LDAPBaseObjectScope new;
+		          attributes: { '*' . '+' }.
+		
+	^ self sendRequest: search
+		onSuccessDo: [ :command | self onSubSchema: command ]
+		onFailureDo: [ :command | 
+			schema := nil.
+			self reportError: command. ].
+
+]
+
+{ #category : 'callbacks' }
 LDAPEditor >> onModifiedEntry: aDN [
 
 	self invalidateName: aDN.
@@ -111,28 +133,6 @@ LDAPEditor >> onModifiedNameEntry: aRequest [
 	
 	main invalidatePage: aRequest name.
 	self inform: 'Success on modyfying name for ', aRequest name
-
-]
-
-{ #category : 'callbacks' }
-LDAPEditor >> onNamingContexts: aCommand [
-
-	| search dn |
-	super onNamingContexts: aCommand.
-	dn := session subSchema ifNil: [ ^self ]. "No schema to load"
-	
-	self isConnected ifFalse: [ ^ self ].
-	
-	search := LDAPSearchRequest new
-		          base: dn;
-		          scope: LDAPBaseObjectScope new;
-		          attributes: { '*' . '+' }.
-		
-	^ self sendRequest: search
-		onSuccessDo: [ :command | self onSubSchema: command ]
-		onFailureDo: [ :command | 
-			schema := nil.
-			self reportError: command. ].
 
 ]
 
