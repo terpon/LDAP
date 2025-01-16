@@ -167,9 +167,11 @@ LDAPInspectorPresenter >> notify: aString [
 LDAPInspectorPresenter >> openConnectionDialog [
 	
 	| presenter |
-	presenter := LDAPConnectionPresenter newApplication: application model: self model server copy.
-	presenter onAccept: [ :model | self connectionAccept: model ].
+	presenter := LDAPConnectionPresenter newApplication: application.
+	presenter serverInformation: self model server.
 	^ presenter openDialog
+		okAction: [ :dialog | self connectionAccept: dialog presenter asServerInformation ];
+		yourself
 ]
 
 { #category : 'ui - dialogs' }

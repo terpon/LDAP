@@ -36,7 +36,7 @@ LDAPBookmarkEditor class >> example [
 LDAPBookmarkEditor >> addEntry [
 
 	| anAssociation |
-	anAssociation := name text -> serverInfo serverInfo copy.
+	anAssociation := name text -> serverInfo asServerInformation.
 	self bookmarks addLast: anAssociation.
 	self commit.
 	list items: bookmarks.
@@ -58,7 +58,7 @@ LDAPBookmarkEditor >> commit [
 { #category : 'callbacks' }
 LDAPBookmarkEditor >> confirmSavePassword: aContinuationBlock [
 
-	serverInfo serverInfo password ifEmpty: [ ^ aContinuationBlock value ].
+	serverInfo password ifEmpty: [ ^ aContinuationBlock value ].
 	^ SpConfirmDialog new
 		  title: 'Entry password is set';
 		  label: 'Are you sure to save the password?';
@@ -73,7 +73,7 @@ LDAPBookmarkEditor >> connectPresenters [
 	super connectPresenters.
 	toolbar saveButton action: [ self saveCurrent ].
 	toolbar deleteButton action: [ self deleteCurrent ].
-	toolbar connectDefaultAction: [ application newBrowser: serverInfo serverInfo copy ].
+	toolbar connectDefaultAction: [ application newBrowser: serverInfo asServerInformation ].
 	toolbar addConnect: 'Open Browser' action: [ application newBrowser: serverInfo serverInfo copy ].
 	toolbar addConnect: 'Open Editor' action: [ application newEditor: serverInfo serverInfo copy ].
 
@@ -162,7 +162,7 @@ LDAPBookmarkEditor >> replaceEntry: anAssociation [
 
 	| index |
 	index := list listPresenter selection selectedIndex.
-	anAssociation value: serverInfo serverInfo copy.
+	anAssociation value: serverInfo asServerInformation.
 	self commit.
 ]
 
@@ -170,7 +170,7 @@ LDAPBookmarkEditor >> replaceEntry: anAssociation [
 LDAPBookmarkEditor >> reset [
 
 	name text: ''.
-	serverInfo setModel: LDAPServerInfo new.
+	serverInfo setModel: LDAPServerInformation new.
 
 ]
 
@@ -219,7 +219,7 @@ LDAPBookmarkEditor >> updateCurrent [
 	| association |
 	association := self selectedItem ifNil: [ ^self reset ].
 	name text: association key.
-	serverInfo setModel: association value copy.
+	serverInfo serverInformation: association value copy.
 
 ]
 

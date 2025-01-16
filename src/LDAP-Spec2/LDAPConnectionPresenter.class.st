@@ -7,13 +7,13 @@ Class {
 	#name : 'LDAPConnectionPresenter',
 	#superclass : 'SpPresenter',
 	#instVars : [
-		'serverInfo',
+		'previousType',
 		'port',
-		'ssl',
 		'username',
 		'password',
 		'hostname',
-		'acceptBlock'
+		'rootName',
+		'method'
 	],
 	#category : 'LDAP-Spec2-Servers',
 	#package : 'LDAP-Spec2',
@@ -23,14 +23,18 @@ Class {
 { #category : 'examples' }
 LDAPConnectionPresenter class >> example [
 	| model presenter |
-	model := LDAPServerInfo new
+	model := LDAPServerInformation new
 		hostname: 'localhost';
 		port: 777;
+		root: 'ou=people,cn=example,cn=com';
 		username: 'cn=user,cn=example,cn=com';
 		password: '12345678';
 		yourself.
-	presenter := self on: model.
+	presenter := self new serverInformation: model.
 	^ presenter openDialog
+		okAction: [ :d | d inform: 'OK' ];
+		cancelAction: [ :d | d inform: 'Cancel' ];
+		yourself
 ]
 
 { #category : 'examples' }
@@ -45,20 +49,23 @@ LDAPConnectionPresenter class >> title [
 	^ 'LDAP Connection Settings'
 ]
 
-{ #category : 'callbacks' }
-LDAPConnectionPresenter >> accept [
+{ #category : 'converting' }
+LDAPConnectionPresenter >> asServerInformation [
 
-	acceptBlock ifNotNil: [ :block | block cull: self serverInfo ]
+	^ LDAPServerInformation new
+		hostname: self hostname;
+		method: self method;
+		port: self port;
+		username: self username;
+		password: self password;
+		root: self rootName;
+		yourself
 ]
 
 { #category : 'initialization' }
 LDAPConnectionPresenter >> connectPresenters [ 
 
-	hostname whenTextChangedDo: [ :text | self serverInfo hostname: text ] .
-	ssl whenChangedDo: [ :state | self serverInfo ssl: state. self updateDefaultPort ].
-	port whenNumberChangedDo: [ :number | self serverInfo port: number ] .
-	username whenTextChangedDo: [ :text | self serverInfo username: text ] .
-	password whenTextChangedDo: [ :text | self serverInfo password: text ] .
+	method whenSelectedItemChangedDo: [ self updatePort ].
 ]
 
 { #category : 'layout' }
@@ -69,24 +76,32 @@ LDAPConnectionPresenter >> defaultLayout [
 				beColumnNotHomogeneous;
 				column: 2 expand: true;
 				add: 'Hostname:'; add: hostname; nextRow;
-				add: 'SSL:'; add: ssl; nextRow;
+				add: 'Method:'; add: method; nextRow;
 				add: 'Port:'; add: port; nextRow;
 				add: 'Username:'; add: username; nextRow;
-				add: 'Password:'; add: password
+				add: 'Password:'; add: password; nextRow;
+				add: 'Root:'; add: rootName
  	]
+]
+
+{ #category : 'accessing - defaults' }
+LDAPConnectionPresenter >> defaultPort [
+
+	^ self method defaultPort
+]
+
+{ #category : 'accessing' }
+LDAPConnectionPresenter >> hostname [
+
+	^ hostname text
 ]
 
 { #category : 'initialization' }
 LDAPConnectionPresenter >> initializeDialogWindow: aDialogPresenter [
 
-	| ok |
-	aDialogPresenter 
-		withDecorations;
-		addButton: 'Cancel' do: [ :dialog | dialog close ].
+	super initializeDialogWindow: aDialogPresenter.
 		
-	ok := aDialogPresenter addButton: 'OK' do: [ :dialog | self accept. dialog beOk; close ].
-		
-	hostname text ifNotEmpty: [ :text | aDialogPresenter whenOpenedDo: [ ok takeKeyboardFocus ] ].
+	hostname text ifNotEmpty: [ aDialogPresenter whenOpenedDo: [ aDialogPresenter defaultButton takeKeyboardFocus ] ].
 
 
 ]
@@ -94,59 +109,81 @@ LDAPConnectionPresenter >> initializeDialogWindow: aDialogPresenter [
 { #category : 'initialization' }
 LDAPConnectionPresenter >> initializePresenters [ 
 
-	hostname := self newTextInput placeholder: 'Hostname'.
+	hostname := self newTextInput placeholder: 'Hostname'; help: 'Server host name or IP address'.
 	port := self newNumberInput beInteger; minimum: 1; maximum: 65535; placeholder: 'Port'.
-	ssl := self newCheckBox.
-	username := self newTextInput placeholder: 'Username'.
+	method := self newDropList help: 'Connection method to the server';
+		items: (LDAPConnectionType allSubclasses reject: #isAbstract thenCollect: #new);
+		display: [ :t | t presenterText ];
+		yourself.
+	rootName := self newTextInput placeholder: 'Root DN'; help: 'Start entry name.', String cr, ' Keep empty to use server first Naming Context'.
+	username := self newTextInput placeholder: 'Username'; help: 'User full Distinguished Name'.
 	password := self newTextInput bePassword; placeholder: 'Password'.
 ]
 
-{ #category : 'events' }
-LDAPConnectionPresenter >> onAccept: aBlock [
+{ #category : 'transmission' }
+LDAPConnectionPresenter >> inputModelPort [
 
-	acceptBlock := aBlock
+	^ SpActionPort newAction: [ :anObject | self serverInformation: anObject ]
 ]
 
 { #category : 'accessing' }
-LDAPConnectionPresenter >> serverInfo [
+LDAPConnectionPresenter >> method [
 
-	^ serverInfo ifNil: [ serverInfo := LDAPServerInfo new ]
+	^ method selectedItem
 ]
 
-{ #category : 'accessing - model' }
-LDAPConnectionPresenter >> setModel: aServerInfo [
+{ #category : 'accessing' }
+LDAPConnectionPresenter >> password [
 
-	serverInfo := aServerInfo.
-	self updatePresenter
+	^ password text
 ]
 
-{ #category : 'accessing - model' }
-LDAPConnectionPresenter >> setModelBeforeInitialization: aServerInfo [
+{ #category : 'accessing' }
+LDAPConnectionPresenter >> port [
 
-	serverInfo := aServerInfo
+	(port text isEmpty or: [ port number isZero ]) ifTrue: [ ^ self defaultPort ].
+	^ port number
 ]
 
-{ #category : 'default values' }
-LDAPConnectionPresenter >> updateDefaultPort [
-	| default wasDefault |
-	default := self serverInfo defaultPort.
-	port placeholder: default asString.	
+{ #category : 'accessing' }
+LDAPConnectionPresenter >> rootName [
 
-	"Clear value if default"
-	wasDefault := LDAPServerInfo defaultPortForSSL: ssl state not.
-	(port number = wasDefault) ifTrue: [ port text: '' ].
+	^ rootName
+]
 
+{ #category : 'converting' }
+LDAPConnectionPresenter >> serverInformation: anObject [
+ 
+	hostname text: anObject hostname.
+	port number: anObject port.
+	method selectItem: anObject method.
+	self updatePort.
+	username text: anObject username.
+	password text: anObject password.
+	rootName text: anObject root.
+]
+
+{ #category : 'updating - presenters' }
+LDAPConnectionPresenter >> updatePort [
+	| previousDefault wasDefault newType |
+	port number isZero ifTrue: [ port text: '' ].
+	previousDefault := previousType ifNil: [ 0 ] ifNotNil: [ :t | t defaultPort ].
+	wasDefault := port number = previousDefault.
+	wasDefault ifTrue: [ port text: '' ].
+	
+	newType := method selectedItem.
+	port placeholder: newType defaultPort asString.
+	previousType := newType.
 ]
 
 { #category : 'initialization' }
-LDAPConnectionPresenter >> updatePresenter [
- 
-	hostname text: self serverInfo hostname.
-	ssl state: self serverInfo isSSL.
-	self updateDefaultPort.
-	port text: (self serverInfo isPortDefault ifTrue: [ '' ] ifFalse: [ self serverInfo port asString ]).
-	username text: self serverInfo username.
-	password text: self serverInfo password.
-	
+LDAPConnectionPresenter >> updatePresenter [ 
 
+	self updatePort 
+]
+
+{ #category : 'accessing' }
+LDAPConnectionPresenter >> username [
+
+	^ username text
 ]

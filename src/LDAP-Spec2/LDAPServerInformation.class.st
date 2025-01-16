@@ -2,105 +2,109 @@
 I represent the information to connect to a LDAP server.
 "
 Class {
-	#name : 'LDAPServerInfo',
+	#name : 'LDAPServerInformation',
 	#superclass : 'Object',
 	#instVars : [
 		'username',
 		'password',
 		'hostname',
 		'port',
-		'ssl'
+		'rootDN',
+		'method'
 	],
 	#category : 'LDAP-Spec2-Servers',
 	#package : 'LDAP-Spec2',
 	#tag : 'Servers'
 }
 
-{ #category : 'accessing - defaults' }
-LDAPServerInfo class >> defaultPortForSSL: aBoolean [
-
-	^ aBoolean ifTrue: [ 636 ] ifFalse: [ 389 ]
-]
-
 { #category : 'comparing' }
-LDAPServerInfo >> = anObject [
+LDAPServerInformation >> = anObject [
 
 	(self hostname = anObject hostname) ifFalse:  [ ^ false ].
-	(self isSSL = anObject isSSL) ifFalse:  [ ^ false ].
+	(self method = anObject method) ifFalse:  [ ^ false ].
 	(self port = anObject port) ifFalse:  [ (self isPortDefault = anObject isPortDefault) ifFalse: [^false] ].
 	(self username = anObject username) ifFalse:  [ ^ false ].
 	(self password = anObject password) ifFalse:  [ ^ false ].
+	(self root = anObject root) ifFalse:  [ ^ false ].
 
 	^ true
 ]
 
 { #category : 'instance creation' }
-LDAPServerInfo >> connectionClass [ 
+LDAPServerInformation >> connectionClass [ 
 
-	^  self isSSL ifTrue: [ LDAPSConnection ]  ifFalse: [ LDAPConnection ]
+	^  method connectionClass
 ]
 
 { #category : 'accessing - defaults' }
-LDAPServerInfo >> defaultPort [
+LDAPServerInformation >> defaultPort [
 
-	^ self class defaultPortForSSL: ssl
+	^ method defaultPort
 ]
 
 { #category : 'comparing' }
-LDAPServerInfo >> hash [
+LDAPServerInformation >> hash [
 
 	| hash |
-	hash := self hostname hash.
-	hash := hash bitXor: self port hash.
-	hash := hash bitXor: self username.
-	hash := hash bitXor: self password.
-	self isSSL ifTrue:  [ hash := hash bitInvert ].
+	hash := hostname hash.
+	hash := hash bitXor: port hash.
+	hash := hash bitXor: username hash.
+	hash := hash bitXor: password hash.
+	hash := hash bitXor: method hash.
 	^ hash
 ]
 
 { #category : 'accessing' }
-LDAPServerInfo >> hostname [
+LDAPServerInformation >> hostname [
 
 	^ hostname
 ]
 
 { #category : 'accessing' }
-LDAPServerInfo >> hostname: aString [
+LDAPServerInformation >> hostname: aString [
 
 	hostname := aString
 ]
 
 { #category : 'initialization' }
-LDAPServerInfo >> initialize [ 
+LDAPServerInformation >> initialize [ 
 
 	super initialize.
 	
 	hostname := ''.
-	ssl := false.
-	port := self defaultPort.
+	method := LDAPConnectionTCP new.
+	port := 0.
 	username := ''.
 	password := ''.
+	rootDN := ''.
 ]
 
 { #category : 'testing' }
-LDAPServerInfo >> isPortDefault [
+LDAPServerInformation >> isPortDefault [
 	^ port isZero or: [ port = self defaultPort ]
 ]
 
-{ #category : 'testing' }
-LDAPServerInfo >> isSSL [
-	^ ssl
+{ #category : 'accessing' }
+LDAPServerInformation >> method [
+
+	^ method
+]
+
+{ #category : 'accessing' }
+LDAPServerInformation >> method: anObject [
+
+	method := anObject
 ]
 
 { #category : 'instance creation' }
-LDAPServerInfo >> newBindRequest [ 
+LDAPServerInformation >> newBindRequest [ 
 
 	^ 	LDAPBindRequest new username: username; password: password.
 
 ]
 
 { #category : 'instance creation' }
-LDAPServerInfo >> newConnection [
+LDAPServerInformation >> newConnection [
 
 	| newConnection |
 	newConnection := self connectionClass new.
@@ -110,49 +114,55 @@ LDAPServerInfo >> newConnection [
 ]
 
 { #category : 'accessing' }
-LDAPServerInfo >> password [
+LDAPServerInformation >> password [
 
 	^ password
 ]
 
 { #category : 'accessing' }
-LDAPServerInfo >> password: anObject [
+LDAPServerInformation >> password: anObject [
 
 	password := anObject
 ]
 
 { #category : 'accessing' }
-LDAPServerInfo >> port [
+LDAPServerInformation >> port [
 
 	^ port
 ]
 
 { #category : 'accessing' }
-LDAPServerInfo >> port: aNumber [
+LDAPServerInformation >> port: aNumber [
 
 	port := aNumber
 ]
 
 { #category : 'accessing' }
-LDAPServerInfo >> scheme [
+LDAPServerInformation >> root [
 
-	^ self isSSL ifTrue: [ 'ldaps' ] ifFalse: [ 'ldap' ]
+	^ rootDN
 ]
 
 { #category : 'accessing' }
-LDAPServerInfo >> ssl: aBoolean [
+LDAPServerInformation >> root: aString [
 
-	ssl := aBoolean
+	rootDN := aString
 ]
 
 { #category : 'accessing' }
-LDAPServerInfo >> username [
+LDAPServerInformation >> scheme [
+
+	^ method scheme
+]
+
+{ #category : 'accessing' }
+LDAPServerInformation >> username [
 
 	^ username
 ]
 
 { #category : 'accessing' }
-LDAPServerInfo >> username: anObject [
+LDAPServerInformation >> username: aString [
 
-	username := anObject
+	username := aString
 ]

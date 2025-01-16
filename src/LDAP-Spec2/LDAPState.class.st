@@ -85,7 +85,7 @@ LDAPState class >> worldMenuOn: aBuilder [
 			(aBuilder group: #Settings)
 				order: 80;
 				with: [
-					(aBuilder item: #OpenSettings)
+					(aBuilder item: #'Open Settings')
 						action: [ self openSettings ];
 						help: 'Open the Settings browser for LDAP';
 						order: 5.

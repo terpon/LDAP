@@ -16,6 +16,12 @@ Class {
 	#tag : 'Connection'
 }
 
+{ #category : 'accessing - defaults' }
+LDAPConnection class >> defaultPort [
+
+	^ 389
+]
+
 { #category : 'documentation' }
 LDAPConnection class >> missingRFC2251 [
 	self notYetImplemented
@@ -78,12 +84,6 @@ LDAPConnection >> connect [
 
 	worker := LDAPWorker new connection: self. 
 	^ worker start.
-]
-
-{ #category : 'accessing - defaults' }
-LDAPConnection >> defaultPort [
-
-	^ 389
 ]
 
 { #category : 'connecting' }
@@ -165,7 +165,8 @@ LDAPConnection >> onNewSocket [
 { #category : 'accessing' }
 LDAPConnection >> port [
 
-	^ ((port isNil) or: [ port isZero ]) ifTrue: [ self defaultPort ] ifFalse: [ port ]
+	((port isNil) or: [ port isZero ]) ifTrue: [ ^ self class defaultPort ].
+	^  port
 ]
 
 { #category : 'accessing' }

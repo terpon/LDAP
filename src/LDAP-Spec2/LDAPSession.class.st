@@ -30,12 +30,6 @@ LDAPSession >> connected: aBoolean [
 	self valueChanged 
 ]
 
-{ #category : 'instance creation' }
-LDAPSession >> connectionClass [ 
-
-	^  self isSSL ifTrue: [ LDAPSConnection ]  ifFalse: [ LDAPConnection ]
-]
-
 { #category : 'accessing' }
 LDAPSession >> currentRoot [
 
@@ -64,7 +58,7 @@ LDAPSession >> directorySpecificEntry: anObject [
 LDAPSession >> initialize [ 
 
 	super initialize.
-	server := LDAPServerInfo new.
+	server := LDAPServerInformation new.
 	self reset
 ]
 

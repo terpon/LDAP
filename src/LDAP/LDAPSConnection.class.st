@@ -9,15 +9,15 @@ Class {
 	#tag : 'Connection'
 }
 
+{ #category : 'accessing - defaults' }
+LDAPSConnection class >> defaultPort [
+
+	^ 636
+]
+
 { #category : 'instance creation' }
 LDAPSConnection class >> socketClass [
 	^ ZdcSecureSocketStream
-]
-
-{ #category : 'accessing - defaults' }
-LDAPSConnection >> defaultPort [
-
-	^ 636
 ]
 
 { #category : 'initialization' }
