@@ -146,20 +146,15 @@ LDAPConnection >> onClosedSocket: anException [
 { #category : 'callbacks' }
 LDAPConnection >> onNewSocket [
 	
-	| command |
+	| aCommand |
 	connectRequest ifNil: [ ^self ].
 	self isConnected ifFalse: [ ^self ].
 	
 	connectRequest ifNil: [ ^self announcer announce: LDAPIsConnected new ].
 	
-	[ 
-		command := self request: connectRequest.
-		command ifNil: [ ^self ].
-		command wait.
-		(command isDone and: [ command success ]) ifTrue: [ 
-			self announcer announce: LDAPIsConnected new.
-		]
-	] fork
+	aCommand := self request: connectRequest.
+	aCommand ifNil: [ ^self ].
+	[ self waitOnConnect: aCommand ] fork
 ]
 
 { #category : 'accessing' }
@@ -201,6 +196,23 @@ LDAPConnection >> requestOnConnect: aRequest [
 "Request to send on socket reconnection. Usually a bind request to authenticate the connection"
 
 	connectRequest := aRequest.
+]
+
+{ #category : 'callbacks' }
+LDAPConnection >> waitOnConnect: aCommand [
+	
+	| ex |
+	aCommand wait.
+	
+	"Timeout on connectRequest"
+	aCommand isDone ifFalse: [ ^self disconnect ].
+	
+	aCommand success ifTrue: [ ^self announcer announce: LDAPIsConnected new ].
+
+	"Trap exception, disconnect then announce exception"
+	ex := [ aCommand signalExceptions ] on: Exception do: [ :result | result ].
+	self disconnect.
+	self announcer announce: (LDAPIsDisconnected new cause: ex)
 ]
 
 { #category : 'announcer' }
