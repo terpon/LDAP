@@ -115,9 +115,8 @@ LDAPBookmarkEditor >> defaultLayout [
 { #category : 'callbacks' }
 LDAPBookmarkEditor >> deleteCurrent [
 
-	| index association label |
+	| association label |
 	association := self selectedItem ifNil: [ ^self ].
-	index := self selectedIndex.
 	label := String streamContents: [ :out |
 		out nextPutAll: 'About to delete ';
 			nextPutAll: association key.
@@ -149,12 +148,12 @@ LDAPBookmarkEditor >> initializeActions [
 			name: 'Open Browser';
 			description: 'open a LDAP browser';
 			actionEnabled: [ self isCurrentValid ];
-			action: [ application newBrowser: serverInfo asServerInformation ] ];
+			action: [ self open: LDAPBrowser ] ];
 		addActionWith: [ :anItem | anItem
 			name: 'Open Editor';
 			description: 'open a LDAP editor';
 			actionEnabled: [ self isCurrentValid ];
-			action: [ application newEditor: serverInfo asServerInformation ] ].
+			action: [ self open: LDAPEditor ] ].
 ]
 
 { #category : 'initialization' }
@@ -231,6 +230,25 @@ LDAPBookmarkEditor >> moveEntry: aTransfer [
 LDAPBookmarkEditor >> onBookmarksChangeDo: aBlock [
 
 	commitAction := aBlock
+]
+
+{ #category : 'ui requests' }
+LDAPBookmarkEditor >> open: aClass [
+
+	| aServer |
+	aServer := serverInfo asServerInformation.
+	aServer hostname ifEmpty: [ ^self inform: 'No hostname defined' ].
+	aServer password ifNotEmpty: [ ^application open: aClass on: aServer ].
+
+	^ SpRequestDialog new "bePassword;"
+		title: 'Enter Password for';
+		label: aServer asZnUrl printString;
+		text: aServer password;
+		onAccept: [ :dialog | 
+			aServer password: dialog presenter text.
+			application open: aClass on: aServer.
+		];
+		openDialog
 ]
 
 { #category : 'callbacks' }

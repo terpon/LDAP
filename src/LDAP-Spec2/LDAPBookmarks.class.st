@@ -100,12 +100,7 @@ LDAPBookmarks >> newEditor: aServerInfo [
 { #category : 'private - factory' }
 LDAPBookmarks >> open: aClass on: aServerInfo [
 
-	| application |
-	aServerInfo hostname ifEmpty: [ ^self inform: 'No hostname defined' ].
-	application:= aClass new.
-	application start.
-	application connectTo: aServerInfo.
-	^ application
+	^ aClass new 	start; connectTo: aServerInfo; yourself 
 
 ]
 
