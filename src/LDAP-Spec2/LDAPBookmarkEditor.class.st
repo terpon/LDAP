@@ -32,21 +32,33 @@ LDAPBookmarkEditor class >> example [
 	^ example
 ]
 
-{ #category : 'accessing - model' }
+{ #category : 'callbacks' }
 LDAPBookmarkEditor >> addEntry [
 
 	| anAssociation |
 	anAssociation := name text -> serverInfo asServerInformation.
 	self bookmarks addLast: anAssociation.
 	self commit.
-	list items: bookmarks.
-	list listPresenter selectIndex: bookmarks size.
+	self updatePresenter.
+	self selectIndex: bookmarks size.
 ]
 
 { #category : 'accessing - model' }
 LDAPBookmarkEditor >> bookmarks [
 
 	^ bookmarks ifNil: [ bookmarks := OrderedCollection new ]
+]
+
+{ #category : 'private - drag and drop' }
+LDAPBookmarkEditor >> checkDrop: aTransfer [
+
+	| anAssociation |
+	aTransfer passenger isCollection ifFalse: [ ^false ].
+	anAssociation := aTransfer passenger first.
+	"Only accept if correct type"
+	anAssociation isAssociation ifFalse: [ ^ false ].
+	anAssociation key isString ifFalse: [ ^ false ].
+	^ anAssociation value isKindOf: LDAPServerInformation
 ]
 
 { #category : 'accessing - model' }
@@ -117,27 +129,44 @@ LDAPBookmarkEditor >> deleteCurrent [
 		  title: 'Confirm Entry Deletion';
 		  label: label;
 		  acceptLabel: 'Delete';
-		  onAccept: [ bookmarks removeAt: index. self commit ];
+		  onAccept: [ self deleteEntry: association ];
 		  openDialog
 ]
 
-{ #category : 'accessing - model' }
-LDAPBookmarkEditor >> deleteEntry [
+{ #category : 'callbacks' }
+LDAPBookmarkEditor >> deleteEntry: anAssociation [
 
-	| index |
-	index := self selectedIndex.
-	bookmarks removeAt: index.
+	| anIndex |
+	anIndex := bookmarks identityIndexOf: anAssociation ifAbsent: [ ^self ]. 
+	bookmarks removeAt: anIndex.
 	self commit.
-	list items: bookmarks.
+	self selectIndex: 0.
+	self updatePresenter.
 ]
 
 { #category : 'initialization' }
-LDAPBookmarkEditor >> initializePresenters [ 
+LDAPBookmarkEditor >> initializeList [
 
 	list := (self instantiate: SpFilteringListPresenter)
 		display: [ :each | each key ];
 		headerTitle: 'Bookmarks'; 
 		yourself.
+		
+	list listPresenter dropEnabled: true;
+		wantsDrop: [ :aTransfer | self checkDrop: aTransfer ];
+		acceptDrop: [ :aTransfer | self moveEntry: aTransfer ];
+		whenActivatedDo: [ :aSelection | self inform: aSelection selectedItem key ];
+		dragEnabled: true;
+		whenDragStartDo: [ :ann | | anEntry |
+			anEntry := ann transfer passenger first.
+			ann transfer description: ('Moving "{1}" entry' format: {anEntry key}).
+		].
+]
+
+{ #category : 'initialization' }
+LDAPBookmarkEditor >> initializePresenters [ 
+
+	self initializeList.
 	serverInfo := (self instantiate: LDAPConnectionPresenter).
 	name := self newTextInput placeholder: 'Friendly name of the server connection info'.
 	toolbar := (self instantiate: LDAPBookmarksToolbarPresenter).
@@ -151,17 +180,41 @@ LDAPBookmarkEditor >> initializeWindow: aWindowPresenter [
 		initialExtent: 700 @ 500
 ]
 
+{ #category : 'private - drag and drop' }
+LDAPBookmarkEditor >> moveEntry: aTransfer [
+
+	| anAssociation anItem anIndex |
+	anAssociation := aTransfer passenger first.
+
+	"The index is in the filtered list"
+	anItem := aTransfer index isZero ifFalse: [ list listPresenter items at: aTransfer index ].
+	anItem == anAssociation ifTrue: [ ^self ].
+	
+	anIndex := bookmarks identityIndexOf: anAssociation.
+	anIndex isZero ifFalse: [ bookmarks removeAt: anIndex ] 
+		ifTrue: [ "not from this list, copy the data"
+			anAssociation := anAssociation deepCopy.
+		]. 
+	
+	anItem ifNil: [ bookmarks addLast: anAssociation ]
+		ifNotNil: [ 
+			anIndex := bookmarks identityIndexOf: anItem.
+			bookmarks add: anAssociation beforeIndex: anIndex.
+		].
+
+	self commit.
+	self updatePresenter.
+]
+
 { #category : 'enumerating' }
 LDAPBookmarkEditor >> onBookmarksChangeDo: aBlock [
 
 	commitAction := aBlock
 ]
 
-{ #category : 'accessing - model' }
+{ #category : 'callbacks' }
 LDAPBookmarkEditor >> replaceEntry: anAssociation [
 
-	| index |
-	index := list listPresenter selection selectedIndex.
 	anAssociation value: serverInfo asServerInformation.
 	self commit.
 ]
@@ -186,6 +239,13 @@ LDAPBookmarkEditor >> saveCurrent [
 		ifNone: [ [ self addEntry ] ].
 		
 	self confirmSavePassword: block.
+]
+
+{ #category : 'accessing' }
+LDAPBookmarkEditor >> selectIndex: anInteger [
+
+	list listPresenter selectIndex: anInteger.
+
 ]
 
 { #category : 'accessing' }

@@ -30,6 +30,16 @@ LDAPServerInformation >> = anObject [
 	^ true
 ]
 
+{ #category : 'converting' }
+LDAPServerInformation >> asZnUrl [
+
+	| url |
+	url := ZnUrl new scheme: self scheme; host: self hostname.
+	self isPortDefault ifFalse: [ url port: self port ].
+	self root ifNotEmpty: [ :path | url addPathSegment: path ].
+	^ url
+]
+
 { #category : 'instance creation' }
 LDAPServerInformation >> connectionClass [ 
 
