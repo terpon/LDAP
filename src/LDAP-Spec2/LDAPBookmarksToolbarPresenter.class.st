@@ -10,8 +10,6 @@ Class {
 		'delete',
 		'close',
 		'connectAction',
-		'connectDefaultAction',
-		'connectMenu',
 		'connectButton'
 	],
 	#category : 'LDAP-Spec2-Presenters',
@@ -21,63 +19,48 @@ Class {
 
 { #category : 'examples' }
 LDAPBookmarksToolbarPresenter class >> example [
-	| toolbar |
-	toolbar := self new.
-	toolbar connectDefaultAction: [ toolbar inform: 'Connect' ].
-	^ toolbar open
+	^ self new open
 ]
 
 { #category : 'examples' }
 LDAPBookmarksToolbarPresenter class >> exampleConnect [
-	| toolbar |
+	| toolbar group |
 	toolbar := self new.
-	toolbar connectDefaultAction: [ toolbar inform: 'Connect' ].
-	toolbar addConnect: 'Command 1' action: [ toolbar inform: 'Command 1' ].
-	toolbar addConnect: 'Command 2' action: [ toolbar inform: 'Command 2' ].
-	toolbar addConnect: 'Command 3' action: [ toolbar inform: 'Command 3' ].
+	group := (SpActionGroup newName: 'Example')
+		addActionWith: [ :anItem | anItem
+			name: 'Command 1';
+			description: 'this is the first action';
+			action: [ toolbar inform: 'Command 1' ] ];
+		addActionWith: [ :anItem | anItem
+			name: 'Command 2';
+			description: 'this is the second action';
+			action: [ toolbar inform: 'Command 2' ] ];
+		addActionWith: [ :anItem | anItem
+			name: 'Command 3';
+			description: 'this is the third action';
+			action: [ toolbar inform: 'Command 3' ] ].
+	toolbar connectActions: group.
 	^ toolbar open
 ]
 
 { #category : 'accessing' }
-LDAPBookmarksToolbarPresenter >> addConnect: aString action: aBlock [
+LDAPBookmarksToolbarPresenter >> connectActions: aGroup [
 
-	connectMenu menuGroups first addItem: [ :anItem |
-		anItem name: aString;
-			action: [ connectButton label: aString. self connectAction: aBlock ]
-	]
-]
+	| first |
+	first := aGroup entries first.
+	connectAction := first.
+	connectButton enabled: true;
+		label: first name;
+		menu: [ SpMenuPresenter new 
+			addGroup: [ :group |
+				aGroup entries do: [ :anAction | group addItem: [ :item | 
+						item name: anAction name; action: [ 
+							connectButton label: anAction name. 
+							connectAction := anAction
+						] 
+				] ]
+			]; yourself ].
 
-{ #category : 'accessing' }
-LDAPBookmarksToolbarPresenter >> connectAction [
-
-	^ connectAction ifNil: [ ^ self connectDefaultAction ]
-]
-
-{ #category : 'accessing' }
-LDAPBookmarksToolbarPresenter >> connectAction: aBlock [
-
-	connectAction := aBlock
-]
-
-{ #category : 'accessing' }
-LDAPBookmarksToolbarPresenter >> connectDefaultAction [
-
-	^ connectDefaultAction ifNil: [ ^ [ "nothing" ] ]
-]
-
-{ #category : 'accessing' }
-LDAPBookmarksToolbarPresenter >> connectDefaultAction: aBlock [
-
-	connectDefaultAction := aBlock
-]
-
-{ #category : 'accessing' }
-LDAPBookmarksToolbarPresenter >> connectMenu [
-
-	connectMenu menuGroups first menuItems ifEmpty: [  
-		connectMenu menuGroups first addItem: [ :anItem | anItem name: 'Connect'; action: [ self connectDefaultAction value ] ]
-	].
-	^ connectMenu
 ]
 
 { #category : 'initialization' }
@@ -104,15 +87,12 @@ LDAPBookmarksToolbarPresenter >> deleteButton [
 { #category : 'initialization' }
 LDAPBookmarksToolbarPresenter >> initializePresenters [
 	
-	connectMenu := self newMenu
-		addGroup: [ :aGroup | "Empty for now" ];
-		yourself.
 	connectButton := self newToolbarMenuButton
+		enabled: false;
 		label: 'Connect';
 		icon: (self iconNamed: #smallHome);
 		help: 'Open a browser window with current server information';
-		menu: [ self connectMenu ];
-		action: [ self connectAction value ]
+		action: [ connectAction ifNotNil: [ :action | action execute ] ]
 		yourself.
 	save := self newToolbarButton
 		label: 'Save';

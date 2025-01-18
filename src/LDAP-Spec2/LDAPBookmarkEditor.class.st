@@ -10,7 +10,8 @@ Class {
 		'list',
 		'serverInfo',
 		'name',
-		'toolbar'
+		'toolbar',
+		'actions'
 	],
 	#category : 'LDAP-Spec2-Servers',
 	#package : 'LDAP-Spec2',
@@ -85,10 +86,6 @@ LDAPBookmarkEditor >> connectPresenters [
 	super connectPresenters.
 	toolbar saveButton action: [ self saveCurrent ].
 	toolbar deleteButton action: [ self deleteCurrent ].
-	toolbar connectDefaultAction: [ application newBrowser: serverInfo asServerInformation ].
-	toolbar addConnect: 'Open Browser' action: [ application newBrowser: serverInfo asServerInformation ].
-	toolbar addConnect: 'Open Editor' action: [ application newEditor: serverInfo asServerInformation ].
-
 	list whenSelectionChangedDo: [ :selection | self updateCurrent ].
 ]
 
@@ -145,6 +142,22 @@ LDAPBookmarkEditor >> deleteEntry: anAssociation [
 ]
 
 { #category : 'initialization' }
+LDAPBookmarkEditor >> initializeActions [ 
+
+	actions := (SpActionGroup newName: 'Connect')
+		addActionWith: [ :anItem | anItem
+			name: 'Open Browser';
+			description: 'open a LDAP browser';
+			actionEnabled: [ self isCurrentValid ];
+			action: [ application newBrowser: serverInfo asServerInformation ] ];
+		addActionWith: [ :anItem | anItem
+			name: 'Open Editor';
+			description: 'open a LDAP editor';
+			actionEnabled: [ self isCurrentValid ];
+			action: [ application newEditor: serverInfo asServerInformation ] ].
+]
+
+{ #category : 'initialization' }
 LDAPBookmarkEditor >> initializeList [
 
 	list := (self instantiate: SpFilteringListPresenter)
@@ -152,7 +165,8 @@ LDAPBookmarkEditor >> initializeList [
 		headerTitle: 'Bookmarks'; 
 		yourself.
 		
-	list listPresenter dropEnabled: true;
+	list listPresenter actions: actions;
+		dropEnabled: true;
 		wantsDrop: [ :aTransfer | self checkDrop: aTransfer ];
 		acceptDrop: [ :aTransfer | self moveEntry: aTransfer ];
 		whenActivatedDo: [ :aSelection | self inform: aSelection selectedItem key ];
@@ -166,10 +180,11 @@ LDAPBookmarkEditor >> initializeList [
 { #category : 'initialization' }
 LDAPBookmarkEditor >> initializePresenters [ 
 
+	self initializeActions.
 	self initializeList.
 	serverInfo := (self instantiate: LDAPConnectionPresenter).
 	name := self newTextInput placeholder: 'Friendly name of the server connection info'.
-	toolbar := (self instantiate: LDAPBookmarksToolbarPresenter).
+	toolbar := (self instantiate: LDAPBookmarksToolbarPresenter) connectActions: actions.
 ]
 
 { #category : 'initialization' }
@@ -178,6 +193,12 @@ LDAPBookmarkEditor >> initializeWindow: aWindowPresenter [
 	aWindowPresenter
 		title: 'LDAP Saved Connections';
 		initialExtent: 700 @ 500
+]
+
+{ #category : 'testing' }
+LDAPBookmarkEditor >> isCurrentValid [
+
+	^ serverInfo hostname isNotEmpty
 ]
 
 { #category : 'private - drag and drop' }
