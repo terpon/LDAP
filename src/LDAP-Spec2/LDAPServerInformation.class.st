@@ -52,6 +52,12 @@ LDAPServerInformation >> defaultPort [
 	^ method defaultPort
 ]
 
+{ #category : 'testing' }
+LDAPServerInformation >> hasUserCredentials [
+
+	^ username isNotEmpty and: [ password isNotEmpty ]
+]
+
 { #category : 'comparing' }
 LDAPServerInformation >> hash [
 
