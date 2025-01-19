@@ -86,22 +86,21 @@ LDAPResult >> resultElement [
 LDAPResult >> signalClass [
 	| code |
 	code := self resultCode.
-	(code between: 16 and: 21) ifTrue: [ ^ LDAPAttrProblemException ].
-	((code between: 32 and: 36) and: [ code ~= 35 ]) ifTrue: [ ^ LDAPNameProblemException ].
-	(code between: 48 and: 50) ifTrue: [ ^ LDAPSecurityProblemException ].
-	(code between: 51 and: 54) ifTrue: [ ^ LDAPServiceProblemException ].
-	((code between: 64 and: 69) or: [ code = 71 ]) ifTrue: [ ^ LDAPUpdateProblemException ].
+	(code between: 16 and: 21) ifTrue: [ ^ LDAPAttributeException ].
+	((code between: 32 and: 36) and: [ code ~= 35 ]) ifTrue: [ ^ LDAPNameException ].
+	(code between: 48 and: 50) ifTrue: [ ^ LDAPSecurityException ].
+	(code between: 51 and: 54) ifTrue: [ ^ LDAPServiceException ].
+	((code between: 64 and: 69) or: [ code = 71 ]) ifTrue: [ ^ LDAPUpdateException ].
 	
-	^ LDAPException
+	^ LDAPResultException
 ]
 
 { #category : 'error handling' }
 LDAPResult >> signalExceptions [
-	| ex |
+
 	self success ifTrue: [ ^ self ].
 
-	ex := self signalClass new.
-	ex signal: self resultElement printString 
+	^ self signalClass new result: self; signal
 
 ]
 

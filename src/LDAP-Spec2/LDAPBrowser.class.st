@@ -270,7 +270,7 @@ LDAPBrowser >> onDisconnect: anAnnouncement [
 	| ex |
 	ex := anAnnouncement cause.
 	session connected: false.
-	main notify: (ex ifNil: [ 'disconnected' ] ifNotNil: [ ex className ] ).
+	main notify: (ex ifNil: [ 'disconnected' ] ifNotNil: [ ex description ] ).
 
 	"Forward to my subscribers"
 	self announcer announce: anAnnouncement.

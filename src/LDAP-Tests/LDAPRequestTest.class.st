@@ -49,7 +49,7 @@ LDAPRequestTest >> addSomeTestEntries [
 	
 	self someTestCns do: [ :name |
 		[ self addEntry: name ]
-			on: LDAPUpdateProblemException
+			on: LDAPUpdateException
 			do: [ :ex | ex resume ]
 	]
 
@@ -117,7 +117,7 @@ LDAPRequestTest >> deleteSomeTestEntries [
 	
 	self someTestCns do: [ :name |
 		[ 	self request: (LDAPDeleteRequest new name: (self cn: name)) ]
-			on: LDAPNameProblemException 
+			on: LDAPNameException 
 			do: [ :ex | ex resume ] ].
 
 
