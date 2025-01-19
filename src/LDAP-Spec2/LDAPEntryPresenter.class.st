@@ -191,7 +191,7 @@ LDAPEntryPresenter >> reset [
 
 ]
 
-{ #category : 'accessing' }
+{ #category : 'api - selection' }
 LDAPEntryPresenter >> selectedItem [
 	"Return selected item."
 	

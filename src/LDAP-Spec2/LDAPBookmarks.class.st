@@ -136,6 +136,6 @@ LDAPBookmarks >> start [
 	aPresenter := LDAPBookmarkEditor 
 		          newApplication: self
 		          model: self bookmarks.
-	aPresenter onBookmarksChangeDo: [ :b | self bookmarks: b asArray. self save ].
+	aPresenter whenBookmarksChangeDo: [ :b | self bookmarks: b asArray. self save ].
 	^ aPresenter open
 ]

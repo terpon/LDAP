@@ -27,21 +27,10 @@ LDAPBookmarkEditor class >> currentApplication [
 { #category : 'examples' }
 LDAPBookmarkEditor class >> example [
 	| example |
-	example := self new onBookmarksChangeDo: [ :b | b inspect ].
+	example := self new whenBookmarksChangeDo: [ :b | b inspect ].
 	example open;
 		withWindowDo: [ :window | window title: self name asString , ' example' ].
 	^ example
-]
-
-{ #category : 'callbacks' }
-LDAPBookmarkEditor >> addEntry [
-
-	| anAssociation |
-	anAssociation := name text -> serverInfo asServerInformation.
-	self bookmarks addLast: anAssociation.
-	self commit.
-	self updatePresenter.
-	self selectIndex: bookmarks size.
 ]
 
 { #category : 'accessing - model' }
@@ -66,18 +55,6 @@ LDAPBookmarkEditor >> checkDrop: aTransfer [
 LDAPBookmarkEditor >> commit [
 
 	commitAction ifNotNil: [ :block | block cull: self bookmarks ]
-]
-
-{ #category : 'callbacks' }
-LDAPBookmarkEditor >> confirmSavePassword: aContinuationBlock [
-
-	serverInfo password ifEmpty: [ ^ aContinuationBlock value ].
-	^ SpConfirmDialog new
-		  title: 'Entry password is set';
-		  label: 'Are you sure to save the password?';
-		  acceptLabel: 'Save';
-		  onAccept: [ aContinuationBlock value ];
-		  openDialog
 ]
 
 { #category : 'initialization' }
@@ -136,7 +113,6 @@ LDAPBookmarkEditor >> deleteEntry: anAssociation [
 	anIndex := bookmarks identityIndexOf: anAssociation ifAbsent: [ ^self ]. 
 	bookmarks removeAt: anIndex.
 	self commit.
-	self selectIndex: 0.
 	self updatePresenter.
 ]
 
@@ -226,12 +202,6 @@ LDAPBookmarkEditor >> moveEntry: aTransfer [
 	self updatePresenter.
 ]
 
-{ #category : 'enumerating' }
-LDAPBookmarkEditor >> onBookmarksChangeDo: aBlock [
-
-	commitAction := aBlock
-]
-
 { #category : 'ui requests' }
 LDAPBookmarkEditor >> open: aClass [
 
@@ -251,14 +221,7 @@ LDAPBookmarkEditor >> open: aClass [
 		openDialog
 ]
 
-{ #category : 'callbacks' }
-LDAPBookmarkEditor >> replaceEntry: anAssociation [
-
-	anAssociation value: serverInfo asServerInformation.
-	self commit.
-]
-
-{ #category : 'updating - presenters' }
+{ #category : 'initialization' }
 LDAPBookmarkEditor >> reset [
 
 	name text: ''.
@@ -269,31 +232,41 @@ LDAPBookmarkEditor >> reset [
 { #category : 'callbacks' }
 LDAPBookmarkEditor >> saveCurrent [
 
-	| key block |
-	key := name text.
-	key ifEmpty: [ ^self inform: 'Entry has no name' ].
+	| anAssociation |
+	name text ifEmpty: [ ^self inform: 'Entry has no name' ].
+	anAssociation := name text -> serverInfo asServerInformation.
 	
-	block := self bookmarks detect: [ :b | b key = key ] 
-		ifFound: [ :association |  [ self replaceEntry: association ] ] 
-		ifNone: [ [ self addEntry ] ].
-		
-	self confirmSavePassword: block.
+	serverInfo password ifEmpty: [ ^self saveEntry: anAssociation ].
+	^ LDAPConfirmSavePasswordDialog new
+		  onAccept: [ self saveEntry: anAssociation ];
+		  onClear: [ anAssociation value password: ''. self saveEntry: anAssociation ];
+		  openDialog
 ]
 
-{ #category : 'accessing' }
-LDAPBookmarkEditor >> selectIndex: anInteger [
+{ #category : 'accessing - model' }
+LDAPBookmarkEditor >> saveEntry: anAssociation [
+	
+	| anEntry |
+	anEntry := self bookmarks detect: [ :b | b key = anAssociation key ] 
+		ifFound: [ :association | association value: anAssociation value. association ] 
+		ifNone: [ self bookmarks addLast: anAssociation ].
 
-	list listPresenter selectIndex: anInteger.
+	self commit.
+	self updatePresenter.
+	self selectItem: anEntry.
+]
+
+{ #category : 'api - selection' }
+LDAPBookmarkEditor >> selectItem: anObject [
+
+	| aListPresenter anInteger |
+	aListPresenter := list listPresenter.
+	anInteger := aListPresenter items identityIndexOf: [ anObject ].
+	aListPresenter selectIndex: anInteger.
 
 ]
 
-{ #category : 'accessing' }
-LDAPBookmarkEditor >> selectedIndex [
-
-	^ list listPresenter selection selectedIndex
-]
-
-{ #category : 'accessing' }
+{ #category : 'api - selection' }
 LDAPBookmarkEditor >> selectedItem [
 
 	^ list selectedItem
@@ -315,10 +288,10 @@ LDAPBookmarkEditor >> setModelBeforeInitialization: aDomainObject [
 { #category : 'updating - presenters' }
 LDAPBookmarkEditor >> updateCurrent [
 
-	| association |
-	association := self selectedItem ifNil: [ ^self reset ].
-	name text: association key.
-	serverInfo serverInformation: association value copy.
+	| anAssociation |
+	anAssociation := self selectedItem ifNil: [ ^self reset ].
+	name text: anAssociation key.
+	serverInfo serverInformation: anAssociation value.
 
 ]
 
@@ -327,4 +300,10 @@ LDAPBookmarkEditor >> updatePresenter [
 
 	list items: self bookmarks.
 	self updateCurrent.
+]
+
+{ #category : 'api - events' }
+LDAPBookmarkEditor >> whenBookmarksChangeDo: aBlock [
+
+	commitAction := aBlock
 ]
