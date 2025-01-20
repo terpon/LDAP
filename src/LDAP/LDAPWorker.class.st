@@ -103,7 +103,7 @@ LDAPWorker >> initializeSocket [
 
 	| newSocket |
 	exception := nil.
-	newSocket := [ connection initializeSocket ] on: NetworkError do: [ :ex | exception := ex. nil ].
+	newSocket := [ connection initializeSocket ] on: NetworkError do: [ :ex | exception := ex. ex pass. nil ].
 	lock critical: [ sockStream := newSocket ].
 	newSocket ifNil: [ ^ self ].
 

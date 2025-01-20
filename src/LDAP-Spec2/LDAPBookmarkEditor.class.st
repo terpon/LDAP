@@ -11,7 +11,8 @@ Class {
 		'serverInfo',
 		'name',
 		'toolbar',
-		'actions'
+		'actions',
+		'rootFetch'
 	],
 	#category : 'LDAP-Spec2-Servers',
 	#package : 'LDAP-Spec2',
@@ -63,7 +64,11 @@ LDAPBookmarkEditor >> connectPresenters [
 	super connectPresenters.
 	toolbar saveButton action: [ self saveCurrent ].
 	toolbar deleteButton action: [ self deleteCurrent ].
+	toolbar connectActions: actions.
 	list whenSelectionChangedDo: [ :selection | self updateCurrent ].
+	
+	rootFetch whichServer: [ serverInfo asServerInformation ].
+	rootFetch onCopyDo: [:aDN | serverInfo rootName: aDN ].
 ]
 
 { #category : 'layout' }
@@ -79,6 +84,7 @@ LDAPBookmarkEditor >> defaultLayout [
 		add: (SpBoxLayout newLeftToRight vAlignCenter; add: 'Name: ' expand: false; 
 			add: name; yourself) expand: false;
 		add: serverInfo;
+		add: rootFetch expand: false;
 		add: toolbar expand: false;
 		yourself.
 		
@@ -157,9 +163,10 @@ LDAPBookmarkEditor >> initializePresenters [
 
 	self initializeActions.
 	self initializeList.
-	serverInfo := (self instantiate: LDAPConnectionPresenter).
+	serverInfo := self instantiate: LDAPConnectionPresenter.
 	name := self newTextInput placeholder: 'Friendly name of the server connection info'.
-	toolbar := (self instantiate: LDAPBookmarksToolbarPresenter) connectActions: actions.
+	toolbar := self instantiate: LDAPBookmarksToolbarPresenter.
+	rootFetch := self instantiate: LDAPNamingContextPresenter.
 ]
 
 { #category : 'initialization' }

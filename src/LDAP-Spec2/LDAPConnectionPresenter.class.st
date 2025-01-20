@@ -151,6 +151,12 @@ LDAPConnectionPresenter >> rootName [
 	^ rootName text
 ]
 
+{ #category : 'accessing' }
+LDAPConnectionPresenter >> rootName: aString [
+
+	rootName text: aString
+]
+
 { #category : 'converting' }
 LDAPConnectionPresenter >> serverInformation: anObject [
  
