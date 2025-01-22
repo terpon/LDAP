@@ -79,11 +79,20 @@ LDAPConnection >> announcer [
 	^ announcer ifNil: [ announcer := Announcer new ]
 ]
 
-{ #category : 'running' }
-LDAPConnection >> connect [
+{ #category : 'connecting' }
+LDAPConnection >> asyncConnect [
 
 	worker := LDAPWorker new connection: self. 
 	^ worker start.
+]
+
+{ #category : 'connecting' }
+LDAPConnection >> connect [
+
+	| aProcess |
+	aProcess := self asyncConnect.
+	worker waitUntilConnected.
+	^ aProcess
 ]
 
 { #category : 'connecting' }

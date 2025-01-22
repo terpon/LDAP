@@ -153,14 +153,13 @@ LDAPNamingContextPresenter >> query [
 LDAPNamingContextPresenter >> query: aServerInformation [
 
 	| aCollection |
-	[ 
+	aCollection := [ 
 		connection := aServerInformation newConnection.
 		connection connect.
 		connection isConnected ifFalse: [ ^self fail: 'Cannot connect to server' ].
 		(self queryBind: aServerInformation) ifFalse: [ ^self fail: 'Authentification failure' ].
 	
-		aCollection := self queryNamingContexts.
-		aCollection ifNil: [ ^self fail: 'Querying naming context failed' ].
+		self queryNamingContexts ifNil: [ ^self fail: 'Querying naming context failed' ]
 	] ensure: [ 
 		connection ifNotNil: [ connection disconnect ].
 		connection := nil

@@ -45,7 +45,7 @@ LDAPWorker >> announceTargetsLost [
 "The connection is lost. If request are pending, notify them"
 
 	| result name commands |
-	name := exception ifNotNil: [ exception className ] ifNil: [ 'Connection lost' ]. 
+	name := exception ifNotNil: [ exception description ] ifNil: [ 'Connection lost' ]. 
 	result := LDAPResult newCode: 80 name: name message: 'Connection to server lost. No response from request.'.
 	commands := #().
 	lock critical: [
@@ -98,14 +98,14 @@ LDAPWorker >> initialize [
 	running := false.
 ]
 
-{ #category : 'running' }
+{ #category : 'private - running' }
 LDAPWorker >> initializeSocket [
 
 	| newSocket |
 	exception := nil.
-	newSocket := [ connection initializeSocket ] on: NetworkError do: [ :ex | exception := ex. ex pass. nil ].
+	newSocket := [ connection initializeSocket ] on: NetworkError do: [ :ex | exception := ex. nil ].
 	lock critical: [ sockStream := newSocket ].
-	newSocket ifNil: [ ^ self ].
+	newSocket ifNil: [ ^ self releaseSocket ]. "Will call signalAll"
 
 	connected signalAll.
 	connection onNewSocket.
@@ -218,7 +218,7 @@ LDAPWorker >> send: aCommand [
 	]
 ]
 
-{ #category : 'private - running' }
+{ #category : 'running' }
 LDAPWorker >> start [
 
 	connected consumeAllSignals.
@@ -229,14 +229,10 @@ LDAPWorker >> start [
 
 	running := true.
 	listenProcess resume.
-	
-	"Wait a bit so that the thread has a chance to connect"
-	connected wait.
-	
 	^ listenProcess
 ]
 
-{ #category : 'private - running' }
+{ #category : 'running' }
 LDAPWorker >> stop [
 
 	listenProcess ifNil: [ ^ self ].
@@ -254,4 +250,12 @@ LDAPWorker >> waitForData [
 	"Check buffered stream first"
 	sockStream isDataAvailable ifTrue: [ ^self ].
 	sockStream socket ifNil: [ ^self ] ifNotNil: [ :s | s waitForDataFor: 5 ].
+]
+
+{ #category : 'running' }
+LDAPWorker >> waitUntilConnected [
+
+	"Wait on semaphore signaled on socket opened or closed"
+	connected wait.
+
 ]

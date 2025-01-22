@@ -77,7 +77,7 @@ LDAPBrowser >> connectTo: aServerInfo [
 	bind := aServerInfo newBindRequest.
 	
 	connection requestOnConnect: bind.
-	[ connection connect ] fork.
+	connection asyncConnect.
 	"Following actions in onConnect if connection and bind successful"
 ]
 
