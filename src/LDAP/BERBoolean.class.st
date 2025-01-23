@@ -1,5 +1,5 @@
 "
-BERBoolean is a boolean encoded in BER.
+I represent a boolean encoded in BER.
 "
 Class {
 	#name : 'BERBoolean',

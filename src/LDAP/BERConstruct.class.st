@@ -1,5 +1,5 @@
 "
-A BERConstruct can be a BERSequence or a BERSet.
+I am a BER composite element. I can be either a BERSequence or a BERSet.
 "
 Class {
 	#name : 'BERConstruct',

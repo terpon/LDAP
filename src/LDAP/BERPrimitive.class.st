@@ -1,5 +1,7 @@
 "
-A BERPrimitive holds a single value. It is used to represent non constructed types (BERConstruct).
+I am an abstract class used to represent a single value encoded as a BERElement.
+
+Multiple values must be encoded as childen of a constructed type (BERConstruct).
 "
 Class {
 	#name : 'BERPrimitive',

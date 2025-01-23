@@ -1,5 +1,7 @@
 "
-BEROctetString is an array of bytes. It is often used to store strings.
+I represent an array of bytes.
+
+I am often used to store strings, but I can be used to store arbitrary blobs of data.
 "
 Class {
 	#name : 'BEROctetString',

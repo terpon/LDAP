@@ -1,5 +1,5 @@
 "
-A Secure LDAP Connection using SSL
+I represent a Secure LDAP Connection using SSL.
 "
 Class {
 	#name : 'LDAPSConnection',

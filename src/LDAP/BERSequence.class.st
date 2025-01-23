@@ -1,5 +1,5 @@
 "
-BERSequence is a sequence of values encoded in BER.
+I represent a sequence of values encoded in BER.
 "
 Class {
 	#name : 'BERSequence',

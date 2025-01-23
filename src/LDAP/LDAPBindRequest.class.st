@@ -1,5 +1,12 @@
 "
-LDAPBindRequest is the connection process to the LDAP directory.
+I am a request to send user credentials to the server.
+The connection to the server starts as unauthenticated state.
+
+LDAPv3 supports two basic types of authentication:
+  - Simple authentication, in which the client identifies itself with a DN and proves its identity with a password.
+  - SASL (Simple Authentication and Security Layer) authentication
+
+Currently I only support simple authentication. Password is in clear text in the BER element so sensitive connections should only be performed with a SSL connection.
 "
 Class {
 	#name : 'LDAPBindRequest',

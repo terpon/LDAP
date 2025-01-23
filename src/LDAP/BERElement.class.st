@@ -1,5 +1,7 @@
 "
-A BERElement is a datatype in the BER encoding (Basic Encoding Rules)
+I am the base type of all datatypes in the BER encoding (Basic Encoding Rules).
+
+All LDAP transmitted elements are encoded this way.	 The encoding consists of one byte which is the tag, a length and then the payload.
 "
 Class {
 	#name : 'BERElement',

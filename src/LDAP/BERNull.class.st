@@ -1,5 +1,5 @@
 "
-BERNull is a NULL value encoded in BER.
+I am a NULL value encoded in BER.
 "
 Class {
 	#name : 'BERNull',

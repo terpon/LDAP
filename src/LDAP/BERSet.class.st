@@ -1,5 +1,7 @@
 "
-BERSet is a set of values encoded in BER.
+I represent a set of values encoded in BER.
+
+The order of my children elements are not supposed to matter.
 "
 Class {
 	#name : 'BERSet',

@@ -1,5 +1,5 @@
 "
-A LDAPConnection describes the connection of a client to a LDAP server.
+I represent the network connection of a client to a LDAP server.
 "
 Class {
 	#name : 'LDAPConnection',

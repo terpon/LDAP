@@ -1,5 +1,7 @@
 "
-LDAPUnbindRequest is the process to disconnect the client of the LDAP directory.
+I am the request sent before disconnecting the client of the LDAP server.
+
+Contrary to its name, the unbind operation is not the symmetrical of the bind operation. After I am sent to the server, no other operation is expected on the connection.
 "
 Class {
 	#name : 'LDAPUnbindRequest',

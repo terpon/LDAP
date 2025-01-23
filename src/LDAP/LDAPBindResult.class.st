@@ -1,5 +1,5 @@
 "
-Result for bind
+I am the server result from a bind request.
 "
 Class {
 	#name : 'LDAPBindResult',

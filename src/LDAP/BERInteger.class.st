@@ -1,5 +1,7 @@
 "
-BERInteger is a integer encoded in BER.
+I represent an integer encoded in BER.
+
+BER does not impose any limits on the magnitude of the positive or negative integer values that it can represent. However, many BER libraries do define their own bounds for the sizes of integer values that they can handle.
 "
 Class {
 	#name : 'BERInteger',

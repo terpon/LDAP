@@ -1,5 +1,5 @@
 "
-BEREnumerated is for a choice within a bounded set of possible values
+I represent a choice within a bounded set of possible values.
 "
 Class {
 	#name : 'BEREnumerated',
