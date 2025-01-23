@@ -25,18 +25,3 @@ LDAPBindRequestTest >> testDoubleBind [
 	self requestAndAssertSuccess: bind.
 
 ]
-
-{ #category : 'connecting' }
-LDAPBindRequestTest >> testSSLConnection [
-	| conn command |
-	"This should be in LDAP-SSL-Tests package"
-	
-	conn := [ LDAPSConnection to: self hostname port: 636 ]
-		onErrorDo: [ self skip: 'no SSL connection' ].
-	command := conn request: (LDAPBindRequest new username: self bindDN; password: self password).
-	command wait.
-	self assert: command success.
-	command signalExceptions.
-
-	conn disconnect.
-]
