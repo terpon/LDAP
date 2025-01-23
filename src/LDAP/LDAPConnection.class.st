@@ -156,7 +156,6 @@ LDAPConnection >> onClosedSocket: anException [
 LDAPConnection >> onNewSocket [
 	
 	| aCommand |
-	connectRequest ifNil: [ ^self ].
 	self isConnected ifFalse: [ ^self ].
 	
 	connectRequest ifNil: [ ^self announcer announce: LDAPIsConnected new ].
