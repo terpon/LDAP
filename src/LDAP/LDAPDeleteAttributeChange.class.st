@@ -1,5 +1,7 @@
 "
-I am a list of attributes to add
+I am a list of attributes to delete.
+
+If there are no attributes values, all attributes with the given description are deleted.
 "
 Class {
 	#name : 'LDAPDeleteAttributeChange',

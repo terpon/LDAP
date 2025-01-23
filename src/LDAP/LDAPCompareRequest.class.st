@@ -1,5 +1,7 @@
 "
-A request to compare
+I am a request used to determine whether a given entry has a specified attribute value.
+
+I can be replaced by a `LDAPSearchRequest` with a scope of baseObject, and an equality filter. When the attribute matches, there will be an extra search result entry message.
 "
 Class {
 	#name : 'LDAPCompareRequest',

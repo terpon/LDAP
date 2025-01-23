@@ -1,5 +1,5 @@
 "
-An entry from a search result
+I am an entry from a `LDAPSearchRequest`.
 "
 Class {
 	#name : 'LDAPSearchResultEntry',

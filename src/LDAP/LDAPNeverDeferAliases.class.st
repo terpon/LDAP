@@ -1,5 +1,5 @@
 "
-The server should not dereference any aliases that it may encounter when processing the search operation.
+I mean the server should not dereference any aliases that it may encounter when processing the search operation.
 "
 Class {
 	#name : 'LDAPNeverDeferAliases',

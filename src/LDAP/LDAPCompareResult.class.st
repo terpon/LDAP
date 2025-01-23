@@ -1,12 +1,12 @@
 "
-Result for compare
+I am the result of `LDAPCompareRequest`.
 "
 Class {
 	#name : 'LDAPCompareResult',
 	#superclass : 'LDAPResult',
-	#category : 'LDAP-Search',
+	#category : 'LDAP-Results',
 	#package : 'LDAP',
-	#tag : 'Search'
+	#tag : 'Results'
 }
 
 { #category : 'accessing' }

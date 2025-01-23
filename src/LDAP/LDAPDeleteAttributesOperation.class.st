@@ -1,5 +1,5 @@
 "
-Removes one or more attribute values from an entry. 
+I represent the operation value to remove one or more attribute values from an entry. 
 "
 Class {
 	#name : 'LDAPDeleteAttributesOperation',

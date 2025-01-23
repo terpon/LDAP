@@ -1,5 +1,5 @@
 "
-The server should dereference any aliases that it encounters within the scope of the search, except for the base entry itself.
+I mean the server should dereference any aliases that it encounters within the scope of the search, except for the base entry itself.
 "
 Class {
 	#name : 'LDAPInSearchingDeferAliases',

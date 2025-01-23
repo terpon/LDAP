@@ -1,5 +1,5 @@
 "
-Only the entry whose DN is provided in the baseObject element of the request will be considered.
+I mean only the entry whose DN is provided in the baseObject element of the request will be considered.
 
 None of its subordinates will be examined.
 "

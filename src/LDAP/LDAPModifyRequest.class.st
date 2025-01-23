@@ -1,5 +1,5 @@
 "
-A request to modify
+I am a request to modify the attributes of an entry.
 "
 Class {
 	#name : 'LDAPModifyRequest',

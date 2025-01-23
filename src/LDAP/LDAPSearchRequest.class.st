@@ -1,5 +1,5 @@
 "
-LDAPSearchRequest is the process to search entries from the LDAP directory.
+I am a request to search entries from the directory.
 "
 Class {
 	#name : 'LDAPSearchRequest',

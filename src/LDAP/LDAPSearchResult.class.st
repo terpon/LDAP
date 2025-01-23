@@ -1,12 +1,12 @@
 "
-Search result code
+I am the result of `LDAPSearchRequest`.
 "
 Class {
 	#name : 'LDAPSearchResult',
 	#superclass : 'LDAPResult',
-	#category : 'LDAP-Search',
+	#category : 'LDAP-Results',
 	#package : 'LDAP',
-	#tag : 'Search'
+	#tag : 'Results'
 }
 
 { #category : 'accessing' }

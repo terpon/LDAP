@@ -1,5 +1,7 @@
 "
-Request to modify a distinguished name
+I am the request to modify a distinguished name.
+
+I can be used to either rename the RDN attribute value or to move the whole entry under another DN.
 "
 Class {
 	#name : 'LDAPModifyNameRequest',

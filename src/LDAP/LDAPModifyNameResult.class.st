@@ -1,12 +1,12 @@
 "
-Modiy DN result
+I am the result for `LDAPModifyNameRequest`.
 "
 Class {
 	#name : 'LDAPModifyNameResult',
 	#superclass : 'LDAPResult',
-	#category : 'LDAP-Modify',
+	#category : 'LDAP-Results',
 	#package : 'LDAP',
-	#tag : 'Modify'
+	#tag : 'Results'
 }
 
 { #category : 'accessing' }

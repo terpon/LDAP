@@ -1,12 +1,12 @@
 "
-Result for add
+I am the result for `LDAPAddRequest`
 "
 Class {
 	#name : 'LDAPAddResult',
 	#superclass : 'LDAPResult',
-	#category : 'LDAP-Modify',
+	#category : 'LDAP-Results',
 	#package : 'LDAP',
-	#tag : 'Modify'
+	#tag : 'Results'
 }
 
 { #category : 'accessing' }

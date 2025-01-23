@@ -1,5 +1,5 @@
 "
-Result of an LDAP message.
+I am the result of an LDAP message.
 "
 Class {
 	#name : 'LDAPResult',

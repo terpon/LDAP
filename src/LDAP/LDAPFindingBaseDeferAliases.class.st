@@ -1,5 +1,5 @@
 "
-The server should only dereference the entry specified by the baseObject element of the request.
+I mean the server should only dereference the entry specified by the baseObject element of the request.
 "
 Class {
 	#name : 'LDAPFindingBaseDeferAliases',

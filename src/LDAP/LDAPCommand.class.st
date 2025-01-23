@@ -14,9 +14,9 @@ Class {
 		'responses',
 		'newResponseSemaphore'
 	],
-	#category : 'LDAP-Results',
+	#category : 'LDAP-Elements',
 	#package : 'LDAP',
-	#tag : 'Results'
+	#tag : 'Elements'
 }
 
 { #category : 'defaults' }

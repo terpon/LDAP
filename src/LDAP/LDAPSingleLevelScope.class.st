@@ -1,5 +1,5 @@
 "
-Only the entries that are immediate subordinates to the baseObject entry will be considered.
+I mean only the entries that are immediate subordinates to the baseObject entry will be considered.
 
 The base entry itself will not be considered, nor will entries more than one level beneath the base entry.
 "

@@ -1,5 +1,9 @@
 "
-A worker (thread)
+I am a worker thread that listen to the LDAP responses.
+
+I defer to my owner `LDAPConnection` for the creation of the socket but I own the `SocketStream`, and I also send the requests.
+
+I maintain a dictionary of requests sent.
 "
 Class {
 	#name : 'LDAPWorker',

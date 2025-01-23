@@ -1,5 +1,5 @@
 "
-An enumerated element that provides a basic indication of whether the operation was processed successfully.
+I am an enumerated element that provides a basic indication of whether the operation was processed successfully.
 "
 Class {
 	#name : 'LDAPResultCode',

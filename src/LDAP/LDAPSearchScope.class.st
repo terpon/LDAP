@@ -1,5 +1,5 @@
 "
-In a LDAP search, this element specifies the set of entries, relative to the entry specified as the baseObject, that may be returned.
+I am an enumerated value to specify the set of entries, relative to the entry specified as the baseObject, that may be returned.
 "
 Class {
 	#name : 'LDAPSearchScope',

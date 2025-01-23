@@ -1,5 +1,5 @@
 "
-The server should always dereference any aliases encountered within the scope of the search.
+I mean the server should always dereference any aliases encountered within the scope of the search.
 "
 Class {
 	#name : 'LDAPAlwaysDeferAliases',

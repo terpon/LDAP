@@ -1,5 +1,5 @@
 "
-Pseudo BER sequence for attributes modification operations
+I am an abtract class for attributes modification operations.
 
 In LDAP Modify Request specification, I am a change sequence:
 ```grammar
@@ -11,6 +11,8 @@ change SEQUENCE {
 				 ...  },
           modification    PartialAttribute }
 ```
+
+The operation enumerated value is set on the subclasses by using one of `LDAPModifyOperation` subclasses.
 "
 Class {
 	#name : 'LDAPAttributeChange',

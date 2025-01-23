@@ -1,6 +1,9 @@
 "
-LDAPAddRequest is the process to add a new entry in the LDAP directory.
+I am the request to add a new entry in the directory.
 
+The list of attributes in the entry can be created as BER elements or passed as a `Dictionary`.
+
+I enforce no rules. The user has to take care of mandatory attributes and make sure the relative distinguished name is also present in the attributes.
 "
 Class {
 	#name : 'LDAPAddRequest',

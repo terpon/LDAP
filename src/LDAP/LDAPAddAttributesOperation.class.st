@@ -1,5 +1,5 @@
 "
-Adds one or more attribute values to an entry.
+I represent the operation value to add one or more attribute values to an entry.
 "
 Class {
 	#name : 'LDAPAddAttributesOperation',

@@ -1,12 +1,12 @@
 "
-Result for delete
+I am the result for `LDAPDeleteRequest`.
 "
 Class {
 	#name : 'LDAPDeleteResult',
 	#superclass : 'LDAPResult',
-	#category : 'LDAP-Modify',
+	#category : 'LDAP-Results',
 	#package : 'LDAP',
-	#tag : 'Modify'
+	#tag : 'Results'
 }
 
 { #category : 'accessing' }

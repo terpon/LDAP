@@ -1,5 +1,5 @@
 "
-In a LDAP search,  this element specifies how the server should treat alias entries that it may encounter during processing.
+I am an enumerated value to determine how the server should treat alias entries that it may encounter during processing a search request.
 
 Alias entries are kind of like the LDAP equivalent of a UNIX symbolic link in that they can make it look like an entry exists in more than one location in the DIT. 
 

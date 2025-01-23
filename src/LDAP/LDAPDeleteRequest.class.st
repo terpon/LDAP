@@ -1,5 +1,5 @@
 "
-LDAPDelRequest is the process to delete an entry in the LDAP directory.
+I am the request to delete an entry in the directory.
 "
 Class {
 	#name : 'LDAPDeleteRequest',

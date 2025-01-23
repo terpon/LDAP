@@ -1,5 +1,5 @@
 "
-I am a list of attributes to add
+I am a list of attributes to replace.
 "
 Class {
 	#name : 'LDAPSetAttributeChange',

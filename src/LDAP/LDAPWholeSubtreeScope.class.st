@@ -1,5 +1,5 @@
 "
-The baseObject entry will be considered, as well as all of its subordinates to any depth.
+I mean the baseObject entry will be considered, as well as all of its subordinates to any depth.
 "
 Class {
 	#name : 'LDAPWholeSubtreeScope',

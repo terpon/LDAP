@@ -1,5 +1,5 @@
 "
-Replaces the entire attribute in the entry.
+I represent the operation value to replace an entire attribute in the entry.
 "
 Class {
 	#name : 'LDAPReplaceAttributesOperation',

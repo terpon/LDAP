@@ -1,12 +1,12 @@
 "
-Modify result
+I am the result of `LDAPModifyRequest`.
 "
 Class {
 	#name : 'LDAPModifyResult',
 	#superclass : 'LDAPResult',
-	#category : 'LDAP-Modify',
+	#category : 'LDAP-Results',
 	#package : 'LDAP',
-	#tag : 'Modify'
+	#tag : 'Results'
 }
 
 { #category : 'accessing' }

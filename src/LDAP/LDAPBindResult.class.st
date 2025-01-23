@@ -1,12 +1,12 @@
 "
-I am the server result from a bind request.
+I am the server result from a `LDAPBindRequest`.
 "
 Class {
 	#name : 'LDAPBindResult',
 	#superclass : 'LDAPResult',
-	#category : 'LDAP-Connection',
+	#category : 'LDAP-Results',
 	#package : 'LDAP',
-	#tag : 'Connection'
+	#tag : 'Results'
 }
 
 { #category : 'accessing' }

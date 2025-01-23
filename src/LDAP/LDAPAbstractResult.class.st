@@ -1,9 +1,10 @@
 "
-Abstract class for all LDAP result messages.
+I am the abstract class for all LDAP result messages.
 
-It defines the interface which should include:
-- checkForException
-- isEndMarker
+I define the interface which should include:
+  - success
+  - signalExceptions
+  - isEndMarker
  
 "
 Class {

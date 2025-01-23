@@ -1,5 +1,7 @@
 "
-A reference from a search result
+I am a reference from a `LDAPSearchResult`.
+
+I get returned by the server if the request asked for not dereferencing.
 "
 Class {
 	#name : 'LDAPSearchResultReference',
