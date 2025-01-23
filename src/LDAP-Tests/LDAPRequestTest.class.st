@@ -57,12 +57,12 @@ LDAPRequestTest >> addSomeTestEntries [
 
 { #category : 'accessing - defaults' }
 LDAPRequestTest >> baseDN [
-	^ 'dc=example,dc=com'
+	^ LDAPTestServer namingContext 
 ]
 
 { #category : 'accessing - defaults' }
 LDAPRequestTest >> bindDN [
-	^ self cn: 'admin'
+	^ LDAPTestServer username
 ]
 
 { #category : 'utilities' }
@@ -125,17 +125,17 @@ LDAPRequestTest >> deleteSomeTestEntries [
 
 { #category : 'accessing - defaults' }
 LDAPRequestTest >> hostname [
-	^ '127.0.0.1'
+	^ LDAPTestServer hostname
 ]
 
 { #category : 'accessing - defaults' }
 LDAPRequestTest >> password [
-	^ 'secret'
+	^ LDAPTestServer password
 ]
 
 { #category : 'accessing - defaults' }
 LDAPRequestTest >> port [
-	^ 389
+	^ LDAPTestServer port
 ]
 
 { #category : 'running' }

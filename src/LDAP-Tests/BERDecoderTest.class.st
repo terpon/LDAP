@@ -1,9 +1,9 @@
 Class {
 	#name : 'BERDecoderTest',
 	#superclass : 'TestCase',
-	#category : 'LDAP-Tests-Tests',
+	#category : 'LDAP-Tests-Decoder',
 	#package : 'LDAP-Tests',
-	#tag : 'Tests'
+	#tag : 'Decoder'
 }
 
 { #category : 'tools' }
