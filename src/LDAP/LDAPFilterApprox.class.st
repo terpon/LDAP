@@ -1,5 +1,7 @@
 "
-Filter for Approximation
+I will match any entry that has a specified attribute with at least one value that is approximately equal to a given value.
+
+Official LDAP specifications are vague as to what exactly “approximately equal to” means, and leave it up to the individual server implementations.
 "
 Class {
 	#name : 'LDAPFilterApprox',

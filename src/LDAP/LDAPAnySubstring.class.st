@@ -1,12 +1,12 @@
 "
-I am a string used to look anywhere in another string.
+I will match a value that contains anywhere a specified string
 "
 Class {
 	#name : 'LDAPAnySubstring',
 	#superclass : 'LDAPSubstring',
-	#category : 'LDAP-Search',
+	#category : 'LDAP-Filters',
 	#package : 'LDAP',
-	#tag : 'Search'
+	#tag : 'Filters'
 }
 
 { #category : 'accessing' }

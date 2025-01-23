@@ -1,5 +1,5 @@
 "
-OR filter
+I will only match an entry if at least one of the encapsulated filters matches that entry.
 "
 Class {
 	#name : 'LDAPFilterOr',

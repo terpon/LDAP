@@ -1,5 +1,5 @@
 "
-Filter with a set of filters
+I am an abstract filter containing several children.
 "
 Class {
 	#name : 'LDAPFilterWithSet',

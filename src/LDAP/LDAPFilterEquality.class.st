@@ -1,5 +1,5 @@
 "
-Filter for Equality
+I will match any entry that contains a given value for an attribute with a specified attribute description.
 "
 Class {
 	#name : 'LDAPFilterEquality',

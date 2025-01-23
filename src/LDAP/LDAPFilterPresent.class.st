@@ -1,5 +1,5 @@
 "
-A present filter
+I will match any entry that contains at least one value for a specified attribute.
 "
 Class {
 	#name : 'LDAPFilterPresent',

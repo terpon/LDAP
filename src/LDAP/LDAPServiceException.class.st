@@ -1,5 +1,5 @@
 "
-Problem with service
+I am signaled wherever there is a problem with service on the directory side.
 "
 Class {
 	#name : 'LDAPServiceException',

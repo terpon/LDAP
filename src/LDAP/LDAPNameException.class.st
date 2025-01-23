@@ -1,5 +1,5 @@
 "
-Problem with a name
+I am signaled when there is a problem with a distinguised name in the request.
 "
 Class {
 	#name : 'LDAPNameException',

@@ -1,5 +1,5 @@
 "
-Filter for less or equal
+I will match any entry that contains at least one value that is less than or equal to a given value.
 "
 Class {
 	#name : 'LDAPFilterLessOrEqual',

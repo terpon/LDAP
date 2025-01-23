@@ -1,5 +1,5 @@
 "
-AND filter
+I will only match an entry if all of the encapsulated filters match that entry.
 "
 Class {
 	#name : 'LDAPFilterAnd',

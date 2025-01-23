@@ -1,5 +1,5 @@
 "
-Problem with updating an entry
+I am signaled when there is a problem with updating an entry.
 "
 Class {
 	#name : 'LDAPUpdateException',

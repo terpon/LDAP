@@ -1,5 +1,5 @@
 "
-Problem with security
+I am signaled when there is a problem with security or authentication.
 "
 Class {
 	#name : 'LDAPSecurityException',

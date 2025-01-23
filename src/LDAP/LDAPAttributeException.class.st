@@ -1,5 +1,5 @@
 "
-Problem with an attribute
+I am signlade when there is a problem with an attribute in the request.
 "
 Class {
 	#name : 'LDAPAttributeException',

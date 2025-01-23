@@ -1,5 +1,5 @@
 "
-Common superclass for LDAP exceptions
+I am the common superclass for LDAP exceptions.
 "
 Class {
 	#name : 'LDAPException',

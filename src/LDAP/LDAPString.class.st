@@ -1,5 +1,5 @@
 "
-I am an octet string element to enforce and help implementation of [RFC4514](https://docs.ldap.com/specs/rfc4514.txt) (Lightweight Directory Access Protocol: String Representation of Distinguished Name).
+I am an octet string element that automatically convert strings to and from UTF8 byte arrays.
 "
 Class {
 	#name : 'LDAPString',

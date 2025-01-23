@@ -1,5 +1,7 @@
 "
-A LDAPFilter is used to select a set of data from the LDAP server. Filters can be associated.
+I am an helper class to help instantiate LDAP filterst for searches into the directory.
+
+LDAP filters are composite objects forming a syntax tree for search filtering.
 "
 Class {
 	#name : 'LDAPFilter',

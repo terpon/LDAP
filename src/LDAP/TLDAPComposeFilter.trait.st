@@ -1,5 +1,5 @@
 "
-Helper trait to compose filters more easily
+I add messages to compose filters with binary messages.
 "
 Trait {
 	#name : 'TLDAPComposeFilter',

@@ -1,5 +1,5 @@
 "
-Error thrown when a LDAPCommand is not yet done after a wait call.
+I am signaled when a LDAPCommand is not yet done after a wait call.
 "
 Class {
 	#name : 'LDAPTimeOut',

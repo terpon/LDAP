@@ -1,5 +1,5 @@
 "
-NOT filter
+I am a filter that negates the children filters.
 "
 Class {
 	#name : 'LDAPFilterNot',

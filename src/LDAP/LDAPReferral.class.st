@@ -1,5 +1,5 @@
 "
-An optional sequence element that, if present, will contain one or more URIs that the client may use to re-try processing the operation somewhere else.
+I represent an optional sequence element that, if present, will contain one or more URIs that the client may use to re-try processing the operation somewhere else.
 "
 Class {
 	#name : 'LDAPReferral',

@@ -1,12 +1,12 @@
 "
-I am a string used to look at the end of another string.
+I will match a value that ends with a specified string.
 "
 Class {
 	#name : 'LDAPFinalSubstring',
 	#superclass : 'LDAPSubstring',
-	#category : 'LDAP-Search',
+	#category : 'LDAP-Filters',
 	#package : 'LDAP',
-	#tag : 'Search'
+	#tag : 'Filters'
 }
 
 { #category : 'accessing' }

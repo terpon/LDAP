@@ -1,5 +1,5 @@
 "
-Filter for greater or equal
+I will match any entry that contains at least one value for a specified attribute that is greater than or equal to a given value.
 "
 Class {
 	#name : 'LDAPFilterGreaterOrEqual',

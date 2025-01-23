@@ -1,12 +1,12 @@
 "
-I am a string used to look at the beginning of another string.
+I will match a value that starts with a specified string.
 "
 Class {
 	#name : 'LDAPInitialSubstring',
 	#superclass : 'LDAPSubstring',
-	#category : 'LDAP-Search',
+	#category : 'LDAP-Filters',
 	#package : 'LDAP',
-	#tag : 'Search'
+	#tag : 'Filters'
 }
 
 { #category : 'accessing' }

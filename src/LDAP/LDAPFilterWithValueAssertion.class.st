@@ -1,5 +1,5 @@
 "
-Filter with assertions about values
+I am an abstract filter containing two octet strings: the first being the attribute description, and the second the assertion value.
 "
 Class {
 	#name : 'LDAPFilterWithValueAssertion',

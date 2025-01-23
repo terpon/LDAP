@@ -1,5 +1,7 @@
 "
-Substrings as filter
+I will match any entry that has a specified attribute with at least one value that matches a provided substring assertion.
+
+The substring assertion can contain one or more of LDAPSubstring subclasses instance. Since a string can only contain one beginning and one end, there can be at most one `LDAPInitialSubstring` instance and one `LDAPFinalSubstring`, but there can be any number of `LDAPAnySubstring` instances.
 "
 Class {
 	#name : 'LDAPFilterSubstrings',
