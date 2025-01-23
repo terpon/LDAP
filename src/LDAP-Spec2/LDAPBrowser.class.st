@@ -72,8 +72,8 @@ LDAPBrowser >> connectTo: aServerInfo [
 	session server: aServerInfo.
 	
 	connection := aServerInfo newConnection.
-	connection when: LDAPIsConnected send: #onConnect to: self.
-	connection when: LDAPIsDisconnected send: #onDisconnect: to: self.
+	connection announcer when: LDAPIsConnected send: #onConnect to: self.
+	connection announcer when: LDAPIsDisconnected send: #onDisconnect: to: self.
 	bind := aServerInfo newBindRequest.
 	
 	connection requestOnConnect: bind.
@@ -250,7 +250,7 @@ LDAPBrowser >> onConnect [
 
 	self requestDirectorySpecificEntry.
 	
-	"Announce to my subsribers"
+	"Announce to my subscribers"
 	self announcer announce: LDAPIsConnected new.
 
 ]
@@ -378,9 +378,4 @@ LDAPBrowser >> start [
 
 	main withWindowDo: [ :w | w isOpen ifTrue:[ w activate. ^ w ] ].
 	^ main open
-]
-
-{ #category : 'announcer' }
-LDAPBrowser >> when: anAnnouncementClass send: aSelector to: anObject [
-	^ self announcer when: anAnnouncementClass send: aSelector to: anObject
 ]

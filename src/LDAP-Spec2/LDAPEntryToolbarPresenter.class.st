@@ -59,9 +59,9 @@ LDAPEntryToolbarPresenter >> connectPresenters [
 	modify action: [ self modifyAction ].
 	edit action: [ self editAction ].
 	
-	application when: LDAPClipboardChanged send: #clipboardChanged: to: self.
-	application when: LDAPIsConnected send: #updatePresenter to: self.
-	application when: LDAPIsDisconnected send: #disable to: self.
+	application announcer when: LDAPClipboardChanged send: #clipboardChanged: to: self.
+	application announcer when: LDAPIsConnected send: #updatePresenter to: self.
+	application announcer when: LDAPIsDisconnected send: #disable to: self.
 ]
 
 { #category : 'actions' }

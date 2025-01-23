@@ -223,8 +223,3 @@ LDAPConnection >> waitOnConnect: aCommand [
 	self disconnect.
 	self announcer announce: (LDAPIsDisconnected new cause: ex)
 ]
-
-{ #category : 'announcer' }
-LDAPConnection >> when: anAnnouncementClass send: aSelector to: anObject [
-	^ self announcer when: anAnnouncementClass send: aSelector to: anObject
-]
