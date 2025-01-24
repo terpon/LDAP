@@ -148,12 +148,12 @@ LDAPRequestTest >> request: aLDAPRequest [
 
 { #category : 'running' }
 LDAPRequestTest >> requestAndAssertSuccess: aLDAPRequest [
-	| command responses |	
+	| command |	
 	command := connection request: aLDAPRequest.
-	responses := command responses.
+	command wait.
 	command signalExceptions.
 	self assert: command success.
-	^ responses
+	^ command responses
 
 ]
 

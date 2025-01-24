@@ -9,9 +9,9 @@ Class {
 	#classVars : [
 		'LdapTags'
 	],
-	#category : 'LDAP-Elements',
+	#category : 'LDAP-Internal',
 	#package : 'LDAP',
-	#tag : 'Elements'
+	#tag : 'Internal'
 }
 
 { #category : 'class initialization' }

@@ -176,7 +176,6 @@ LDAPNamingContextPresenter >> queryBind: aServerInformation [
 	aCommand := connection request: aServerInformation newBindRequest.
 	aCommand ifNil: [ ^ false ]. "disconnected"
 	aCommand wait.
-	aCommand isDone ifFalse: [ ^ false ]. "timeout"
 	^ aCommand success
 ]
 
@@ -191,7 +190,6 @@ LDAPNamingContextPresenter >> queryNamingContexts [
 	aCommand := connection request: aLDAPRequest.
 	aCommand ifNil: [ ^ false ]. "disconnected"
 	aCommand wait.
-	aCommand isDone ifFalse: [ ^ false ]. "timeout"
 	aCommand success	ifFalse: [ ^ false ]. "no such object"
 	aResult := aCommand responses first asDictionary.
 	^ aResult at: 'namingcontexts' ifAbsent: [ #() ]

@@ -69,14 +69,14 @@ LDAPCommand >> nextTimeout: seconds [
 
 { #category : 'operating' }
 LDAPCommand >> processResponse: aResponse [
+	"return true if command can be retired"
 	responses addLast: aResponse. 
 	newResponseSemaphore signal.
 
-	aResponse isEndMarker ifFalse: [ ^ self ].
+	isDone := aResponse isEndMarker.
+	isDone ifTrue: [ doneSemaphore signal ].
 	
-	isDone := true. 
-	doneSemaphore signal.
-
+	^ isDone
 ]
 
 { #category : 'accessing' }
@@ -94,7 +94,10 @@ LDAPCommand >> signalExceptions [
 
 { #category : 'accessing' }
 LDAPCommand >> success [
-	^ self responses allSatisfy: [ :response | response success ]
+
+	self isDone ifFalse: [ ^false ].
+
+	^ responses allSatisfy: #success
 ]
 
 { #category : 'operating' }
@@ -115,10 +118,4 @@ LDAPCommand >> waitTimeoutMSecs: msecs [
 { #category : 'operating' }
 LDAPCommand >> waitTimeoutSeconds: seconds [
 	self waitTimeoutMSecs: seconds * 1000.
-]
-
-{ #category : 'testing' }
-LDAPCommand >> wantsMoreResponses [
-	"you most likely not want to implement this in a subclass, but processResponse:"
-	^ self isDone not
 ]

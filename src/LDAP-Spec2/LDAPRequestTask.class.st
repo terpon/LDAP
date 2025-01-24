@@ -88,12 +88,6 @@ LDAPRequestTask >> waitForCompletion [
 		^self fail 
 	].
 
-	"Should be catched by LDAPTimeOut"
-	command isDone ifFalse: [ 
-		error := LDAPException new. 
-		^self fail 
-	].
-	
 	command success ifTrue: [ ^ self succeed ].
 
 	self fail.

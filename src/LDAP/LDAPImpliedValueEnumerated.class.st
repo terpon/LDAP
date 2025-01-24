@@ -4,9 +4,9 @@ I am an abstract class where each subclass represents one enumeration value that
 Class {
 	#name : 'LDAPImpliedValueEnumerated',
 	#superclass : 'BEREnumerated',
-	#category : 'LDAP-Elements',
+	#category : 'LDAP-Internal',
 	#package : 'LDAP',
-	#tag : 'Elements'
+	#tag : 'Internal'
 }
 
 { #category : 'accessing' }

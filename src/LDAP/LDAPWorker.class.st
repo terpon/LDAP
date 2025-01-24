@@ -68,7 +68,7 @@ LDAPWorker >> connection: anObject [
 
 { #category : 'private - dispatching' }
 LDAPWorker >> dispatchMessage: aMessage [
-	| command id |
+	| command id done |
 	aMessage ifNil: [ ^self ].
 	id := aMessage id.
 
@@ -83,10 +83,9 @@ LDAPWorker >> dispatchMessage: aMessage [
 	
 	"extended results need some kind of handling -- RFC2251 says they are the result of a message with a control,
 	which we don't have implemented, so there's no real need yet"
-	command  processResponse: aMessage response.
+	done := command processResponse: aMessage response.
 	
-	command wantsMoreResponses
-		ifFalse: [ self removeTargetId: id ]
+	done ifTrue: [ self removeTargetId: id ]
 
 
 ]

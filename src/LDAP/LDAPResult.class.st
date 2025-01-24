@@ -98,7 +98,7 @@ LDAPResult >> signalClass [
 { #category : 'error handling' }
 LDAPResult >> signalExceptions [
 
-	self success ifTrue: [ ^ self ].
+	self success ifTrue: [ ^self ].
 
 	^ self signalClass new result: self; signal
 
