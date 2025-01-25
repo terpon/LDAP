@@ -1,6 +1,6 @@
 Class {
 	#name : 'LDAPObjectClassTableLine',
-	#superclass : 'LDAPEmptyAttributeTableLine',
+	#superclass : 'LDAPAbstractAttributeTableLine',
 	#instVars : [
 		'objectClass'
 	],

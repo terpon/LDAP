@@ -1,6 +1,6 @@
 Class {
 	#name : 'LDAPGenericAttributeTableLine',
-	#superclass : 'LDAPEmptyAttributeTableLine',
+	#superclass : 'LDAPAbstractAttributeTableLine',
 	#instVars : [
 		'description',
 		'content',
