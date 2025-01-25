@@ -67,7 +67,7 @@ LDAPCommand >> nextTimeout: seconds [
 		ifTrue:[ responses at: (iterator := iterator + 1)]
 ]
 
-{ #category : 'operating' }
+{ #category : 'private - operating' }
 LDAPCommand >> processResponse: aResponse [
 	"return true if command can be retired"
 	responses addLast: aResponse. 
