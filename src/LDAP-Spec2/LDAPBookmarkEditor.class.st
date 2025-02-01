@@ -298,7 +298,9 @@ LDAPBookmarkEditor >> updateCurrent [
 	| anAssociation |
 	anAssociation := self selectedItem ifNil: [ ^self reset ].
 	name text: anAssociation key.
+	(serverInfo asServerInformation = anAssociation value) ifTrue: [ ^self ].
 	serverInfo serverInformation: anAssociation value.
+	rootFetch cancel; reset.
 
 ]
 

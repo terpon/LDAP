@@ -40,7 +40,6 @@ LDAPNamingContextPresenter >> cancel [
 	queryProcess ifNil: [ ^self ].
 	queryProcess terminate.
 	queryProcess := nil.
-	self fail: 'cancelled'
 ]
 
 { #category : 'callbacks' }
@@ -100,7 +99,7 @@ LDAPNamingContextPresenter >> initializePresenters [
 	cancel := self newButton addStyle: 'small';
 		icon: (self iconNamed: #smallCancel);
 		help: 'Cancel the current query';
-		action: [ self cancel ];
+		action: [ self cancel; fail: 'cancelled' ];
 		yourself.
 
 	copy := self newButton addStyle: 'small';
