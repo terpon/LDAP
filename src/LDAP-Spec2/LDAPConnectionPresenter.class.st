@@ -100,7 +100,10 @@ LDAPConnectionPresenter >> hostname [
 LDAPConnectionPresenter >> initializeDialogWindow: aDialogPresenter [
 
 	super initializeDialogWindow: aDialogPresenter.
-		
+
+	aDialogPresenter title: 'LDAP Connection Settings';
+		initialExtent: 590 @ 280.
+
 	hostname text ifNotEmpty: [ aDialogPresenter whenOpenedDo: [ aDialogPresenter defaultButton takeKeyboardFocus ] ].
 
 

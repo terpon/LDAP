@@ -278,17 +278,6 @@ LDAPBrowser >> onDisconnect: anAnnouncement [
 ]
 
 { #category : 'enumerating' }
-LDAPBrowser >> openCustomRootDialog [
-
-	| dialog |
-	dialog := self newRequest
-		title: 'Custom Naming Context';
-		label: 'Enter new root DN:'.
-	dialog openDialog.
-	^ dialog
-]
-
-{ #category : 'enumerating' }
 LDAPBrowser >> openErrorWindow [
 
 	^ self errorPresenter
