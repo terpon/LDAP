@@ -65,7 +65,14 @@ LDAPBookmarkEditor >> connectPresenters [
 	toolbar saveButton action: [ self saveCurrent ].
 	toolbar deleteButton action: [ self deleteCurrent ].
 	toolbar connectActions: actions.
+	
 	list whenSelectionChangedDo: [ :selection | self updateCurrent ].
+	list listPresenter actionsWith: [ :rootGroup | rootGroup 
+			add: actions beDisplayedAsGroup;
+			addGroupWith: [ :aGroup | aGroup 	beDisplayedAsGroup;
+				addActionWith: [ :anAction | anAction name: 'Rename';  action: [ self renameCurrent ] ];
+				addActionWith: [ :anAction | anAction name: 'Delete';  action: [ self deleteCurrent ] ].
+		]].
 	
 	rootFetch whichServer: [ serverInfo asServerInformation ].
 	rootFetch onCopyDo: [:aDN | serverInfo rootName: aDN ].
@@ -146,7 +153,7 @@ LDAPBookmarkEditor >> initializeList [
 		headerTitle: 'Bookmarks'; 
 		yourself.
 		
-	list listPresenter actions: actions;
+	list listPresenter
 		dropEnabled: true;
 		wantsDrop: [ :aTransfer | self checkDrop: aTransfer ];
 		acceptDrop: [ :aTransfer | self moveEntry: aTransfer ];
@@ -228,6 +235,34 @@ LDAPBookmarkEditor >> open: aClass [
 		openDialog
 ]
 
+{ #category : 'callbacks' }
+LDAPBookmarkEditor >> renameCurrent [
+
+	| association label |
+	association := self selectedItem ifNil: [ ^self ].
+	label := String streamContents: [ :out |
+		out nextPutAll: 'Rename ';
+			nextPutAll: association key.
+	].
+	^ SpRequestDialog new
+		  title: 'Rename bookmark';
+		  label: label;
+		  acceptLabel: 'Rename';
+		  text: association key;
+		  onAccept: [ :dialog | self renameEntry: association to: dialog presenter text ];
+		  openDialog
+]
+
+{ #category : 'callbacks' }
+LDAPBookmarkEditor >> renameEntry: anAssociation to: aString [
+
+	bookmarks identityIndexOf: anAssociation ifAbsent: [ ^self ]. 
+	anAssociation key: aString.
+	self commit.
+	self updatePresenter.
+	self selectItem: anAssociation.
+]
+
 { #category : 'initialization' }
 LDAPBookmarkEditor >> reset [
 
@@ -250,7 +285,7 @@ LDAPBookmarkEditor >> saveCurrent [
 		  openDialog
 ]
 
-{ #category : 'accessing - model' }
+{ #category : 'callbacks' }
 LDAPBookmarkEditor >> saveEntry: anAssociation [
 	
 	| anEntry |
@@ -268,7 +303,7 @@ LDAPBookmarkEditor >> selectItem: anObject [
 
 	| aListPresenter anInteger |
 	aListPresenter := list listPresenter.
-	anInteger := aListPresenter items identityIndexOf: [ anObject ].
+	anInteger := aListPresenter items identityIndexOf: anObject.
 	aListPresenter selectIndex: anInteger.
 
 ]
