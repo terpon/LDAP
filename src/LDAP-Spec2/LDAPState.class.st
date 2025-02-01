@@ -66,7 +66,7 @@ LDAPState class >> worldMenuOn: aBuilder [
 		label: 'LDAP';
 		order: 35;
 		with: [
-			(aBuilder group: #Applications)
+			(aBuilder group: #'LDAP Applications')
 				order: 1;
 				with: [
 					(aBuilder item: #'Server Bookmarks')
@@ -82,7 +82,7 @@ LDAPState class >> worldMenuOn: aBuilder [
 						help: 'Open an empty LDAP editor';
 						order: 51.
 					aBuilder	withSeparatorAfter ].
-			(aBuilder group: #Settings)
+			(aBuilder group: #'LDAP Settings')
 				order: 80;
 				with: [
 					(aBuilder item: #'Open Settings')
