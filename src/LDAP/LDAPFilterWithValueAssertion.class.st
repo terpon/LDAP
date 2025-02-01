@@ -1,28 +1,42 @@
 "
-Filter with assertions about values
+I am an abstract filter containing two octet strings: the first being the attribute description, and the second the assertion value.
 "
 Class {
-	#name : #LDAPFilterWithValueAssertion,
-	#superclass : #LDAPFilterSingle,
-	#instVars : [
-		'type',
-		'value'
-	],
-	#category : #'LDAP-Filters'
+	#name : 'LDAPFilterWithValueAssertion',
+	#superclass : 'BERSequence',
+	#traits : 'TLDAPComposeFilter',
+	#classTraits : 'TLDAPComposeFilter classTrait',
+	#category : 'LDAP-Filters',
+	#package : 'LDAP',
+	#tag : 'Filters'
 }
 
-{ #category : #conversion }
-LDAPFilterWithValueAssertion >> asBERElement [
-	| ber |
-	ber := BERSequence new.
-	ber
-		addElement: (BEROctetString new value: type);
-		addElement: (BEROctetString new value: value).
-	^ ber
+{ #category : 'accessing' }
+LDAPFilterWithValueAssertion >> assertionValue [ 
+	^ elements second content
 ]
 
-{ #category : #accessing }
-LDAPFilterWithValueAssertion >> setType: anAttrType value: anAttrValue [
-	type := anAttrType.
-	value := anAttrValue	
+{ #category : 'accessing' }
+LDAPFilterWithValueAssertion >> assertionValue: aString [
+	elements second content: aString
+]
+
+{ #category : 'accessing' }
+LDAPFilterWithValueAssertion >> description [ 
+	^ elements first content
+]
+
+{ #category : 'accessing' }
+LDAPFilterWithValueAssertion >> description: aString [
+	elements first content: aString
+]
+
+{ #category : 'conversion' }
+LDAPFilterWithValueAssertion >> initialize [ 
+	super initialize.
+
+	self
+		addElement: (LDAPString new);
+		addElement: (LDAPString new).
+
 ]

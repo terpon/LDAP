@@ -1,13 +1,15 @@
 "
-Modify result
+I am the result of `LDAPModifyRequest`.
 "
 Class {
-	#name : #LDAPModifyResult,
-	#superclass : #LDAPResult,
-	#category : #'LDAP-Core'
+	#name : 'LDAPModifyResult',
+	#superclass : 'LDAPResult',
+	#category : 'LDAP-Results',
+	#package : 'LDAP',
+	#tag : 'Results'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPModifyResult class >> tagValue [
 	^ 16r67
 	

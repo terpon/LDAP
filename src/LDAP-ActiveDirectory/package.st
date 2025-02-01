@@ -1,1 +1,1 @@
-Package { #name : #'LDAP-ActiveDirectory' }
+Package { #name : 'LDAP-ActiveDirectory' }

@@ -1,70 +1,95 @@
 "
-LDAPSearchRequest is the process to search entries from the LDAP directory.
+I am a request to search entries from the directory.
 "
 Class {
-	#name : #LDAPSearchRequest,
-	#superclass : #LDAPRequest,
-	#instVars : [
-		'partialResults',
-		'iterator',
-		'gotNewResultSemaphore',
-		'searchResult',
-		'resultCount'
-	],
-	#category : #'LDAP-Core'
+	#name : 'LDAPSearchRequest',
+	#superclass : 'BERSequence',
+	#category : 'LDAP-Search',
+	#package : 'LDAP',
+	#tag : 'Search'
 }
 
-{ #category : #'error handling' }
-LDAPSearchRequest >> checkForExceptions [
-	"Check to see if a response caused an exception and if so, raise it"
-	self isDone ifFalse:[^self error: 'LDAP timeout'].
-	searchResult resultCode = 32 ifFalse:[
-		"Do not raise object not found since it is implicit in the response"
-		searchResult checkForExceptions.
-	].
+{ #category : 'accessing' }
+LDAPSearchRequest class >> tagValue [
+	^ 16r63 "Application 3"
 ]
 
-{ #category : #initialization }
-LDAPSearchRequest >> initializeWith: anLDAPWorker base: aBase scope: aSearchScope deref: aDerefBehaviour filter: aFilter attrs: someAttrs wantAttrsOnly: wantsAttrsOnly [
-	| encoded |
-	partialResults := OrderedCollection new.
-	iterator :=  0.
-	resultCount := 0.
-	gotNewResultSemaphore := Semaphore new.
-	self initializeWith: anLDAPWorker.
-	encoded := LDAPEncoder searchRequest: messageId  base: aBase scope: aSearchScope deref: aDerefBehaviour filter: aFilter attrs: someAttrs wantAttrsOnly: wantsAttrsOnly.
-	anLDAPWorker send: encoded.
+{ #category : 'accessing' }
+LDAPSearchRequest >> attributes: someAttrs [
+	| ber |
+	ber := BERSequence new.
+	someAttrs do: [ :each | ber addElement: (LDAPString new content: each) ].
+	elements at: 8 put: ber.
+]
+
+{ #category : 'accessing' }
+LDAPSearchRequest >> base: aDn [
+"baseObject DN. For consistency, same as name"
+	self name: aDn
+]
+
+{ #category : 'controlling' }
+LDAPSearchRequest >> beTypesAndValues [
+	self wantTypesOnly: false
+]
+
+{ #category : 'controlling' }
+LDAPSearchRequest >> beTypesOnly [
+	self wantTypesOnly: true
+]
+
+{ #category : 'accessing' }
+LDAPSearchRequest >> derefAliases: anAliasingPolicy [
+	elements at: 3 put: anAliasingPolicy
+]
+
+{ #category : 'accessing' }
+LDAPSearchRequest >> filter: aFilter [
+	elements at: 7 put: aFilter 
+]
+
+{ #category : 'initialization' }
+LDAPSearchRequest >> initialize [ 
+	super initialize.
+	
+	self
+		addElement: (LDAPString new); "dn"
+		addElement: (LDAPBaseObjectScope new); "scope"
+		addElement: (LDAPNeverDeferAliases new); "derefAliases"
+		addElement: (BERInteger new content: 0); "sizelimit"
+		addElement: (BERInteger new content: 0); "timelimit"
+		addElement: (BERBoolean new); "typesOnly"
+		addElement: (LDAPFilterAnd new); "filter. Absolute true filter (&)"
+		addElement: (BERSequence new). "attrs"
 
 ]
 
-{ #category : #accessing }
-LDAPSearchRequest >> next [
-	^self nextTimeout: self defaultTimeout.
+{ #category : 'accessing' }
+LDAPSearchRequest >> name [
+	^ elements first asString
 ]
 
-{ #category : #accessing }
-LDAPSearchRequest >> nextTimeout: seconds [
-	isDone ifFalse:[
-		"As long as the request isn't done, synchronously wait for more results"
-		gotNewResultSemaphore waitTimeoutSeconds: seconds.
-		(resultCount = iterator and:[isDone not]) ifTrue:[^self error: 'LDAP timeout'].
-	].
-	resultCount > iterator
-		ifTrue:[^partialResults at: (iterator := iterator + 1)]
-		ifFalse:[^nil]
+{ #category : 'accessing' }
+LDAPSearchRequest >> name: aDn [
+	elements first content: aDn
 ]
 
-{ #category : #accessing }
-LDAPSearchRequest >> processResponse: aSearchResultEntry [
-	aSearchResultEntry class isEndMarker ifTrue:[
-		searchResult := aSearchResultEntry.
-		isDone := true. 
-		result := partialResults. 
-		waitingSemaphore signal.
-	] ifFalse:[
-		partialResults addLast: aSearchResultEntry.
-		resultCount := resultCount + 1.
-	].
-	gotNewResultSemaphore signal.
+{ #category : 'accessing' }
+LDAPSearchRequest >> scope: aScope [
+	elements at: 2 put: aScope
+]
 
+{ #category : 'accessing' }
+LDAPSearchRequest >> sizeLimit: anInteger [
+	elements fourth content: anInteger
+]
+
+{ #category : 'accessing' }
+LDAPSearchRequest >> timeLimit: anInteger [
+	elements fifth content: anInteger
+]
+
+{ #category : 'accessing' }
+LDAPSearchRequest >> wantTypesOnly: aBoolean [
+	elements sixth content: aBoolean
 ]

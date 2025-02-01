@@ -1,36 +1,33 @@
 "
-A reference from a search result
+I am a reference from a `LDAPSearchResult`.
+
+I get returned by the server if the request asked for not dereferencing.
 "
 Class {
-	#name : #LDAPSearchResultReference,
-	#superclass : #LDAPMessage,
-	#instVars : [
-		'url'
-	],
-	#category : #'LDAP-Core'
+	#name : 'LDAPSearchResultReference',
+	#superclass : 'LDAPSearchPartialResult',
+	#category : 'LDAP-Search',
+	#package : 'LDAP',
+	#tag : 'Search'
 }
 
-{ #category : #testing }
-LDAPSearchResultReference class >> isEndMarker [
-	^ false
-]
-
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPSearchResultReference class >> tagValue [
 	^ 16r73
 ]
 
-{ #category : #encoding }
-LDAPSearchResultReference >> decode: aStream [
-	url := (BERElement newFrom: aStream) value asString
-]
-
-{ #category : #testing }
+{ #category : 'testing' }
 LDAPSearchResultReference >> isReference [
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPSearchResultReference >> url [
-	^ url
+	^ elements first asString
+]
+
+{ #category : 'accessing' }
+LDAPSearchResultReference >> urls [
+	^ elements collect: #asString
+
 ]

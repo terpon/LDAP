@@ -1,48 +1,28 @@
 "
-A LDAPConnection describes the connection of a client to a LDAP server.
+I represent the network connection of a client to a LDAP server.
 "
 Class {
-	#name : #LDAPConnection,
-	#superclass : #Object,
+	#name : 'LDAPConnection',
+	#superclass : 'Object',
 	#instVars : [
+		'announcer',
+		'host',
+		'port',
 		'worker',
-		'workerThread'
+		'connectRequest'
 	],
-	#category : #'LDAP-Core'
+	#category : 'LDAP-Connection',
+	#package : 'LDAP',
+	#tag : 'Connection'
 }
 
-{ #category : #'search scope constants' }
-LDAPConnection class >> baseObject [
-	^ 0
+{ #category : 'accessing - defaults' }
+LDAPConnection class >> defaultPort [
+
+	^ 389
 ]
 
-{ #category : #'private - accessing' }
-LDAPConnection class >> collectionizedAttrs: someAttrs [
-	^someAttrs collect: [:val | 
-		val isString ifTrue: [ OrderedCollection with: val ] ifFalse: [ val ] ].
-]
-
-{ #category : #'search deref constants' }
-LDAPConnection class >> derefAlways [
-	^ 3
-]
-
-{ #category : #'search deref constants' }
-LDAPConnection class >> derefFindingBaseObj [
-	^ 2
-]
-
-{ #category : #'search deref constants' }
-LDAPConnection class >> derefInSearching [
-	^ 1
-]
-
-{ #category : #'search deref constants' }
-LDAPConnection class >> derefNever [
-	^ 0
-]
-
-{ #category : #documentation }
+{ #category : 'documentation' }
 LDAPConnection class >> missingRFC2251 [
 	self notYetImplemented
 	
@@ -65,106 +45,180 @@ WONT
 "
 ]
 
-{ #category : #'search scope constants' }
-LDAPConnection class >> singleLevel [
-	^ 1
+{ #category : 'instance creation' }
+LDAPConnection class >> socketClass [
+	^ SocketStream
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LDAPConnection class >> to: aHostname [
 	^ self to: aHostname port: 389
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 LDAPConnection class >> to: aHostname port: aPort [
 	| obj |
-	obj := self basicNew initializeWithHost: aHostname port: aPort.
+	obj := self new host: aHostname; port: aPort.
+	obj connect.
 	^ obj
 ]
 
-{ #category : #'search scope constants' }
-LDAPConnection class >> wholeSubtree [
-	^ 2
-]
+{ #category : 'command execution' }
+LDAPConnection >> abandon: aCommand [
+	"RFC says we MUST NOT send abandon requests for the same operation multiple times"
+	(worker isCommandPending: aCommand) ifFalse: [ ^ self ].
 
-{ #category : #accessing }
-LDAPConnection >> addEntry: aDN attrs: someAttrs [
-	^ LDAPAddRequest new initializeWith: worker dn: aDN attrs: (self class collectionizedAttrs: someAttrs).
-]
-
-{ #category : #binding }
-LDAPConnection >> bindAs: aUsername credentials: aPassword [
-	^ self bindAs: aUsername credentials: aPassword method: nil
+	worker abandon: aCommand.
+	^ self request: (LDAPAbandonRequest newId: aCommand message id).
 
 ]
 
-{ #category : #binding }
-LDAPConnection >> bindAs: aUsername credentials: aPassword method: anAuthMethod [
-	^ LDAPBindRequest new initializeWith: worker username: aUsername credentials: aPassword method: anAuthMethod
+{ #category : 'accessing' }
+LDAPConnection >> announcer [
+
+	^ announcer ifNil: [ announcer := Announcer new ]
 ]
 
-{ #category : #accessing }
-LDAPConnection >> compare: aDN using: anEqualityFilter [
-	^ LDAPCompareRequest new initializeWith: worker dn: aDN comparing: anEqualityFilter
+{ #category : 'connecting' }
+LDAPConnection >> asyncConnect [
+
+	worker := LDAPWorker new connection: self. 
+	^ worker start.
 ]
 
-{ #category : #accessing }
-LDAPConnection >> delEntry: aDN [
-	^ LDAPDelRequest new initializeWith: worker dn: aDN
+{ #category : 'connecting' }
+LDAPConnection >> connect [
+
+	| aProcess |
+	aProcess := self asyncConnect.
+	worker waitUntilConnected.
+	^ aProcess
 ]
 
-{ #category : #connecting }
+{ #category : 'connecting' }
 LDAPConnection >> disconnect [
-	self unbind.
-	worker disconnect.
-	workerThread terminate
+
+	| unbind |
+	worker ifNil: [ ^self ].
+	worker isRunning ifFalse: [ ^self ].
+
+	unbind := self request: LDAPUnbindRequest new.
+	unbind ifNotNil: [ :command | command wait ].
+	worker stop.
+	worker := nil.
 ]
 
-{ #category : #initialization }
-LDAPConnection >> initializeWithHost: aHostname port: aPort [
-	worker := LDAPWorker newTo: aHostname port: aPort.
-	worker connect.
-	workerThread := worker start.
+{ #category : 'accessing' }
+LDAPConnection >> host [
+
+	^ host
+]
+
+{ #category : 'accessing' }
+LDAPConnection >> host: anObject [
+
+	host := anObject
+]
+
+{ #category : 'initialization' }
+LDAPConnection >> initializeSocket [
+
+	| sockStream |
+	sockStream := self class socketClass openConnectionToHostNamed: self host port: self port.
+	sockStream 
+		binary;
+		shouldSignal: true;
+		timeout: 60;
+		autoFlush: false.
+		
+	^ sockStream
+]
+
+{ #category : 'testing' }
+LDAPConnection >> isConnected [
+
+	^ worker isNotNil and: [ worker isConnected ]
+]
+
+{ #category : 'testing' }
+LDAPConnection >> isSSL [
+	^ false
+]
+
+{ #category : 'callbacks' }
+LDAPConnection >> onClosedSocket: anException [
+
+	self announcer announce: (LDAPIsDisconnected new cause: anException).
 
 ]
 
-{ #category : #testing }
-LDAPConnection >> isValid [
-	"Answers whether the connection looks still valid"
-	^worker running
-]
-
-{ #category : #accessing }
-LDAPConnection >> modify: aDN with: someLDAPAttrModifiers [
-	^ LDAPModifyRequest new initializeWith: worker dn: aDN ops: someLDAPAttrModifiers
-]
-
-{ #category : #accessing }
-LDAPConnection >> modifyDN: aDN toRDN: aRDN moveUnderDN: aUnderDN wantToClearAttrs: aWantsToClearAttrs [
-	^ LDAPModifyDNRequest new initializeWith: worker modifyDN: aDN toRDN: aRDN underDN: aUnderDN wantToClearAttrs: aWantsToClearAttrs
-]
-
-{ #category : #accessing }
-LDAPConnection >> modifyDN: aDN toRDN: aRDN wantToClearAttrs: aWantsToClearAttrs [
-	^ self modifyDN: aDN toRDN: aRDN moveUnderDN: nil wantToClearAttrs: aWantsToClearAttrs
-]
-
-{ #category : #searching }
-LDAPConnection >> newSearch: aBase scope: aSearchScope deref: aDerefBehaviour filter: aFilter attrs: someAttrs wantAttrsOnly: wantsAttrsOnly [
-	| nonNilFilter nonNilAttrs |
-
-	nonNilFilter := aFilter
-		ifNil: [ nonNilFilter := LDAPFilter with: 'objectclass' ]
-		ifNotNil: [ aFilter ].
+{ #category : 'callbacks' }
+LDAPConnection >> onNewSocket [
 	
-	nonNilAttrs := someAttrs
-		ifNil: [ nonNilAttrs := OrderedCollection new ]
-		ifNotNil: [ someAttrs ].
+	| aCommand |
+	self isConnected ifFalse: [ ^self ].
 	
-	^ LDAPSearchRequest new initializeWith: worker base: aBase scope: aSearchScope deref: aDerefBehaviour filter: nonNilFilter attrs: nonNilAttrs wantAttrsOnly: wantsAttrsOnly
+	connectRequest ifNil: [ ^self announcer announce: LDAPIsConnected new ].
+	
+	aCommand := self request: connectRequest.
+	aCommand ifNil: [ ^self ].
+	[ self waitOnConnect: aCommand ] fork
 ]
 
-{ #category : #binding }
-LDAPConnection >> unbind [
-	LDAPUnbindRequest new initializeWith: worker
+{ #category : 'accessing' }
+LDAPConnection >> port [
+
+	((port isNil) or: [ port isZero ]) ifTrue: [ ^ self class defaultPort ].
+	^  port
+]
+
+{ #category : 'accessing' }
+LDAPConnection >> port: anObject [
+
+	port := anObject
+]
+
+{ #category : 'copying' }
+LDAPConnection >> postCopy [ 
+
+	super postCopy.
+	
+	"Copy start as disconnected, remove reference to original worker"
+	worker := nil.
+]
+
+{ #category : 'command execution' }
+LDAPConnection >> request: aRequest [
+	| command message |
+	self isConnected ifFalse: [ ^ nil ].
+	
+	message := LDAPMessage new operation: aRequest.
+	command := LDAPCommand new initializeWith: message.
+
+	worker send: command.
+	^ command
+]
+
+{ #category : 'enumerating' }
+LDAPConnection >> requestOnConnect: aRequest [
+"Request to send on socket reconnection. Usually a bind request to authenticate the connection"
+
+	connectRequest := aRequest.
+]
+
+{ #category : 'callbacks' }
+LDAPConnection >> waitOnConnect: aCommand [
+	
+	| ex |
+	aCommand wait.
+	
+	"Timeout on connectRequest"
+	aCommand isDone ifFalse: [ ^self disconnect ].
+	
+	aCommand success ifTrue: [ ^self announcer announce: LDAPIsConnected new ].
+
+	"Trap exception, disconnect then announce exception"
+	ex := [ aCommand signalExceptions ] on: Exception do: [ :result | result ].
+	self disconnect.
+	self announcer announce: (LDAPIsDisconnected new cause: ex)
 ]

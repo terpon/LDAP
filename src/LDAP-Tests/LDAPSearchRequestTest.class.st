@@ -1,0 +1,247 @@
+Class {
+	#name : 'LDAPSearchRequestTest',
+	#superclass : 'LDAPRequestTest',
+	#category : 'LDAP-Tests-Requests',
+	#package : 'LDAP-Tests',
+	#tag : 'Requests'
+}
+
+{ #category : 'tests' }
+LDAPSearchRequestTest >> inspectBasicSearch [
+<script: 'self new setUp; inspectBasicSearch; tearDown' >
+
+	| search responses |
+	self connect.
+	search := LDAPSearchRequest new
+		          base: 'ou=people,dc=example,dc=com';
+		          scope: LDAPWholeSubtreeScope new.
+	responses := self requestAndAssertSuccess: search.
+	responses inspect.
+
+
+]
+
+{ #category : 'tests' }
+LDAPSearchRequestTest >> inspectBasicSearch2 [
+<script: 'self new setUp; inspectBasicSearch2; tearDown' >
+
+	| search responses |
+	self connect.
+	search := LDAPSearchRequest new
+		          base: 'cn=bar55,dc=example,dc=com';
+		          scope: LDAPBaseObjectScope new.
+	responses := self requestAndAssertSuccess: search.
+	responses inspect.
+
+
+]
+
+{ #category : 'tests' }
+LDAPSearchRequestTest >> inspectBasicSearch3 [
+<script: 'self new setUp; inspectBasicSearch3; tearDown' >
+
+	| search responses |
+	self connect.
+	search := LDAPSearchRequest new
+		          base: 'cn=bar55,dc=example,dc=com';
+		          scope: LDAPSingleLevelScope new.
+	responses := self requestAndAssertSuccess: search.
+	responses inspect.
+
+
+]
+
+{ #category : 'tests' }
+LDAPSearchRequestTest >> testBasicSearch [
+
+	| search responses |
+	self connect.
+	self addSomeTestEntries.
+
+	search := LDAPSearchRequest new
+		          base: self baseDN;
+		          scope: LDAPWholeSubtreeScope new.
+	responses := self requestAndAssertSuccess: search.
+	"responses inspect."
+
+	self assert: (self
+			 checkSearchResults: responses
+			 expecting:
+			 { nil. 'cn=test1'. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
+
+]
+
+{ #category : 'tests' }
+LDAPSearchRequestTest >> testFailure [
+
+	| responses search |
+	self connect.
+	self addSomeTestEntries.
+
+	search := LDAPSearchRequest new
+		          base: self baseDN;
+		          scope: LDAPWholeSubtreeScope new;
+		          filter: (LDAPFilter with: 'cn' equalTo: 'should_not_be_there_567329').
+	responses := self requestAndAssertSuccess: search.
+	self assert: responses size equals: 1.
+
+	search := LDAPSearchRequest new
+		          base: (self cn: 'should_not_be_there_937461');
+		          scope: LDAPWholeSubtreeScope new.
+	responses := self request: search.
+	self assert: responses size equals: 1.
+	self deny: responses first success.
+	self assert: responses first resultCode equals: 32.
+	 
+
+]
+
+{ #category : 'tests' }
+LDAPSearchRequestTest >> testFilters [
+
+	| responses search |
+	self connect.
+	self addSomeTestEntries.
+
+	search := LDAPSearchRequest new
+		          base: self baseDN;
+		          scope: LDAPWholeSubtreeScope new;
+		          filter: (LDAPFilter with: 'objectclass').
+	responses := self requestAndAssertSuccess: search.
+	self assert: (self
+			 checkSearchResults: responses
+			 expecting:
+			 { nil. 'cn=test1'. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
+
+	search filter: (LDAPFilter with: 'cn' equalTo: 'test1').
+	responses := self requestAndAssertSuccess: search.
+	self assert: (self checkSearchResults: responses expecting: { 'cn=test1' }).
+
+	search filter:
+		(LDAPFilter not: (LDAPFilter with: 'cn' equalTo: 'test1')).
+	responses := self requestAndAssertSuccess: search.
+	self assert: (self
+			 checkSearchResults: responses
+			 expecting: { nil. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
+
+	search filter: (LDAPFilter andOf: (OrderedCollection new
+				  add: (LDAPFilter not: (LDAPFilter with: 'cn' equalTo: 'test1'));
+				  add: (LDAPFilter not: (LDAPFilter with: 'sn' equalTo: 'test2'));
+				  yourself)).
+	responses := self requestAndAssertSuccess: search.
+	self assert: (self
+			 checkSearchResults: responses
+			 expecting: { nil. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
+]
+
+{ #category : 'tests' }
+LDAPSearchRequestTest >> testFiltersOperators [
+
+	| responses search |
+	self connect.
+	self addSomeTestEntries.
+
+	search := LDAPSearchRequest new
+		          base: self baseDN;
+		          scope: LDAPWholeSubtreeScope new;
+		          filter: (LDAPFilter with: 'objectclass').
+	responses := self requestAndAssertSuccess: search.
+	self assert: (self
+			 checkSearchResults: responses
+			 expecting:
+			 { nil. 'cn=test1'. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
+
+	search filter: (LDAPFilter with: 'cn' equalTo: 'test1').
+	responses := self requestAndAssertSuccess: search.
+	self assert: (self checkSearchResults: responses expecting: { 'cn=test1' }).
+
+	search filter: (LDAPFilter with: 'cn' equalTo: 'test1') not.
+	responses := self requestAndAssertSuccess: search.
+	self assert: (self
+			 checkSearchResults: responses
+			 expecting: { nil. 'cn=test2'. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
+
+	search filter: (LDAPFilter with: 'cn' equalTo: 'test1') not
+		& (LDAPFilter with: 'sn' equalTo: 'test2') not.
+	responses := self requestAndAssertSuccess: search.
+	self assert: (self
+			 checkSearchResults: responses
+			 expecting: { nil. 'cn=test3'. 'cn=test4'. 'cn=test5' }).
+
+]
+
+{ #category : 'tests' }
+LDAPSearchRequestTest >> testNamingContexts [
+
+	| responses search attrs |
+	self connect.
+	search := LDAPSearchRequest new
+		          base: '';
+		          scope: LDAPBaseObjectScope new;
+		          attributes: { 'namingContexts' }.
+	responses := self requestAndAssertSuccess: search.
+
+	self assert: responses size equals: 2.
+	self assert: responses second resultCode equals: 0.
+	attrs := responses first asDictionary.
+	self assert: (attrs includesKey: 'namingcontexts').
+	self assert: ((attrs at: 'namingcontexts') includes: self baseDN).
+
+]
+
+{ #category : 'tests' }
+LDAPSearchRequestTest >> testRootDse [
+
+	| responses search result |
+	self connect.
+	search := LDAPSearchRequest new
+		          base: '';
+		          scope: LDAPBaseObjectScope new;
+		          attributes: { '+' }.
+	responses := self requestAndAssertSuccess: search.
+	"responses inspect."
+	result := responses first asDictionary.
+	self assert: (result includesKey: 'supportedldapversion').
+	self assert: (result includesKey: 'namingcontexts').
+	self assert: (result includesKey: 'subschemasubentry').
+]
+
+{ #category : 'tests' }
+LDAPSearchRequestTest >> testRootSubSchema [
+
+	| responses search result dn |
+	self connect.
+	search := LDAPSearchRequest new
+		          base: '';
+		          scope: LDAPBaseObjectScope new;
+		          attributes: { '+' }.
+	responses := self requestAndAssertSuccess: search.
+	result := responses first asDictionary.
+	self assert: (result includesKey: 'subschemasubentry').
+	dn := (result at: 'subschemasubentry') first.
+
+	search := LDAPSearchRequest new
+		          base: dn;
+		          scope: LDAPBaseObjectScope new;
+		          attributes: { '*' . '+' }.
+	responses := self requestAndAssertSuccess: search.
+	"responses inspect."
+]
+
+{ #category : 'tests' }
+LDAPSearchRequestTest >> testSearchWithNext [
+
+	| conn command list r search |
+	conn := self connect.
+	self addSomeTestEntries.
+
+	search := LDAPSearchRequest new
+		          base: self baseDN;
+		          scope: LDAPWholeSubtreeScope new.
+	command := conn request: search.
+	list := OrderedCollection new.
+	[ (r := command next) isNil ] whileFalse: [ list add: r ].
+	self assert: command success.
+	command signalExceptions.
+
+]

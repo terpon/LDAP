@@ -1,35 +1,12 @@
 "
-Filter with a set of filters
+I am an abstract filter containing several children.
 "
 Class {
-	#name : #LDAPFilterWithSet,
-	#superclass : #LDAPFilterSingle,
-	#instVars : [
-		'filters'
-	],
-	#category : #'LDAP-Filters'
+	#name : 'LDAPFilterWithSet',
+	#superclass : 'BERSet',
+	#traits : 'TLDAPComposeFilter',
+	#classTraits : 'TLDAPComposeFilter classTrait',
+	#category : 'LDAP-Filters',
+	#package : 'LDAP',
+	#tag : 'Filters'
 }
-
-{ #category : #'instance creation' }
-LDAPFilterWithSet class >> new [
-	^ self basicNew initialize
-]
-
-{ #category : #accessing }
-LDAPFilterWithSet >> add: aFilter [
-	filters addLast: aFilter
-]
-
-{ #category : #conversion }
-LDAPFilterWithSet >> asBERElement [
-	| ber |
-	ber := BERSet new.
-	filters do: [ :each | ber addElement: (each asBERElement) tagSetContext withTag: each class tagValue ].
-	^ ber
-]
-
-{ #category : #initialization }
-LDAPFilterWithSet >> initialize [
-	filters := OrderedCollection new
-	
-]

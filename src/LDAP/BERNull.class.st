@@ -1,25 +1,39 @@
 "
-BERNull is a NULL value encoded in BER.
+I am a NULL value encoded in BER.
 "
 Class {
-	#name : #BERNull,
-	#superclass : #BERElement,
-	#category : #'LDAP-BER'
+	#name : 'BERNull',
+	#superclass : 'BERElement',
+	#category : 'LDAP-BER',
+	#package : 'LDAP',
+	#tag : 'BER'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERNull class >> tagValue [
 	^ 5
 ]
 
-{ #category : #decoding }
-BERNull >> decode: aStream [
-	"not sure about this.. should it be 0?"
-	"length := 1."
-	value := nil
+{ #category : 'encoding' }
+BERNull >> decode: aStream length: anInteger with: aDecoder [
+"Nothing to do"
 ]
 
-{ #category : #writing }
+{ #category : 'accessing' }
+BERNull >> length [
+	^ 0
+]
+
+{ #category : 'storing' }
+BERNull >> storeOn: aStream [
+
+ 	aStream
+ 		nextPut: $(;
+ 		nextPutAll: self className;
+ 		nextPutAll: ' new)'
+]
+
+{ #category : 'writing' }
 BERNull >> writeBodyOn: aStream [
-	self writeLength: 0 on: aStream
+"Nothing to do"
 ]

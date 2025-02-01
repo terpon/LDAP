@@ -1,151 +1,264 @@
 "
-A worker (thread)
+I am a worker thread that listen to the LDAP responses.
+
+I defer to my owner `LDAPConnection` for the creation of the socket but I own the `SocketStream`, and I also send the requests.
+
+I maintain a dictionary of requests sent.
 "
 Class {
-	#name : #LDAPWorker,
-	#superclass : #Object,
+	#name : 'LDAPWorker',
+	#superclass : 'Object',
 	#instVars : [
+		'connection',
 		'sockStream',
-		'hostname',
-		'port',
 		'nextMessageId',
 		'lock',
 		'targets',
-		'running'
+		'running',
+		'exception',
+		'connected',
+		'listenProcess'
 	],
-	#category : #'LDAP-Core'
+	#category : 'LDAP-Internal',
+	#package : 'LDAP',
+	#tag : 'Internal'
 }
 
-{ #category : #'instance creation' }
-LDAPWorker class >> newTo: aHostname port: aPort [
-	^ self basicNew initialize: aHostname port: aPort
+{ #category : 'dispatching' }
+LDAPWorker >> abandon: aCommand [
+	| id |
+	id := aCommand message id.
+	self removeTargetId: id.
 ]
 
-{ #category : #accessing }
-LDAPWorker >> addTarget: aRequest for: aMessageId [
+{ #category : 'private - dispatching' }
+LDAPWorker >> addTarget: aCommand [
+	| messageId |
+	messageId := self nextMessageId.
 	lock critical: [
-		| data |
-		targets at: aMessageId ifPresent: [
-			Error new;
-				messageText: 'messageId already present -- shouldnt happen'; 
-				signal.
-		].
-		data := Dictionary new.
-		data	at: #request put: aRequest.
-		targets at: aMessageId put: data.
-	]
-]
-
-{ #category : #connecting }
-LDAPWorker >> connect [
-	[ sockStream := SocketStream openConnectionToHostNamed: hostname port: port ]
-		on: Exception do: [:ex | sockStream := nil. self error: ex messageText].
-	sockStream 
-		binary;
-		autoFlush: false;
-		noTimeout
+		targets at: messageId 
+			ifPresent: [ Error signal: 'messageId already present -- shouldn’t happen' ]
+			ifAbsentPut: aCommand
+	].
+	^  messageId 
 
 ]
 
-{ #category : #accessing }
-LDAPWorker >> delTargetFor: aMessageId [
+{ #category : 'error handling' }
+LDAPWorker >> announceTargetsLost [
+"The connection is lost. If request are pending, notify them"
+
+	| result name commands |
+	name := exception ifNotNil: [ exception description ] ifNil: [ 'Connection lost' ]. 
+	result := LDAPResult newCode: 80 name: name message: 'Connection to server lost. No response from request.'.
+	commands := #().
 	lock critical: [
-		targets at: aMessageId
-			ifAbsent: [ ^ self ].
-		 targets removeKey: aMessageId
-	
-	]
+		commands := targets values.
+		targets removeAll.
+	].
+	commands do: [ :command | command processResponse: result ].
+
 ]
 
-{ #category : #connecting }
-LDAPWorker >> disconnect [
-	self stop
-	
+{ #category : 'accessing' }
+LDAPWorker >> connection: anObject [
+
+	connection := anObject
 ]
 
-{ #category : #dispatching }
+{ #category : 'private - dispatching' }
 LDAPWorker >> dispatchMessage: aMessage [
-	| target id who |
+	| command id done |
+	aMessage ifNil: [ ^self ].
 	id := aMessage id.
 
 	"this is an unsolicited notification -- as it is advisory, we can ignore it for now"
 	id = 0 ifTrue: [ ^ self ].
 
-	"RFC says we MUST be prepared to recieve replies to aborted requests -- so we eat it silently"
-	target :=targets at: id
+	"RFC says we MUST be prepared to receive replies to aborted requests -- so we eat it silently"
+	command :=targets at: id
 		ifAbsent: [ ^ self ].
 	
-	target ifNil: [ self delTargetFor: id. ^ self ].
+	command ifNil: [ self removeTargetId: id. ^ self ].
 	
 	"extended results need some kind of handling -- RFC2251 says they are the result of a message with a control,
 	which we don't have implemented, so there's no real need yet"
+	done := command processResponse: aMessage response.
 	
-	who := target at: #request.
-	who processResponse: aMessage.
-	
-	who wantsMoreResponses
-		ifFalse: [ self delTargetFor: id ]
+	done ifTrue: [ self removeTargetId: id ]
 
 
 ]
 
-{ #category : #initialization }
-LDAPWorker >> initialize: aHostname port: aPort [
-	hostname := aHostname.
-	port := aPort.
+{ #category : 'initialization' }
+LDAPWorker >> initialize [
+	super initialize.
+	
 	nextMessageId := 0.
 	lock := Semaphore forMutualExclusion.
-	"looks like if we use the WVD here we wont see exceptions thrown.. hrmmm"
-	"targets := WeakValueDictionary new."
-	targets := Dictionary new.
+	connected := Semaphore new.
+	targets := WeakValueDictionary new.
 	running := false.
 ]
 
-{ #category : #accessing }
+{ #category : 'private - running' }
+LDAPWorker >> initializeSocket [
+
+	| newSocket |
+	exception := nil.
+	newSocket := [ connection initializeSocket ] on: NetworkError do: [ :ex | exception := ex. nil ].
+	lock critical: [ sockStream := newSocket ].
+	newSocket ifNil: [ ^ self releaseSocket ]. "Will call signalAll"
+
+	connected signalAll.
+	connection onNewSocket.
+]
+
+{ #category : 'dispatching' }
+LDAPWorker >> isCommandPending: aCommand [
+	| messageId |
+	messageId := aCommand message id.
+	^ lock critical: [ targets includesKey: messageId ]
+]
+
+{ #category : 'testing' }
+LDAPWorker >> isConnected [
+
+	^ lock critical: [ sockStream ifNil: [ false ] ifNotNil: [ :s | s isConnected ] ]
+]
+
+{ #category : 'testing' }
+LDAPWorker >> isRunning [
+
+	^ self isConnected and: running
+]
+
+{ #category : 'request handling' }
+LDAPWorker >> listenLoop [
+	"We create a listening Socket, then wait for a connection.
+	After each connection we also check that the listening Socket is still valid"
+	[ [running] whileTrue: [
+		| looping |
+		looping := true.
+		self initializeSocket.
+		sockStream ifNil: [ running := false. ^ self ].
+		[looping] whileTrue: [
+			sockStream isConnected 
+				ifFalse: [ looping := false ]
+				ifTrue: [ self readMessage ].
+			running ifFalse: [ looping := false ].
+		].
+		self releaseSocket
+	] 
+	] ensure: [ self releaseSocket ].
+
+]
+
+{ #category : 'private - dispatching' }
 LDAPWorker >> nextMessageId [
 	"here we should check wether we're past the message id limit, and if so reconnect and bind"
 	nextMessageId := nextMessageId + 1.
 	^ nextMessageId
 ]
 
-{ #category : #accessing }
-LDAPWorker >> running [
-	^ running
+{ #category : 'private - running' }
+LDAPWorker >> readMessage [
+	[ [ [ 
+		|  message  |
+		self waitForData.
+		message := LDAPDecoder from: sockStream.
+		"Transcript show: '********* READ ONE OF:  ', message asString; cr."
+		self dispatchMessage: message.
+		
+	] on: ConnectionTimedOut, ConnectionClosed do:[ :ex| 
+				"wait for another loop if `running` is still true"
+				^ self.
+		].
+	] on: NetworkError, SocketError do:[ :ex| 
+				"send disconnect announcement, try to reconnect on next loop"
+				Transcript cr; show: ex description; cr.
+				^ self.
+		].
+	] on: Exception do: [ :ex |
+			"Probably cannot recover"
+			Transcript cr; show: ex description; cr.
+			running := false.
+			ex pass.
+	].
 ]
 
-{ #category : #accessing }
-LDAPWorker >> running: aBoolean [
-	running := aBoolean
+{ #category : 'private - running' }
+LDAPWorker >> releaseSocket [
+
+	self announceTargetsLost.
+
+	lock critical: [
+		sockStream ifNotNil: [ :s | s close ].
+		sockStream := nil.
+	].
+
+	connected signalAll.
+	connection onClosedSocket: exception
 ]
 
-{ #category : #accessing }
-LDAPWorker >> send: someData [
+{ #category : 'private - dispatching' }
+LDAPWorker >> removeTargetId: aMessageId [
+	lock critical: [
+		targets removeKey: aMessageId ifAbsent: [ "we’re good" ]
+	]
+]
+
+{ #category : 'dispatching' }
+LDAPWorker >> send: aCommand [
+	| message messageId |
+	messageId := self addTarget: aCommand.
+	message := aCommand message.
+	message id: messageId.
 	lock critical: [
 		sockStream 
-			nextPutAll: someData;
+			nextPutAll: message encoded;
 			flush.
 	]
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 LDAPWorker >> start [
-	| process |
+
+	connected consumeAllSignals.
+
+	listenProcess := [self listenLoop] newProcess.
+	listenProcess name: ('LDAP listener on: {1}:{2}' format: { connection host . connection port }).
+	listenProcess priority: Processor highIOPriority.
+
 	running := true.
-	process := [ 
-		[running] whileTrue: [
-			|  element  |
-			element := [LDAPMessage newFrom: sockStream] on: Error do:[:ex| 
-				Transcript cr; show: ex description.
-				running := false].
-			"Transcript show: '********* READ ONE OF:  ', element asString; cr."
-			running ifTrue:[self dispatchMessage: element].
-		]
-	] fork.
-	^ process
-	
+	listenProcess resume.
+	^ listenProcess
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 LDAPWorker >> stop [
+
+	listenProcess ifNil: [ ^ self ].
+
+	"This will call releaseSocket and call onClosedSocket"
 	running := false.
+	listenProcess isTerminating ifFalse: [ listenProcess terminate ].
+	listenProcess := nil.
+
+]
+
+{ #category : 'private - running' }
+LDAPWorker >> waitForData [
+
+	"Check buffered stream first"
+	sockStream isDataAvailable ifTrue: [ ^self ].
+	sockStream socket ifNil: [ ^self ] ifNotNil: [ :s | s waitForDataFor: 5 ].
+]
+
+{ #category : 'running' }
+LDAPWorker >> waitUntilConnected [
+
+	"Wait on semaphore signaled on socket opened or closed"
+	connected wait.
+
 ]

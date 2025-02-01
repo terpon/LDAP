@@ -1,13 +1,15 @@
 "
-Filter for less or equal
+I will match any entry that contains at least one value that is less than or equal to a given value.
 "
 Class {
-	#name : #LDAPFilterLessOrEqual,
-	#superclass : #LDAPFilterWithValueAssertion,
-	#category : #'LDAP-Filters'
+	#name : 'LDAPFilterLessOrEqual',
+	#superclass : 'LDAPFilterWithValueAssertion',
+	#category : 'LDAP-Filters',
+	#package : 'LDAP',
+	#tag : 'Filters'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPFilterLessOrEqual class >> tagValue [
-	^ 6
+	^ 16rA6 "Context 6"
 ]

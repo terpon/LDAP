@@ -1,19 +1,31 @@
 "
-BEREnumerated is for a choice within a bounded set of possible values
+I represent a choice within a bounded set of possible values.
 "
 Class {
-	#name : #BEREnumerated,
-	#superclass : #BERInteger,
-	#category : #'LDAP-BER'
+	#name : 'BEREnumerated',
+	#superclass : 'BERInteger',
+	#category : 'LDAP-BER',
+	#package : 'LDAP',
+	#tag : 'BER'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BEREnumerated class >> tagValue [
 	^ 10
 ]
 
-{ #category : #encoding }
-BEREnumerated >> decode: aStream [
-	super decode: aStream.
+{ #category : 'accessing' }
+BEREnumerated >> name [
+	^ self subclassResponsibility
+]
+
+{ #category : 'printing' }
+BEREnumerated >> printOn: aStream [
+	| name |
+	name := self name ifNil: [ ^ super printOn: aStream ].
+	aStream nextPutAll: name.
+	aStream nextPutAll: ' ('.
+	self content printOn: aStream.
+	aStream nextPutAll: ')'.
 
 ]

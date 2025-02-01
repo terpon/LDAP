@@ -1,13 +1,15 @@
 "
-Result for bind
+I am the server result from a `LDAPBindRequest`.
 "
 Class {
-	#name : #LDAPBindResult,
-	#superclass : #LDAPResult,
-	#category : #'LDAP-Core'
+	#name : 'LDAPBindResult',
+	#superclass : 'LDAPResult',
+	#category : 'LDAP-Results',
+	#package : 'LDAP',
+	#tag : 'Results'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPBindResult class >> tagValue [
 	^ 16r61
 ]

@@ -1,19 +1,18 @@
 "
-BERSet is a set of values encoded in BER.
+I represent a set of values encoded in BER.
+
+The order of my children elements are not supposed to matter.
 "
 Class {
-	#name : #BERSet,
-	#superclass : #BERConstruct,
-	#category : #'LDAP-BER'
+	#name : 'BERSet',
+	#superclass : 'BERConstruct',
+	#category : 'LDAP-BER',
+	#package : 'LDAP',
+	#tag : 'BER'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERSet class >> tagValue [
 	"SET + Constructed"
 	^ (17 + 32)
-]
-
-{ #category : #encoding }
-BERSet >> decode: aStream [
-	^ super decode: aStream
 ]

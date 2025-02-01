@@ -1,21 +1,43 @@
 
 # LDAP Support for Pharo
 
-Port to Pharo 9.0. Migrated from the original repository at http://smalltalkhub.com/PharoExtras/LDAP/
-
 LDAP (Lightweight Directory Access Protocol) is a network protocol for remote directories. LDAP is mainly used for authentication of users into the mails servers, enterprise applications or biometric systems.
 
-This implementation allows Pharo to communicate with such LDAP directories. It is fully written in Pharo and does not require access to native libraries.
+This implementation allows Pharo to communicate with such LDAP directories. It is fully written in [Pharo smalltalk](https://pharo.org/) and does not require access to native libraries.
 
 
-## Loading
+## Installing
+Minimal package loading:
 ```Smalltalk
 Metacello new
  	baseline: 'LDAP';
- 	repository: 'github://{repo}/LDAP/src'; "For example 'github://pharo-contributions/LDAP/src'"
+ 	repository: 'github://terpon/LDAP:pharo13/src';
+	load: 'Core'.
+```
+Replace `pharo13` with your Pharo image version. Check that the branch exists first. Not all versions might be supported.
+
+All packages including user interfaces and tests:
+```Smalltalk
+Metacello new
+ 	baseline: 'LDAP';
+ 	repository: 'github://terpon/LDAP:pharo13/src';
+	load: 'All'.
+```
+
+
+### Loading for Pharo 9
+Previous version can be loaded from the `main` branch. It was tested on Pharo 9 but might work on latest image versions.
+
+```Smalltalk
+Metacello new
+ 	baseline: 'LDAP';
+ 	repository: 'github://terpon/LDAP:main/src';
 	load.
 ```
-### Loading for Pharo 7 and older
+
+Note: code examples won’t work as many names have change. Refer to that branch documentation for correct syntax.
+
+### Loading for Pharo 7 and older
 Load the project using the configuration and the *commitish* corresponding to the legacy tag, branch or even SHA as the following:
 ```Smalltalk
 Metacello new
@@ -26,88 +48,47 @@ Metacello new
 	version: #stable;
 	load.
 ```
+
 At this point, no branch or tag exist, so use the most current SHA at that point: [LDAP legacy](https://github.com/pharo-contributions/LDAP/tree/d8f505b34dd2489eb29f61cf85512eb943b35e5a).
 See [How to load a git project](https://github.com/pharo-open-documentation/pharo-wiki/blob/master/General/Baselines.md#how-to-load-a-git-project-using-its-baseline) for more information.
 
-## Example Snippets
+## Code Example
 
-### Establish a connection to the LDAP server
+Here is a sample snippet of code to communicate with a LDAP server:
+
 ```Smalltalk
-| conn req |
-conn := (LDAPConnection to: 'ldap.domain.org' port: 389).
-req := conn bindAs: 'cn=admin,dc=domain,dc=org' credentials: 'password'.
-req wait.
-```
+| connection bind command add attrs search |
+connection := (LDAPConnection to: 'localhost' port: 389).
+bind := LDAPBindRequest new username: 'cn=admin,dc=example,dc=com'; password: 'secret'.
+command := connection request: bind.
+command wait.
 
-### Establish a connection to the LDAP server with SSL
-```Smalltalk
-| conn req |
-[ conn := (LDAPSConnection to: 'sldap123.someuri.org' port: 686 ssl: true).
-	req := conn bindAs: 'uid=myuid,ou=people,o=someuri,c=org' credentials: '123'.
-	req wait.
-	conn isValid ] on: Error do: [ 1 halt ]
-```
-
-
-### Create new entry
-```Smalltalk
 attrs := Dictionary new
-    at: 'objectClass' put: (OrderedCollection new add: 'inetOrgPerson'; yourself);
+    at: 'objectClass' put: { 'inetOrgPerson' };
     at: 'cn' put: 'Doe John';
     at: 'sn' put: 'Doe';
-    at: 'mail' put: 'john.doe@domain.org';
+    at: 'mail' put: 'john.doe@example.com';
     yourself.
+add := LDAPAddRequest new name: 'cn=Doe John,ou=people,dc=example,dc=com'; attributes: attrs.
+command := connection request: add.
+command wait.
 
-req := conn addEntry: 'jdoe' attrs: attrs.
-req wait.
+search := LDAPSearchRequest new 
+	base: 'ou=people,dc=example,dc=com'; 
+	scope: LDAPWholeSubtreeScope new;
+	filter: ((LDAPFilter with: 'cn' equalTo: 'Jos') not &
+			(LDAPFilter with: 'sn' equalTo: 'Doe')).
+command := connection request: search.
+command success "last response is just success result code" 
+	ifTrue: [ command responses allButLast inspect ]
+	ifFalse: [ command signalExceptions ].
+
+connection disconnect.
 ```
 
-### Change the value of an attribute
-```Smalltalk
-ops := { LDAPAttrModifier set: 'sn' to: { 'Doe' } }.
-req := conn modify: 'uid=jdoe,ou=people,dc=domain,dc=org' with: ops.
-req wait.
-```
+For more documentation see the [core package examples](./md/Core.md) and the [user interface description](./md/Spec.md).
 
-### Add an attribute
-```Smalltalk
-ops := { LDAPAttrModifier addTo: 'loginShell' values: { '/bin/bash' } }.
-req := conn modify: 'uid=jdoe,ou=people,dc=domain,dc=org' with: ops.
-req wait.
-```
+## History
 
-### Read all entries
-```Smalltalk
-req := conn 
-    newSearch: 'ou=people,dc=domain,dc=org' 
-    scope: (LDAPConnection wholeSubtree) 
-    deref: (LDAPConnection derefNever) 
-    filter: nil 
-    attrs: nil 
-    wantAttrsOnly: false.
-```
+Originally migrated from http://smalltalkhub.com/PharoExtras/LDAP/
 
-### Select entries with filters
-```Smalltalk
-req := conn
-    newSearch: 'ou=people,dc=domain,dc=org'
-    scope: LDAPConnection wholeSubtree
-    deref: LDAPConnection derefNever
-    filter: (LDAPFilter andOf: (OrderedCollection new 
-            add: (LDAPFilter with: 'sn' equalTo: 'Doe'); 
-            yourself))
-    attrs: {'sn'}
-    wantAttrsOnly: false.
-req wait.
-```
-
-### Delete an entry
-```Smalltalk
-req := connection delEntry: 'uid=doe,ou=people,dc=domain,dc=org'.
-req wait.
-```
-
-### Disconnect the client
-```Smalltalk
-conn disconnect
-```

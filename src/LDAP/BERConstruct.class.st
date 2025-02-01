@@ -1,66 +1,123 @@
 "
-A BERConstruct can be a BERSequence or a BERSet.
+I am a BER composite element. I can be either a BERSequence or a BERSet.
 "
 Class {
-	#name : #BERConstruct,
-	#superclass : #BERElement,
+	#name : 'BERConstruct',
+	#superclass : 'BERElement',
+	#traits : 'TIsEmpty',
+	#classTraits : 'TIsEmpty classTrait',
 	#instVars : [
 		'elements'
 	],
-	#category : #'LDAP-BER'
+	#category : 'LDAP-BER',
+	#package : 'LDAP',
+	#tag : 'BER'
 }
 
-{ #category : #'instance creation' }
-BERConstruct class >> new [
-	^ self basicNew initialize
+{ #category : 'adding' }
+BERConstruct >> addAll: aCollection [
+	elements addAllLast: aCollection.
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 BERConstruct >> addElement: anElement [
-	self addElement: anElement withTag: nil
+	elements addLast: anElement
 ]
 
-{ #category : #accessing }
-BERConstruct >> addElement: anElement withTag: aContextTag [
-	| taggedElement |
-	taggedElement := Association new;
-		key: aContextTag value: anElement.
-	elements addLast: taggedElement
+{ #category : 'converting' }
+BERConstruct >> asArray [
+	^ elements asArray
 ]
 
-{ #category : #encoding }
-BERConstruct >> decode: aStream [
+{ #category : 'converting' }
+BERConstruct >> asSet [
+	^ elements asSet
+]
+
+{ #category : 'enumerating' }
+BERConstruct >> collect: aBlock [
+
+	^ elements collect: aBlock 
+]
+
+{ #category : 'encoding' }
+BERConstruct >> decode: aStream length: aLength with: aDecoder [
 	| elementLen part |
-	
-	elementLen := self length.
+	self removeAll.
+	elementLen := aLength.
 	[elementLen > 0]
 		whileTrue: [
-			part := self class newFrom: aStream.
+			part := aDecoder readElementFrom: aStream in: self.
 			elementLen := elementLen - part totalLength.
-			self addElement: part ]
+			self addElement: part.
+		].
 ]
 
-{ #category : #accessing }
-BERConstruct >> elements [
-	^ elements
+{ #category : 'enumerating' }
+BERConstruct >> do: aBlock [
+
+	elements do: aBlock
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 BERConstruct >> initialize [
 	super initialize.
 	elements := OrderedCollection new
 ]
 
-{ #category : #writing }
+{ #category : 'testing' }
+BERConstruct >> isConstruct [ 
+
+	^ true
+]
+
+{ #category : 'testing' }
+BERConstruct >> isEmpty [
+	^ elements isEmpty
+]
+
+{ #category : 'accessing' }
+BERConstruct >> length [
+	^ elements inject: 0 into: [ :sum :each | sum + each totalLength ]
+]
+
+{ #category : 'printing' }
+BERConstruct >> printOn: aStream [
+	super printOn: aStream.
+	aStream space.
+	elements printElementsOn: aStream.
+]
+
+{ #category : 'removing' }
+BERConstruct >> removeAll [
+
+	elements removeAll
+]
+
+{ #category : 'accessing' }
+BERConstruct >> size [ 
+
+	^ elements size
+]
+
+{ #category : 'storing' }
+BERConstruct >> storeOn: aStream [
+
+ 	aStream
+ 		nextPut: $(;
+ 		nextPutAll: self className;
+ 		nextPutAll: ' new addAll: { '.
+		
+	elements do: [ :each | each storeOn: aStream ] 
+		separatedBy: [ aStream nextPutAll: '. ' ].
+
+ 	aStream
+ 		nextPutAll: ' }; yourself)'
+
+]
+
+{ #category : 'writing' }
 BERConstruct >> writeBodyOn: aStream [
-	| data dataStream |
-	data := Array new.
-	dataStream := WriteStream on: data.
-	
-	elements do: [:taggedElement |
-		taggedElement value writeOn: dataStream withTag: (taggedElement key) ].
-	
-	"shouldnt we move this somewhere else?"
-	self writeLength: (dataStream contents size) on: aStream.
-	aStream nextPutAll: (dataStream contents)
+	elements do: [ :element | element writeOn: aStream  ].
+
 ]

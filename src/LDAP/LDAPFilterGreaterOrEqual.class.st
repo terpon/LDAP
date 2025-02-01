@@ -1,14 +1,15 @@
 "
-Filter for greater or equal
+I will match any entry that contains at least one value for a specified attribute that is greater than or equal to a given value.
 "
 Class {
-	#name : #LDAPFilterGreaterOrEqual,
-	#superclass : #LDAPFilterWithValueAssertion,
-	#category : #'LDAP-Filters'
+	#name : 'LDAPFilterGreaterOrEqual',
+	#superclass : 'LDAPFilterWithValueAssertion',
+	#category : 'LDAP-Filters',
+	#package : 'LDAP',
+	#tag : 'Filters'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 LDAPFilterGreaterOrEqual class >> tagValue [
-	^ 5
-	
+	^ 16rA5 "Context 5"	
 ]

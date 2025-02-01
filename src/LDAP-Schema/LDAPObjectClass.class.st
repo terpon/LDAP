@@ -1,0 +1,218 @@
+"
+I represent an object class
+"
+Class {
+	#name : 'LDAPObjectClass',
+	#superclass : 'LDAPNamedObject',
+	#instVars : [
+		'must',
+		'may',
+		'kind',
+		'superiors',
+		'containment',
+		'naming',
+		'isLeaf'
+	],
+	#category : 'LDAP-Schema-Schema',
+	#package : 'LDAP-Schema',
+	#tag : 'Schema'
+}
+
+{ #category : 'converting' }
+LDAPObjectClass class >> attributesFrom: aCollection [
+"Returns two list of required and allowed attribures from the list of Object Classes"
+	| must may |
+	must := (aCollection collect: [ :class | class must ]) flattened asSet 
+		"remove objectClass"
+		reject: [ :t | t oid = '2.5.4.0' ].
+
+	may := (aCollection collect: [ :class | class may ]) flattened asSet
+		removeAllFoundIn: must; yourself.
+
+	^ { must . may }
+]
+
+{ #category : 'default values' }
+LDAPObjectClass class >> defaultObjects [
+"This is a part of the response from a standard intallation of OpenLDAP server"
+	^ #( '( 2.5.6.0 NAME ''top'' DESC ''top of the superclass chain'' ABSTRACT MUST objectClass )'
+	     '( 1.3.6.1.4.1.1466.101.120.111 NAME ''extensibleObject'' DESC ''RFC4512: extensible object'' SUP top AUXILIARY )'
+	     '( 2.5.6.1 NAME ''alias'' DESC ''RFC4512: an alias'' SUP top STRUCTURAL MUST aliasedObjectName )'
+	     '( 2.16.840.1.113730.3.2.6 NAME ''referral'' DESC ''namedref: named subordinate referral'' SUP top STRUCTURAL MUST ref )'
+	     '( 1.3.6.1.4.1.1466.101.119.2 NAME ''dynamicObject'' DESC ''RFC2589: Dynamic Object'' SUP top AUXILIARY )'
+	     '( 2.5.17.0 NAME ''subentry'' DESC ''RFC3672: subentry'' SUP top STRUCTURAL MUST ( cn $ subtreeSpecification ) )'
+	     '( 2.5.20.1 NAME ''subschema'' DESC ''RFC4512: controlling subschema (sub)entry'' AUXILIARY MAY ( dITStructureRules $ nameForms $ dITContentRules $ objectClasses $ attributeTypes $ matchingRules $ matchingRuleUse ) )'
+	     '( 2.5.6.2 NAME ''country'' DESC ''RFC2256: a country'' SUP top STRUCTURAL MUST c MAY ( searchGuide $ description ) )'
+	     '( 2.5.6.3 NAME ''locality'' DESC ''RFC2256: a locality'' SUP top STRUCTURAL MAY ( street $ seeAlso $ searchGuide $ st $ l $ description ) )'
+	     '( 2.5.6.4 NAME ''organization'' DESC ''RFC2256: an organization'' SUP top STRUCTURAL MUST o MAY ( userPassword $ searchGuide $ seeAlso $ businessCategory $ x121Address $ registeredAddress $ destinationIndicator $ preferredDeliveryMethod $ telexNumber $ teletexTerminalIdentifier $ telephoneNumber $ internationaliSDNNumber $ facsimileTelephoneNumber $ street $ postOfficeBox $ postalCode $ postalAddress $ physicalDeliveryOfficeName $ st $ l $ description ) )'
+	     '( 2.5.6.5 NAME ''organizationalUnit'' DESC ''RFC2256: an organizational unit'' SUP top STRUCTURAL MUST ou MAY ( userPassword $ searchGuide $ seeAlso $ businessCategory $ x121Address $ registeredAddress $ destinationIndicator $ preferredDeliveryMethod $ telexNumber $ teletexTerminalIdentifier $ telephoneNumber $ internationaliSDNNumber $ facsimileTelephoneNumber $ street $ postOfficeBox $ postalCode $ postalAddress $ physicalDeliveryOfficeName $ st $ l $ description ) )'
+	     '( 2.5.6.6 NAME ''person'' DESC ''RFC2256: a person'' SUP top STRUCTURAL MUST ( sn $ cn ) MAY ( userPassword $ telephoneNumber $ seeAlso $ description ) )'
+	     '( 2.5.6.7 NAME ''organizationalPerson'' DESC ''RFC2256: an organizational person'' SUP person STRUCTURAL MAY ( title $ x121Address $ registeredAddress $ destinationIndicator $ preferredDeliveryMethod $ telexNumber $ teletexTerminalIdentifier $ telephoneNumber $ internationaliSDNNumber $ facsimileTelephoneNumber $ street $ postOfficeBox $ postalCode $ postalAddress $ physicalDeliveryOfficeName $ ou $ st $ l ) )'
+	     '( 2.5.6.8 NAME ''organizationalRole'' DESC ''RFC2256: an organizational role'' SUP top STRUCTURAL MUST cn MAY ( x121Address $ registeredAddress $ destinationIndicator $ preferredDeliveryMethod $ telexNumber $ teletexTerminalIdentifier $ telephoneNumber $ internationaliSDNNumber $ facsimileTelephoneNumber $ seeAlso $ roleOccupant $ preferredDeliveryMethod $ street $ postOfficeBox $ postalCode $ postalAddress $ physicalDeliveryOfficeName $ ou $ st $ l $ description ) )'
+	     '( 2.5.6.9 NAME ''groupOfNames'' DESC ''RFC2256: a group of names (DNs)'' SUP top STRUCTURAL MUST ( member $ cn ) MAY ( businessCategory $ seeAlso $ owner $ ou $ o $ description ) )'
+	     '( 2.5.6.10 NAME ''residentialPerson'' DESC ''RFC2256: an residential person'' SUP person STRUCTURAL MUST l MAY ( businessCategory $ x121Address $ registeredAddress $ destinationIndicator $ preferredDeliveryMethod $ telexNumber $ teletexTerminalIdentifier $ telephoneNumber $ internationaliSDNNumber $ facsimileTelephoneNumber $ preferredDeliveryMethod $ street $ postOfficeBox $ postalCode $ postalAddress $ physicalDeliveryOfficeName $ st $ l ) )'
+	     '( 2.5.6.11 NAME ''applicationProcess'' DESC ''RFC2256: an application process'' SUP top STRUCTURAL MUST cn MAY ( seeAlso $ ou $ l $ description ) )'
+	     '( 2.5.6.12 NAME ''applicationEntity'' DESC ''RFC2256: an application entity'' SUP top STRUCTURAL MUST ( presentationAddress $ cn ) MAY ( supportedApplicationContext $ seeAlso $ ou $ o $ l $ description ) )'
+	     '( 2.5.6.13 NAME ''dSA'' DESC ''RFC2256: a directory system agent (a server)'' SUP applicationEntity STRUCTURAL MAY knowledgeInformation )'
+	     '( 2.5.6.14 NAME ''device'' DESC ''RFC2256: a device'' SUP top STRUCTURAL MUST cn MAY ( serialNumber $ seeAlso $ owner $ ou $ o $ l $ description ) )'
+	     '( 2.5.6.15 NAME ''strongAuthenticationUser'' DESC ''RFC2256: a strong authentication user'' SUP top AUXILIARY MUST userCertificate )'
+	     '( 2.5.6.16 NAME ''certificationAuthority'' DESC ''RFC2256: a certificate authority'' SUP top AUXILIARY MUST ( authorityRevocationList $ certificateRevocationList $ cACertificate ) MAY crossCertificatePair )'
+	     '( 2.5.6.17 NAME ''groupOfUniqueNames'' DESC ''RFC2256: a group of unique names (DN and Unique Identifier)'' SUP top STRUCTURAL MUST ( uniqueMember $ cn ) MAY ( businessCategory $ seeAlso $ owner $ ou $ o $ description ) )'
+	     '( 2.5.6.18 NAME ''userSecurityInformation'' DESC ''RFC2256: a user security information'' SUP top AUXILIARY MAY supportedAlgorithms )'
+	     '( 2.5.6.16.2 NAME ''certificationAuthority-V2'' SUP certificationAuthority AUXILIARY MAY deltaRevocationList )'
+	     '( 2.5.6.19 NAME ''cRLDistributionPoint'' SUP top STRUCTURAL MUST cn MAY ( certificateRevocationList $ authorityRevocationList $ deltaRevocationList ) )'
+	     '( 2.5.6.20 NAME ''dmd'' SUP top STRUCTURAL MUST dmdName MAY ( userPassword $ searchGuide $ seeAlso $ businessCategory $ x121Address $ registeredAddress $ destinationIndicator $ preferredDeliveryMethod $ telexNumber $ teletexTerminalIdentifier $ telephoneNumber $ internationaliSDNNumber $ facsimileTelephoneNumber $ street $ postOfficeBox $ postalCode $ postalAddress $ physicalDeliveryOfficeName $ st $ l $ description ) )'
+	     '( 2.5.6.21 NAME ''pkiUser'' DESC ''RFC2587: a PKI user'' SUP top AUXILIARY MAY userCertificate )'
+	     '( 2.5.6.22 NAME ''pkiCA'' DESC ''RFC2587: PKI certificate authority'' SUP top AUXILIARY MAY ( authorityRevocationList $ certificateRevocationList $ cACertificate $ crossCertificatePair ) )'
+	     '( 2.5.6.23 NAME ''deltaCRL'' DESC ''RFC4523: X.509 delta CRL'' SUP top AUXILIARY MAY deltaRevocationList )'
+	     '( 1.3.6.1.4.1.250.3.15 NAME ''labeledURIObject'' DESC ''RFC2079: object that contains the URI attribute type'' SUP top AUXILIARY MAY labeledURI )'
+	     '( 0.9.2342.19200300.100.4.19 NAME ''simpleSecurityObject'' DESC ''RFC1274: simple security object'' SUP top AUXILIARY MUST userPassword )'
+	     '( 1.3.6.1.4.1.1466.344 NAME ''dcObject'' DESC ''RFC2247: domain component object'' SUP top AUXILIARY MUST dc )'
+	     '( 1.3.6.1.1.3.1 NAME ''uidObject'' DESC ''RFC2377: uid object'' SUP top AUXILIARY MUST uid )'
+	     '( 0.9.2342.19200300.100.4.4 NAME ( ''pilotPerson'' ''newPilotPerson'' ) SUP person STRUCTURAL MAY ( userid $ textEncodedORAddress $ rfc822Mailbox $ favouriteDrink $ roomNumber $ userClass $ homeTelephoneNumber $ homePostalAddress $ secretary $ personalTitle $ preferredDeliveryMethod $ businessCategory $ janetMailbox $ otherMailbox $ mobileTelephoneNumber $ pagerTelephoneNumber $ organizationalStatus $ mailPreferenceOption $ personalSignature ) )'
+	     '( 0.9.2342.19200300.100.4.5 NAME ''account'' SUP top STRUCTURAL MUST userid MAY ( description $ seeAlso $ localityName $ organizationName $ organizationalUnitName $ host ) )'
+	     '( 0.9.2342.19200300.100.4.6 NAME ''document'' SUP top STRUCTURAL MUST documentIdentifier MAY ( commonName $ description $ seeAlso $ localityName $ organizationName $ organizationalUnitName $ documentTitle $ documentVersion $ documentAuthor $ documentLocation $ documentPublisher ) )'
+	     '( 0.9.2342.19200300.100.4.7 NAME ''room'' SUP top STRUCTURAL MUST commonName MAY ( roomNumber $ description $ seeAlso $ telephoneNumber ) )'
+	     '( 0.9.2342.19200300.100.4.9 NAME ''documentSeries'' SUP top STRUCTURAL MUST commonName MAY ( description $ seeAlso $ telephonenumber $ localityName $ organizationName $ organizationalUnitName ) )'
+	     '( 0.9.2342.19200300.100.4.13 NAME ''domain'' SUP top STRUCTURAL MUST domainComponent MAY ( associatedName $ organizationName $ description $ businessCategory $ seeAlso $ searchGuide $ userPassword $ localityName $ stateOrProvinceName $ streetAddress $ physicalDeliveryOfficeName $ postalAddress $ postalCode $ postOfficeBox $ streetAddress $ facsimileTelephoneNumber $ internationalISDNNumber $ telephoneNumber $ teletexTerminalIdentifier $ telexNumber $ preferredDeliveryMethod $ destinationIndicator $ registeredAddress $ x121Address ) )'
+	     '( 0.9.2342.19200300.100.4.14 NAME ''RFC822localPart'' SUP domain STRUCTURAL MAY ( commonName $ surname $ description $ seeAlso $ telephoneNumber $ physicalDeliveryOfficeName $ postalAddress $ postalCode $ postOfficeBox $ streetAddress $ facsimileTelephoneNumber $ internationalISDNNumber $ telephoneNumber $ teletexTerminalIdentifier $ telexNumber $ preferredDeliveryMethod $ destinationIndicator $ registeredAddress $ x121Address ) )'
+	     '( 0.9.2342.19200300.100.4.15 NAME ''dNSDomain'' SUP domain STRUCTURAL MAY ( ARecord $ MDRecord $ MXRecord $ NSRecord $ SOARecord $ CNAMERecord ) )'
+	     '( 0.9.2342.19200300.100.4.17 NAME ''domainRelatedObject'' DESC ''RFC1274: an object related to an domain'' SUP top AUXILIARY MUST associatedDomain )'
+	     '( 0.9.2342.19200300.100.4.18 NAME ''friendlyCountry'' SUP country STRUCTURAL MUST friendlyCountryName )'
+	     '( 0.9.2342.19200300.100.4.20 NAME ''pilotOrganization'' SUP ( organization $ organizationalUnit ) STRUCTURAL MAY buildingName )'
+	     '( 0.9.2342.19200300.100.4.21 NAME ''pilotDSA'' SUP dsa STRUCTURAL MAY dSAQuality )'
+	     '( 0.9.2342.19200300.100.4.22 NAME ''qualityLabelledData'' SUP top AUXILIARY MUST dsaQuality MAY ( subtreeMinimumQuality $ subtreeMaximumQuality ) )'
+	     '( 1.3.6.1.1.1.2.0 NAME ''posixAccount'' DESC ''Abstraction of an account with POSIX attributes'' SUP top AUXILIARY MUST ( cn $ uid $ uidNumber $ gidNumber $ homeDirectory ) MAY ( userPassword $ loginShell $ gecos $ description ) )'
+	     '( 1.3.6.1.1.1.2.1 NAME ''shadowAccount'' DESC ''Additional attributes for shadow passwords'' SUP top AUXILIARY MUST uid MAY ( userPassword $ shadowLastChange $ shadowMin $ shadowMax $ shadowWarning $ shadowInactive $ shadowExpire $ shadowFlag $ description ) )'
+	     '( 1.3.6.1.1.1.2.2 NAME ''posixGroup'' DESC ''Abstraction of a group of accounts'' SUP top STRUCTURAL MUST ( cn $ gidNumber ) MAY ( userPassword $ memberUid $ description ) )'
+	     '( 1.3.6.1.1.1.2.3 NAME ''ipService'' DESC ''Abstraction an Internet Protocol service'' SUP top STRUCTURAL MUST ( cn $ ipServicePort $ ipServiceProtocol ) MAY description )'
+	     '( 1.3.6.1.1.1.2.4 NAME ''ipProtocol'' DESC ''Abstraction of an IP protocol'' SUP top STRUCTURAL MUST ( cn $ ipProtocolNumber $ description ) MAY description )'
+	     '( 1.3.6.1.1.1.2.5 NAME ''oncRpc'' DESC ''Abstraction of an ONC/RPC binding'' SUP top STRUCTURAL MUST ( cn $ oncRpcNumber $ description ) MAY description )'
+	     '( 1.3.6.1.1.1.2.6 NAME ''ipHost'' DESC ''Abstraction of a host, an IP device'' SUP top AUXILIARY MUST ( cn $ ipHostNumber ) MAY ( l $ description $ manager ) )'
+	     '( 1.3.6.1.1.1.2.7 NAME ''ipNetwork'' DESC ''Abstraction of an IP network'' SUP top STRUCTURAL MUST ( cn $ ipNetworkNumber ) MAY ( ipNetmaskNumber $ l $ description $ manager ) )'
+	     '( 1.3.6.1.1.1.2.8 NAME ''nisNetgroup'' DESC ''Abstraction of a netgroup'' SUP top STRUCTURAL MUST cn MAY ( nisNetgroupTriple $ memberNisNetgroup $ description ) )'
+	     '( 1.3.6.1.1.1.2.9 NAME ''nisMap'' DESC ''A generic abstraction of a NIS map'' SUP top STRUCTURAL MUST nisMapName MAY description )'
+	     '( 1.3.6.1.1.1.2.10 NAME ''nisObject'' DESC ''An entry in a NIS map'' SUP top STRUCTURAL MUST ( cn $ nisMapEntry $ nisMapName ) MAY description )'
+	     '( 1.3.6.1.1.1.2.11 NAME ''ieee802Device'' DESC ''A device with a MAC address'' SUP top AUXILIARY MAY macAddress )'
+	     '( 1.3.6.1.1.1.2.12 NAME ''bootableDevice'' DESC ''A device with boot parameters'' SUP top AUXILIARY MAY ( bootFile $ bootParameter ) )'
+	     '( 2.16.840.1.113730.3.2.2 NAME ''inetOrgPerson'' DESC ''RFC2798: Internet Organizational Person'' SUP organizationalPerson STRUCTURAL MAY ( audio $ businessCategory $ carLicense $ departmentNumber $ displayName $ employeeNumber $ employeeType $ givenName $ homePhone $ homePostalAddress $ initials $ jpegPhoto $ labeledURI $ mail $ manager $ mobile $ o $ pager $ photo $ roomNumber $ secretary $ uid $ userCertificate $ x500uniqueIdentifier $ preferredLanguage $ userSMIMECertificate $ userPKCS12 ) )' )
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> containment [
+
+	^ containment ifNil: [ #() ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> containment: anObject [
+
+	containment := anObject
+]
+
+{ #category : 'accessing - extension' }
+LDAPObjectClass >> extensions: aDictionary [
+
+	self checkSupport: #( 'X-NDS_NAMING' 'X-NDS_NOT_CONTAINER' 'X-NDS_CONTAINMENT' ) in: aDictionary.
+
+	aDictionary at: 'X-NDS_NOT_CONTAINER' ifPresent: [ isLeaf := true ].
+	naming := aDictionary at: 'X-NDS_NAMING' ifAbsent: [ nil ].
+	containment := aDictionary at: 'X-NDS_CONTAINMENT' ifAbsent: [ nil ].
+
+]
+
+{ #category : 'testing' }
+LDAPObjectClass >> hasAllowedAttribute: aString [
+
+	^ self may anySatisfy: [ :attr | attr sameAs: aString ]
+]
+
+{ #category : 'testing' }
+LDAPObjectClass >> hasAttribute: aString [
+
+	^ (self hasRequiredAttribute: aString) or: [ self hasAllowedAttribute: aString ] 
+]
+
+{ #category : 'testing' }
+LDAPObjectClass >> hasRequiredAttribute: aString [
+
+	^ self must anySatisfy: [ :attr | attr sameAs: aString ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> isLeaf [
+
+	^ isLeaf ifNil: [ false ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> isLeaf: aBoolean [
+
+	isLeaf := aBoolean
+]
+
+{ #category : 'testing' }
+LDAPObjectClass >> isStructural [
+
+	^ self kind = #structural
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> kind [
+
+	^ kind ifNil: [ #structural ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> kind: anObject [
+
+	kind := anObject
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> may [
+
+	^ may ifNil: [ #() ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> may: anObject [
+
+	may := anObject
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> must [
+
+	^ must ifNil: [ #() ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> must: anObject [
+
+	must := anObject
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> naming [
+
+	^ naming ifNil: [ #() ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> naming: anObject [
+
+	naming := anObject
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> superiors [
+
+	^ superiors 	ifNil: [ #() ]
+]
+
+{ #category : 'accessing' }
+LDAPObjectClass >> superiors: anObject [
+
+	superiors := anObject
+]

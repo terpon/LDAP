@@ -1,19 +1,17 @@
 "
-LDAPUnbindRequest is the process to disconnect the client of the LDAP directory.
+I am the request sent before disconnecting the client of the LDAP server.
+
+Contrary to its name, the unbind operation is not the symmetrical of the bind operation. After I am sent to the server, no other operation is expected on the connection.
 "
 Class {
-	#name : #LDAPUnbindRequest,
-	#superclass : #LDAPRequest,
-	#category : #'LDAP-Core'
+	#name : 'LDAPUnbindRequest',
+	#superclass : 'BERNull',
+	#category : 'LDAP-Connection',
+	#package : 'LDAP',
+	#tag : 'Connection'
 }
 
-{ #category : #initialization }
-LDAPUnbindRequest >> initializeWith: anLDAPWorker [ 
-	| encoded |
-	worker := anLDAPWorker.
-	messageId := worker nextMessageId.
-	encoded := LDAPEncoder unbindRequest: messageId.
-	"Transcript show: encoded asHex; cr."
-	worker send: encoded.
-
+{ #category : 'accessing' }
+LDAPUnbindRequest class >> tagValue [
+	^ 16r42 "Application 2"
 ]
