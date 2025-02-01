@@ -99,7 +99,7 @@ LDAPEntryToolbarPresenter >> deleteAction [
 	delete isEnabled ifFalse: [ ^self ].
 
 	aDN := entry name.
-	^ SpConfirmDialog new
+	^ application newConfirm
 		  title: 'Confirm delete entry';
 		  label: (Text fromString: 'About to delete '), (application formattedTextFor: aDN);
 		  acceptLabel: 'Delete';

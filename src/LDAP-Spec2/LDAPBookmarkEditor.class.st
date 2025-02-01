@@ -111,7 +111,7 @@ LDAPBookmarkEditor >> deleteCurrent [
 		out nextPutAll: 'About to delete ';
 			nextPutAll: association key.
 	].
-	^ SpConfirmDialog new
+	^ application newConfirm
 		  title: 'Confirm Entry Deletion';
 		  label: label;
 		  acceptLabel: 'Delete';
@@ -224,7 +224,8 @@ LDAPBookmarkEditor >> open: aClass [
 	aServer hostname ifEmpty: [ ^self inform: 'No hostname defined' ].
 	aServer password ifNotEmpty: [ ^application open: aClass on: aServer ].
 
-	^ SpRequestDialog new bePassword;
+	^ application newRequest
+		bePassword;
 		title: 'Enter Password for';
 		label: aServer asZnUrl printString;
 		text: aServer password;
@@ -244,7 +245,7 @@ LDAPBookmarkEditor >> renameCurrent [
 		out nextPutAll: 'Rename ';
 			nextPutAll: association key.
 	].
-	^ SpRequestDialog new
+	^ application newRequest
 		  title: 'Rename bookmark';
 		  label: label;
 		  acceptLabel: 'Rename';

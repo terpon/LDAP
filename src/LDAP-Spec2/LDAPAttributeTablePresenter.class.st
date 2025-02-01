@@ -258,7 +258,7 @@ LDAPAttributeTablePresenter >> numberOfLines [
 { #category : 'events' }
 LDAPAttributeTablePresenter >> promptCustomAttribute [
 
-	SpRequestDialog new
+	^ application newRequest
 		title: 'Add Custom Attribute';
 		label: 'Enter the name of the new attribute';
 		text: self customAttributeType;
