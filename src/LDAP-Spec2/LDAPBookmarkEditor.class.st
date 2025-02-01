@@ -217,7 +217,7 @@ LDAPBookmarkEditor >> open: aClass [
 	aServer hostname ifEmpty: [ ^self inform: 'No hostname defined' ].
 	aServer password ifNotEmpty: [ ^application open: aClass on: aServer ].
 
-	^ SpRequestDialog new "bePassword;"
+	^ SpRequestDialog new bePassword;
 		title: 'Enter Password for';
 		label: aServer asZnUrl printString;
 		text: aServer password;
